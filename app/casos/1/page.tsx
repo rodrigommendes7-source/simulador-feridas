@@ -481,180 +481,179 @@ export default function CasoUmPage() {
       justificacaoPerda: [],
     };
 
-    if (tratamentosSelecionados.includes("hidrofibra")) {
-      tratamento.pontuacao += 10;
-      tratamento.acertou.push(
-        "Selecionaste hidrofibra para controlo do exsudado."
-      );
-    } else {
-      tratamento.faltou.push(
-        "Faltou considerar um material absorvente dirigido ao exsudado, como a hidrofibra."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por não selecionares um material principal de controlo do exsudado."
-      );
-    }
+   if (
+  tratamentosSelecionados.includes("hidrofibra") ||
+  tratamentosSelecionados.includes("carboximetilcelulose")
+) {
+  tratamento.pontuacao += 10;
+  tratamento.acertou.push(
+    "Selecionaste um material adequado para controlo do exsudado."
+  );
+} else {
+  tratamento.faltou.push(
+    "Faltou considerar um material absorvente dirigido ao exsudado, como hidrofibra ou carboximetilcelulose."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por não selecionares um material principal para controlo do exsudado."
+  );
+}
 
-    if (tratamentosSelecionados.includes("carboximetilcelulose")) {
-      tratamento.pontuacao += 7;
-      tratamento.acertou.push(
-        "Selecionaste carboximetilcelulose para gestão do exsudado."
-      );
-    } else {
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por não considerares carboximetilcelulose como alternativa absorvente."
-      );
-    }
+if (tratamentosSelecionados.includes("hidrofibra")) {
+  tratamento.acertou.push(
+    "A hidrofibra é adequada para gestão de exsudado neste caso."
+  );
+}
 
-    if (tratamentosSelecionados.includes("emolientes_ags")) {
-      tratamento.pontuacao += 4;
-      tratamento.acertou.push(
-        "Consideraste proteção da pele perilesional com emolientes / AGE."
-      );
-    } else {
-      tratamento.faltou.push(
-        "Faltou considerar proteção da pele perilesional."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por não protegeres a pele perilesional."
-      );
-    }
+if (tratamentosSelecionados.includes("carboximetilcelulose")) {
+  tratamento.acertou.push(
+    "A carboximetilcelulose é adequada para gestão de exsudado neste caso."
+  );
+}
 
-    if (tratamentosSelecionados.includes("hidrogel")) {
-      tratamento.pontuacao += 2;
-      tratamento.acertou.push(
-        "O hidrogel pode ser útil em alguns contextos, mas não é a prioridade principal aqui."
-      );
-      tratamento.justificacaoPerda.push(
-        "Não tiveste pontuação máxima nesta componente porque o hidrogel é apenas uma opção secundária neste caso."
-      );
-    }
+if (tratamentosSelecionados.includes("emolientes_ags")) {
+  tratamento.pontuacao += 4;
+  tratamento.acertou.push(
+    "Consideraste proteção da pele perilesional com emolientes / AGE."
+  );
+} else {
+  tratamento.faltou.push(
+    "Faltou considerar proteção da pele perilesional."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por não protegeres a pele perilesional."
+  );
+}
 
-    if (tratamentosSelecionados.includes("colagenase")) {
-      tratamento.pontuacao += 1;
-      tratamento.acertou.push(
-        "A colagenase pode ter utilidade se houver necessidade clara de desbridamento, mas não é a prioridade principal neste caso."
-      );
-      tratamento.justificacaoPerda.push(
-        "A colagenase foi valorizada apenas parcialmente porque o desbridamento enzimático não é o foco principal aqui."
-      );
-    }
+if (tratamentosSelecionados.includes("hidrogel")) {
+  tratamento.pontuacao += 1;
+  tratamento.acertou.push(
+    "O hidrogel pode ter utilidade pontual, mas não é a prioridade principal aqui."
+  );
+  tratamento.justificacaoPerda.push(
+    "O hidrogel foi valorizado apenas parcialmente porque não é a escolha principal neste caso."
+  );
+}
 
-    if (tratamentosSelecionados.includes("prata")) {
-      tratamento.pontuacao += 1;
-      tratamento.acertou.push(
-        "A prata pode ter lugar em contexto infecioso, mas não é a escolha principal neste cenário."
-      );
-      tratamento.justificacaoPerda.push(
-        "A prata recebeu apenas pontuação parcial porque não há evidência forte de infeção como problema dominante."
-      );
-    }
+if (tratamentosSelecionados.includes("colagenase")) {
+  tratamento.pontuacao += 1;
+  tratamento.acertou.push(
+    "A colagenase pode ter utilidade se houver necessidade clara de desbridamento, mas não é a prioridade principal neste caso."
+  );
+  tratamento.justificacaoPerda.push(
+    "A colagenase foi valorizada apenas parcialmente porque o desbridamento enzimático não é o foco principal aqui."
+  );
+}
 
-    if (tratamentosSelecionados.includes("iodo")) {
-      tratamento.pontuacao += 1;
-      tratamento.acertou.push(
-        "O iodo pode ter utilidade pontual, mas não é a prioridade terapêutica principal aqui."
-      );
-      tratamento.justificacaoPerda.push(
-        "O iodo recebeu apenas pontuação parcial porque não responde ao objetivo terapêutico central deste caso."
-      );
-    }
+if (tratamentosSelecionados.includes("prata")) {
+  tratamento.pontuacao += 1;
+  tratamento.acertou.push(
+    "A prata pode ter lugar em contexto infecioso, mas não é a escolha principal neste cenário."
+  );
+  tratamento.justificacaoPerda.push(
+    "A prata recebeu apenas pontuação parcial porque não há evidência forte de infeção como problema dominante."
+  );
+}
 
-    if (tratamentosSelecionados.includes("mel")) {
-      tratamento.pontuacao += 1;
-      tratamento.acertou.push(
-        "O mel tem potencial bioativo, embora não seja a escolha principal neste caso."
-      );
-      tratamento.justificacaoPerda.push(
-        "O mel recebeu apenas pontuação parcial porque não é a escolha prioritária para o problema dominante."
-      );
-    }
+if (tratamentosSelecionados.includes("iodo")) {
+  tratamento.pontuacao += 1;
+  tratamento.acertou.push(
+    "O iodo pode ter utilidade pontual, mas não é a prioridade terapêutica principal aqui."
+  );
+  tratamento.justificacaoPerda.push(
+    "O iodo recebeu apenas pontuação parcial porque não responde ao objetivo terapêutico central deste caso."
+  );
+}
 
-    if (tratamentosSelecionados.includes("betametasona")) {
-      tratamento.errou.push(
-        "A betametasona não é uma escolha adequada como foco principal neste caso."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por selecionares betametasona sem indicação principal neste contexto."
-      );
-      tratamento.pontuacao -= 4;
-    }
+if (tratamentosSelecionados.includes("mel")) {
+  tratamento.pontuacao += 1;
+  tratamento.acertou.push(
+    "O mel tem potencial bioativo, embora não seja a escolha principal neste caso."
+  );
+  tratamento.justificacaoPerda.push(
+    "O mel recebeu apenas pontuação parcial porque não é a escolha prioritária para o problema dominante."
+  );
+}
 
-    if (tratamentosSelecionados.includes("nitrato_prata")) {
-      tratamento.errou.push(
-        "O nitrato de prata não responde ao principal problema clínico deste caso."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por selecionares nitrato de prata para um caso em que a hipergranulação não é o foco."
-      );
-      tratamento.pontuacao -= 4;
-    }
+if (tratamentosSelecionados.includes("betametasona")) {
+  tratamento.errou.push(
+    "A betametasona não é uma escolha adequada como foco principal neste caso."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por selecionares betametasona sem indicação principal neste contexto."
+  );
+  tratamento.pontuacao -= 4;
+}
 
-    if (tratamentosSelecionados.includes("alcool")) {
-      tratamento.errou.push(
-        "A aplicação de álcool na ferida é desadequada e citotóxica."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por escolheres álcool, que é prejudicial ao leito da ferida."
-      );
-      tratamento.pontuacao -= 12;
-    }
+if (tratamentosSelecionados.includes("nitrato_prata")) {
+  tratamento.errou.push(
+    "O nitrato de prata não responde ao principal problema clínico deste caso."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por selecionares nitrato de prata para um caso em que a hipergranulação não é o foco."
+  );
+  tratamento.pontuacao -= 4;
+}
 
-    if (tratamentosSelecionados.includes("gaze_seca")) {
-      tratamento.errou.push(
-        "A gaze seca pode aderir ao leito e traumatizar tecido viável."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por escolheres gaze seca, que pode traumatizar a ferida."
-      );
-      tratamento.pontuacao -= 10;
-    }
+if (tratamentosSelecionados.includes("alcool")) {
+  tratamento.errou.push(
+    "A aplicação de álcool na ferida é desadequada e citotóxica."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por escolheres álcool, que é prejudicial ao leito da ferida."
+  );
+  tratamento.pontuacao -= 12;
+}
 
-    if (
-      tratamentosSelecionados.includes("hidrofibra") &&
-      tratamentosSelecionados.includes("carboximetilcelulose")
-    ) {
-      tratamento.excesso.push(
-        "Hidrofibra e carboximetilcelulose podem sobrepor função; revê se precisas mesmo de ambas."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste parte da pontuação por sobreposição funcional entre materiais absorventes."
-      );
-      tratamento.pontuacao -= 2;
-    }
+if (tratamentosSelecionados.includes("gaze_seca")) {
+  tratamento.errou.push(
+    "A gaze seca pode aderir ao leito e traumatizar tecido viável."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por escolheres gaze seca, que pode traumatizar a ferida."
+  );
+  tratamento.pontuacao -= 10;
+}
 
-    if (tratamentosSelecionados.length === 0) {
-      tratamento.faltou.push("Não selecionaste qualquer material de tratamento.");
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por não selecionares materiais de tratamento."
-      );
-      tratamento.pontuacao -= 10;
-    }
+if (
+  tratamentosSelecionados.includes("hidrofibra") &&
+  tratamentosSelecionados.includes("carboximetilcelulose")
+) {
+  tratamento.excesso.push(
+    "Selecionaste dois materiais com função semelhante no controlo do exsudado; geralmente bastaria um deles."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por sobreposição funcional entre dois materiais de gestão de exsudado."
+  );
+  tratamento.pontuacao -= 2;
+}
 
-    if (tratamentosSelecionados.length >= 4) {
-      tratamento.excesso.push(
-        "Selecionaste materiais em excesso; o penso deve ser mais dirigido."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste pontuação por excesso de materiais e falta de foco terapêutico."
-      );
-      tratamento.pontuacao -= 6;
-    }
+if (tratamentosSelecionados.length === 0) {
+  tratamento.faltou.push("Não selecionaste qualquer material de tratamento.");
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por não selecionares materiais de tratamento."
+  );
+  tratamento.pontuacao -= 10;
+}
 
-    if (tratamentosSelecionados.length >= 5) {
-      tratamento.excesso.push(
-        "A seleção ficou demasiado cumulativa e pouco focada no objetivo principal."
-      );
-      tratamento.justificacaoPerda.push(
-        "Perdeste ainda mais pontuação porque a seleção ficou demasiado ampla e pouco criteriosa."
-      );
-      tratamento.pontuacao -= 4;
-    }
+if (tratamentosSelecionados.length >= 4) {
+  tratamento.excesso.push(
+    "Selecionaste materiais em excesso; o penso deve ser mais dirigido."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por excesso de materiais e falta de foco terapêutico."
+  );
+  tratamento.pontuacao -= 6;
+}
 
-    if (tratamento.pontuacao < 0) tratamento.pontuacao = 0;
-    if (tratamento.pontuacao > tratamento.maximo)
-      tratamento.pontuacao = tratamento.maximo;
-
+if (tratamentosSelecionados.length >= 5) {
+  tratamento.excesso.push(
+    "A seleção ficou demasiado cumulativa e pouco focada no objetivo principal."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste ainda mais pontuação porque a seleção ficou demasiado ampla e pouco criteriosa."
+  );
+  tratamento.pontuacao -= 4;
+}
     secoes.push(tratamento);
 
     const aplicacao: AvaliacaoSecao = {
@@ -727,6 +726,25 @@ export default function CasoUmPage() {
         "Perdeste pontuação por excesso de opções de aplicação."
       );
       aplicacao.pontuacao -= 3;
+    }
+
+    const aplicacoesErradasSelecionadas =
+      aplicacoesSelecionadas.includes("direto_seco") ||
+      aplicacoesSelecionadas.includes("compressao_forte");
+
+    if (
+      aplicacoesSelecionadas.includes("apos_limpeza") &&
+      aplicacoesSelecionadas.includes("com_protecao_perilesional") &&
+      !aplicacoesErradasSelecionadas
+    ) {
+      aplicacao.pontuacao += 3;
+      aplicacao.acertou.push(
+        "Mantiveste uma aplicação global coerente, sem opções desadequadas."
+      );
+    } else if (aplicacao.pontuacao < aplicacao.maximo) {
+      aplicacao.justificacaoPerda.push(
+        "Não atingiste a pontuação máxima porque faltou uma aplicação totalmente coerente e sem opções desadequadas."
+      );
     }
 
     if (aplicacao.pontuacao < 0) aplicacao.pontuacao = 0;
@@ -1087,13 +1105,6 @@ export default function CasoUmPage() {
                   <div className="min-h-0 flex-1 overflow-auto rounded-[22px] bg-[#111827] p-3">
                     {abaAtiva === "observacao" && (
                       <div className="space-y-3">
-                        <button
-                          onClick={() => setObservacaoImagemVista(true)}
-                          className={botaoAcao}
-                        >
-                          Ver imagem da ferida
-                        </button>
-
                         <button
                           onClick={() => setObservacaoDimensoesVista(true)}
                           className={botaoAcao}

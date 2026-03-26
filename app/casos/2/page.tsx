@@ -42,6 +42,7 @@ type AvaliacaoSecao = {
   errou: string[];
   faltou: string[];
   excesso: string[];
+  justificacaoPerda: string[];
 };
 
 type FeedbackLink = {
@@ -85,6 +86,15 @@ const nomesPerguntas: Record<PerguntaId, string> = {
   pensos: "pensos prévios",
   febre: "febre",
   mobilidade: "mobilidade",
+};
+
+const textoPerguntas: Record<PerguntaId, string> = {
+  dor: "Tem dor? Se sim, quanto daria numa escala de 0 a 10?",
+  duracao: "Há quanto tempo nota que a ferida não está a fechar bem?",
+  posicao: "Costuma manter a perna muito tempo para baixo ou elevada?",
+  pensos: "Sabe dizer como têm sido feitos os pensos?",
+  febre: "Teve febre, arrepios ou sensação de mal-estar?",
+  mobilidade: "Consegue andar bem ou tem dificuldade na mobilização?",
 };
 
 const nomesTratamentos: Record<TratamentoId, string> = {
@@ -254,10 +264,6 @@ const recomendacoesPorErro: Partial<
   },
 };
 
-function formatarDataHora(iso: string) {
-  return new Date(iso).toLocaleString("pt-PT");
-}
-
 export default function CasoDoisPage() {
   const [abaAtiva, setAbaAtiva] = useState<Aba>("observacao");
   const [iniciado, setIniciado] = useState(false);
@@ -317,7 +323,7 @@ export default function CasoDoisPage() {
     observacaoPerilesionalVista,
   ]);
 
-  const avaliacaoDetalhada = useMemo(() => {
+  const avaliacaoDetalhada = useMemo<AvaliacaoSecao[]>(() => {
     const observacao: AvaliacaoSecao = {
       nome: "Observação",
       pontuacao: 0,
@@ -326,6 +332,7 @@ export default function CasoDoisPage() {
       errou: [],
       faltou: [],
       excesso: [],
+      justificacaoPerda: [],
     };
 
     if (observacaoImagemVista) {
@@ -333,6 +340,9 @@ export default function CasoDoisPage() {
       observacao.acertou.push("Visualizaste a imagem da ferida.");
     } else {
       observacao.faltou.push("Faltou observar a imagem da ferida.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não observares a imagem da ferida."
+      );
     }
 
     if (observacaoDimensoesVista) {
@@ -340,6 +350,9 @@ export default function CasoDoisPage() {
       observacao.acertou.push("Consultaste as dimensões e extensão da deiscência.");
     } else {
       observacao.faltou.push("Faltou avaliar as dimensões da ferida.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares as dimensões da ferida."
+      );
     }
 
     if (observacaoExsudadoVista) {
@@ -347,6 +360,9 @@ export default function CasoDoisPage() {
       observacao.acertou.push("Valorizaste o exsudado, essencial neste caso.");
     } else {
       observacao.faltou.push("Faltou avaliar o exsudado.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares o exsudado."
+      );
     }
 
     if (observacaoCheiroVista) {
@@ -354,6 +370,9 @@ export default function CasoDoisPage() {
       observacao.acertou.push("Observaste o odor da ferida.");
     } else {
       observacao.faltou.push("Faltou observar o cheiro.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não observares o cheiro."
+      );
     }
 
     if (observacaoTecidoVista) {
@@ -361,6 +380,9 @@ export default function CasoDoisPage() {
       observacao.acertou.push("Identificaste tecido fibrinoso/desvitalizado.");
     } else {
       observacao.faltou.push("Faltou avaliar os tecidos presentes.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares os tecidos presentes."
+      );
     }
 
     if (observacaoPerilesionalVista) {
@@ -368,6 +390,9 @@ export default function CasoDoisPage() {
       observacao.acertou.push("Observaste a pele peri-ferida.");
     } else {
       observacao.faltou.push("Faltou observar a pele peri-ferida.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não observares a pele peri-ferida."
+      );
     }
 
     const dialogo: AvaliacaoSecao = {
@@ -378,6 +403,7 @@ export default function CasoDoisPage() {
       errou: [],
       faltou: [],
       excesso: [],
+      justificacaoPerda: [],
     };
 
     if (perguntasFeitas.includes("dor")) {
@@ -385,6 +411,9 @@ export default function CasoDoisPage() {
       dialogo.acertou.push("Avaliaste a dor.");
     } else {
       dialogo.faltou.push("Faltou avaliar a dor.");
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares a dor."
+      );
     }
 
     if (perguntasFeitas.includes("febre")) {
@@ -392,6 +421,9 @@ export default function CasoDoisPage() {
       dialogo.acertou.push("Exploraste febre, relevante para suspeita de infeção.");
     } else {
       dialogo.faltou.push("Faltou explorar febre ou sinais sistémicos.");
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não explorares febre ou sinais sistémicos."
+      );
     }
 
     if (perguntasFeitas.includes("posicao")) {
@@ -399,6 +431,9 @@ export default function CasoDoisPage() {
       dialogo.acertou.push("Perguntaste sobre posição/declive do membro.");
     } else {
       dialogo.faltou.push("Faltou perguntar sobre posição da perna.");
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não explorares a posição da perna."
+      );
     }
 
     if (perguntasFeitas.includes("duracao")) {
@@ -406,16 +441,27 @@ export default function CasoDoisPage() {
       dialogo.acertou.push("Exploraste a evolução temporal da ferida.");
     } else {
       dialogo.faltou.push("Faltou perguntar há quanto tempo a ferida evolui mal.");
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não explorares a evolução temporal da ferida."
+      );
     }
 
     if (perguntasFeitas.includes("pensos")) {
       dialogo.pontuacao += 2;
       dialogo.acertou.push("Perguntaste pelos pensos prévios.");
+    } else {
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não explorares os pensos prévios."
+      );
     }
 
     if (perguntasFeitas.includes("mobilidade")) {
       dialogo.pontuacao += 2;
       dialogo.acertou.push("Exploraste a mobilidade.");
+    } else {
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não explorares a mobilidade."
+      );
     }
 
     const tratamento: AvaliacaoSecao = {
@@ -426,6 +472,7 @@ export default function CasoDoisPage() {
       errou: [],
       faltou: [],
       excesso: [],
+      justificacaoPerda: [],
     };
 
     if (
@@ -440,21 +487,39 @@ export default function CasoDoisPage() {
       tratamento.faltou.push(
         "Faltou considerar um antimicrobiano, como prata ou iodo."
       );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por não considerares cobertura antimicrobiana."
+      );
     }
 
     if (
-      tratamentosSelecionados.includes("hidrofibra") ||
-      tratamentosSelecionados.includes("carboximetilcelulose")
-    ) {
-      tratamento.pontuacao += 8;
-      tratamento.acertou.push(
-        "Selecionaste material orientado para gestão de exsudado."
-      );
-    } else {
-      tratamento.faltou.push(
-        "Faltou selecionar material orientado ao controlo do exsudado."
-      );
-    }
+  tratamentosSelecionados.includes("hidrofibra") ||
+  tratamentosSelecionados.includes("carboximetilcelulose")
+) {
+  tratamento.pontuacao += 8;
+  tratamento.acertou.push(
+    "Selecionaste um material adequado para gestão do exsudado."
+  );
+} else {
+  tratamento.faltou.push(
+    "Faltou selecionar material orientado ao controlo do exsudado."
+  );
+  tratamento.justificacaoPerda.push(
+    "Perdeste pontuação por não controlares adequadamente o exsudado."
+  );
+}
+
+if (tratamentosSelecionados.includes("hidrofibra")) {
+  tratamento.acertou.push(
+    "A hidrofibra é adequada para controlo do exsudado neste caso."
+  );
+}
+
+if (tratamentosSelecionados.includes("carboximetilcelulose")) {
+  tratamento.acertou.push(
+    "A carboximetilcelulose é adequada para controlo do exsudado neste caso."
+  );
+}
 
     if (tratamentosSelecionados.includes("colagenase")) {
       tratamento.pontuacao += 6;
@@ -465,12 +530,18 @@ export default function CasoDoisPage() {
       tratamento.faltou.push(
         "Faltou considerar colagenase perante tecido desvitalizado."
       );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por não considerares desbridamento enzimático."
+      );
     }
 
     if (tratamentosSelecionados.includes("hidrogel")) {
       tratamento.pontuacao -= 4;
       tratamento.errou.push(
         "O hidrogel não é prioritário num caso com exsudado moderado a abundante."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por privilegiares hidrogel num caso em que o exsudado domina."
       );
     }
 
@@ -479,11 +550,17 @@ export default function CasoDoisPage() {
       tratamento.errou.push(
         "Betametasona não é prioritária neste contexto de deiscência e suspeita de infeção."
       );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por selecionares betametasona fora da prioridade clínica."
+      );
     }
 
     if (tratamentosSelecionados.includes("alcool")) {
       tratamento.pontuacao -= 8;
       tratamento.errou.push("A aplicação de álcool na ferida é desadequada.");
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por selecionares álcool, que é lesivo para o tecido."
+      );
     }
 
     if (tratamentosSelecionados.includes("gaze_seca")) {
@@ -491,11 +568,17 @@ export default function CasoDoisPage() {
       tratamento.errou.push(
         "A gaze seca pode aderir ao leito e traumatizar o tecido."
       );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por selecionares gaze seca, que pode traumatizar o leito."
+      );
     }
 
     if (tratamentosSelecionados.length >= 4) {
       tratamento.excesso.push(
         "Selecionaste materiais em excesso para o mesmo objetivo terapêutico."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por excesso de materiais e menor foco terapêutico."
       );
       tratamento.pontuacao -= 5;
     }
@@ -506,6 +589,9 @@ export default function CasoDoisPage() {
     ) {
       tratamento.excesso.push(
         "Hidrofibra e carboximetilcelulose podem sobrepor função no controlo do exsudado."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por sobreposição funcional entre materiais absorventes."
       );
       tratamento.pontuacao -= 3;
     }
@@ -518,6 +604,7 @@ export default function CasoDoisPage() {
       errou: [],
       faltou: [],
       excesso: [],
+      justificacaoPerda: [],
     };
 
     if (aplicacoesSelecionadas.includes("apos_limpeza")) {
@@ -525,17 +612,28 @@ export default function CasoDoisPage() {
       aplicacao.acertou.push("Prevês aplicação após limpeza adequada.");
     } else {
       aplicacao.faltou.push("Faltou indicar limpeza adequada antes da cobertura.");
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por não indicares limpeza adequada antes da cobertura."
+      );
     }
 
     if (aplicacoesSelecionadas.includes("com_protecao_perilesional")) {
       aplicacao.pontuacao += 3;
       aplicacao.acertou.push("Consideraste proteção da pele peri-ferida.");
+    } else {
+      aplicacao.faltou.push("Faltou proteger a pele peri-ferida.");
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por não considerares proteção da pele peri-ferida."
+      );
     }
 
     if (aplicacoesSelecionadas.includes("sem_desbridamento")) {
       aplicacao.pontuacao -= 3;
       aplicacao.errou.push(
         "Assinalaste ausência de desbridamento como prioridade, o que não é o mais ajustado aqui."
+      );
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por afastares o desbridamento num caso em que pode ser relevante."
       );
     }
 
@@ -544,6 +642,9 @@ export default function CasoDoisPage() {
       aplicacao.errou.push(
         "Aplicação direta em seco não é adequada neste contexto."
       );
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por escolheres aplicação direta em seco."
+      );
     }
 
     if (aplicacoesSelecionadas.includes("compressao_forte")) {
@@ -551,13 +652,39 @@ export default function CasoDoisPage() {
       aplicacao.errou.push(
         "Compressão forte sobre a lesão não é adequada."
       );
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por escolheres compressão forte sobre a lesão."
+      );
     }
 
     if (aplicacoesSelecionadas.length >= 4) {
       aplicacao.excesso.push(
         "Selecionaste demasiadas formas de aplicação em simultâneo."
       );
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por excesso de opções de aplicação."
+      );
       aplicacao.pontuacao -= 2;
+    }
+
+    const aplicacoesErradasSelecionadas =
+      aplicacoesSelecionadas.includes("sem_desbridamento") ||
+      aplicacoesSelecionadas.includes("direto_seco") ||
+      aplicacoesSelecionadas.includes("compressao_forte");
+
+    if (
+      aplicacoesSelecionadas.includes("apos_limpeza") &&
+      aplicacoesSelecionadas.includes("com_protecao_perilesional") &&
+      !aplicacoesErradasSelecionadas
+    ) {
+      aplicacao.pontuacao += 2;
+      aplicacao.acertou.push(
+        "Mantiveste uma aplicação global coerente, sem opções desadequadas."
+      );
+    } else if (aplicacao.pontuacao < aplicacao.maximo) {
+      aplicacao.justificacaoPerda.push(
+        "Não atingiste a pontuação máxima porque faltou uma aplicação totalmente coerente e sem opções desadequadas."
+      );
     }
 
     const secoes = [observacao, dialogo, tratamento, aplicacao].map((secao) => ({
@@ -602,7 +729,7 @@ export default function CasoDoisPage() {
     return "Desempenho insuficiente. Este caso exigia maior atenção à suspeita de infeção, gestão de exsudado, desbridamento e adequação da cobertura.";
   }, [pontuacao]);
 
-    const linksMateriaisSelecionados = useMemo<FeedbackLink[]>(() => {
+  const linksMateriaisSelecionados = useMemo<FeedbackLink[]>(() => {
     const selecionados: FeedbackLink[] = tratamentosSelecionados
       .filter((item) => linksEvidencia[item])
       .map((item) => ({
@@ -633,6 +760,7 @@ export default function CasoDoisPage() {
 
     return unicos;
   }, [tratamentosSelecionados]);
+
   function guardarNoHistorico() {
     if (typeof window === "undefined") return;
 
@@ -877,21 +1005,7 @@ export default function CasoDoisPage() {
                                 Tu
                               </p>
                               <p className="text-[17px] font-semibold text-white">
-                                {
-                                  {
-                                    dor: "Tem dor? Se sim, quanto daria numa escala de 0 a 10?",
-                                    duracao:
-                                      "Há quanto tempo nota que a ferida não está a fechar bem?",
-                                    posicao:
-                                      "Costuma manter a perna muito tempo para baixo ou elevada?",
-                                    pensos:
-                                      "Sabe dizer como têm sido feitos os pensos?",
-                                    febre:
-                                      "Teve febre, arrepios ou sensação de mal-estar?",
-                                    mobilidade:
-                                      "Consegue andar bem ou tem dificuldade na mobilização?",
-                                  }[perguntaAtual]
-                                }
+                                {textoPerguntas[perguntaAtual]}
                               </p>
                             </div>
 
@@ -1193,7 +1307,7 @@ export default function CasoDoisPage() {
           )}
 
           {abaAtiva === "resultado" && (
-            <div className="flex h-full min-h-0 flex-col gap-4">
+            <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto pr-1">
               <div className="rounded-[28px] border border-[#334155] bg-[#0f172a] p-5">
                 <h2 className="text-[34px] font-black text-[#f8fafc]">
                   Resultado final
@@ -1237,7 +1351,7 @@ export default function CasoDoisPage() {
               </div>
 
               {mostrarDetalhe && (
-                <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-auto">
+                <div className="grid gap-4 lg:grid-cols-2">
                   {avaliacaoDetalhada.map((secao) => (
                     <div
                       key={secao.nome}
@@ -1290,11 +1404,24 @@ export default function CasoDoisPage() {
                             <div>Sem excesso de opções nesta secção.</div>
                           )}
                         </div>
+
+                        <div>
+                          <p className="mb-2 font-black text-[#f59e0b]">
+                            Porque não tiveste a pontuação máxima
+                          </p>
+                          {secao.justificacaoPerda.length > 0 ? (
+                            secao.justificacaoPerda.map((item, i) => (
+                              <div key={i}>• {item}</div>
+                            ))
+                          ) : (
+                            <div>Tiveste pontuação máxima nesta secção.</div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
 
-                  <div className="col-span-2 rounded-[24px] border border-[#334155] bg-[#111827] p-4">
+                  <div className="rounded-[24px] border border-[#334155] bg-[#111827] p-4 lg:col-span-2">
                     <h3 className="mb-3 text-[22px] font-black text-[#1d4ed8]">
                       Artigos e correção de escolhas
                     </h3>
@@ -1333,7 +1460,7 @@ export default function CasoDoisPage() {
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 pb-2">
                 <button
                   onClick={resetarCaso}
                   className="rounded-[18px] bg-[#1d4ed8] px-5 py-3 text-[17px] font-black text-white hover:bg-[#2563eb]"

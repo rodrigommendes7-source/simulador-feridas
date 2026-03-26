@@ -1,102 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-
-type AvaliacaoSecao = {
-  nome: string;
-  pontuacao: number;
-  maximo: number;
-  acertou: string[];
-  errou: string[];
-  faltou: string[];
-  excesso: string[];
-};
-
-type FeedbackLink = {
-  material: string;
-  correto?: string;
-  titulo: string;
-  url: string;
-  explicacao: string;
-};
-
-type HistoricoResolucao = {
-  id: string;
-  casoId: string;
-  casoTitulo: string;
-  pontuacao: number;
-  data: string;
-  observacoes: string[];
-  perguntas: string[];
-  tratamentos: string[];
-  aplicacoes: string[];
-  feedback: string;
-  secoes?: AvaliacaoSecao[];
-  avaliacaoDetalhada?: AvaliacaoSecao[];
-  linksFeedback?: FeedbackLink[];
-  artigos?: FeedbackLink[];
-};
-
-const STORAGE_KEY = "historico_resolucoes_feridas";
+import { useMemo, useState } from "react";
+import { carregarHistoricoSeguro } from "../lib/simulador";
+import { STORAGE_KEY, type HistoricoResolucao } from "../types/simulador";
 
 function formatarDataHora(iso: string) {
   return new Date(iso).toLocaleString("pt-PT");
 }
 
-function garantirArray<T>(valor: unknown): T[] {
-  return Array.isArray(valor) ? (valor as T[]) : [];
-}
-
 export default function HistoricoPage() {
-  const [resolucoes, setResolucoes] = useState<HistoricoResolucao[]>([]);
+  const [resolucoes, setResolucoes] = useState<HistoricoResolucao[]>(
+    carregarHistoricoSeguro
+  );  
   const [expandido, setExpandido] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    const historicoGuardado = localStorage.getItem(STORAGE_KEY);
-    const historicoBruto = historicoGuardado ? JSON.parse(historicoGuardado) : [];
-
-    const historicoSeguro: HistoricoResolucao[] = Array.isArray(historicoBruto)
-      ? historicoBruto.map((item, index) => ({
-          id:
-            typeof item?.id === "string" && item.id.trim()
-              ? item.id
-              : `historico-${index}-${Date.now()}`,
-          casoId:
-            typeof item?.casoId === "string" ? item.casoId : "caso-desconhecido",
-          casoTitulo:
-            typeof item?.casoTitulo === "string"
-              ? item.casoTitulo
-              : "Caso sem título",
-          pontuacao:
-            typeof item?.pontuacao === "number"
-              ? item.pontuacao
-              : Number(item?.pontuacao) || 0,
-          data:
-            typeof item?.data === "string"
-              ? item.data
-              : new Date().toISOString(),
-          observacoes: garantirArray<string>(item?.observacoes),
-          perguntas: garantirArray<string>(item?.perguntas),
-          tratamentos: garantirArray<string>(item?.tratamentos),
-          aplicacoes: garantirArray<string>(item?.aplicacoes),
-          feedback:
-            typeof item?.feedback === "string"
-              ? item.feedback
-              : typeof item?.feedbackResumo === "string"
-              ? item.feedbackResumo
-              : "",
-          secoes: garantirArray<AvaliacaoSecao>(item?.secoes),
-          avaliacaoDetalhada: garantirArray<AvaliacaoSecao>(
-            item?.avaliacaoDetalhada
-          ),
-          linksFeedback: garantirArray<FeedbackLink>(item?.linksFeedback),
-          artigos: garantirArray<FeedbackLink>(item?.artigos),
-        }))
-      : [];
-
-    setResolucoes(historicoSeguro);
-  }, []);
 
   function limparHistorico() {
     localStorage.removeItem(STORAGE_KEY);
@@ -171,20 +88,8 @@ export default function HistoricoPage() {
               )}
 
               {resolucoes.map((item) => {
-                const secoesDetalhadas =
-                  item.secoes && item.secoes.length > 0
-                    ? item.secoes
-                    : item.avaliacaoDetalhada && item.avaliacaoDetalhada.length > 0
-                    ? item.avaliacaoDetalhada
-                    : [];
-
-                const artigosDetalhados =
-                  item.artigos && item.artigos.length > 0
-                    ? item.artigos
-                    : item.linksFeedback && item.linksFeedback.length > 0
-                    ? item.linksFeedback
-                    : [];
-
+                const secoesDetalhadas = item.avaliacaoDetalhada ?? [];
+                const artigosDetalhados = item.linksFeedback ?? [];
                 return (
                   <div
                     key={item.id}

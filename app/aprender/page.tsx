@@ -2,37 +2,112 @@
 
 import Link from "next/link";
 
-const secoes = [
+type SecaoAprendizagem = {
+  titulo: string;
+  objetivoClinico: string;
+  quandoUsar: string[];
+  quandoEvitar: string[];
+  exemplosPraticos: string[];
+};
+
+const secoes: SecaoAprendizagem[] = [
   {
     titulo: "Desbridamento",
-    conteudo:
-      "A colagenase pode ser útil quando existe tecido desvitalizado ou fibrina aderente. Deve ser usada quando o objetivo é facilitar o desbridamento enzimático.",
+      objetivoClinico:
+      "Remover tecido desvitalizado/biofilme para reduzir carga inflamatória e preparar o leito da ferida.",
+    quandoUsar: [
+      "Presença de fibrina aderente, necrose húmida ou tecido desvitalizado que atrasa granulação.",
+      "Feridas com cicatrização estagnada por barreira mecânica no leito.",
+    ],
+    quandoEvitar: [
+      "Leito totalmente limpo e em granulação ativa, sem tecido desvitalizado.",
+      "Isquemia crítica sem avaliação vascular prévia e sem plano de vigilância.",
+    ],
+    exemplosPraticos: [
+      "Ferida com fibrina amarela aderente: considerar colagenase quando o desbridamento enzimático é viável.",
+      "Deiscência cirúrgica com tecido desvitalizado: associar estratégia de desbridamento + controlo de exsudado.",
+    ],
   },
   {
     titulo: "Gestão de exsudado",
-    conteudo:
-      "A hidrofibra e a carboximetilcelulose são materiais dirigidos ao controlo do exsudado. Em muitos casos, basta um deles, dependendo do objetivo e do tipo de penso pretendido.",
-  },
+  objetivoClinico:
+      "Controlar humidade, prevenir maceração peri-ferida e manter ambiente terapêutico para cicatrização.",
+    quandoUsar: [
+      "Exsudado moderado/abundante com risco de extravasamento e dano cutâneo.",
+      "Necessidade de absorção sustentada (ex.: hidrofibra ou CMC).",
+    ],
+    quandoEvitar: [
+      "Feridas secas, com necessidade principal de hidratação do leito.",
+      "Sobreposição de materiais com a mesma função absorvente sem benefício clínico.",
+    ],
+    exemplosPraticos: [
+      "Lesão por pressão com exsudado: escolher um material absorvente principal e reavaliar em 24–48h.",
+      "Maceração peri-ferida: otimizar absorção + reforçar proteção cutânea periférica.",
+    ],  },
   {
     titulo: "Antimicrobianos",
-    conteudo:
-      "A prata e o iodo podem ser considerados quando existem sinais de infeção local ou risco aumentado de carga microbiana, mas não devem ser usados sem justificação clínica.",
-  },
+  objetivoClinico:
+      "Reduzir carga microbiana local quando há suspeita de infeção crítica ou infeção local estabelecida.",
+    quandoUsar: [
+      "Sinais locais de infeção: aumento de exsudado, odor, dor, atraso de cicatrização, tecido friável.",
+      "Contextos com risco aumentado de colonização crítica em feridas complexas.",
+    ],
+    quandoEvitar: [
+      "Uso prolongado sem critérios de reavaliação clínica.",
+      "Ferida sem sinais clínicos de carga microbiana problemática.",
+    ],
+    exemplosPraticos: [
+      "Ferida cirúrgica deiscente com febre ligeira: ponderar prata/iodo e monitorizar resposta clínica.",
+      "Sem melhoria após ciclo antimicrobiano: rever diagnóstico, técnica e fatores sistémicos.",
+    ],  },
   {
     titulo: "Proteção da pele peri-ferida",
-    conteudo:
-      "Os emolientes ou AGE ajudam a proteger a pele peri-ferida, especialmente quando existe exsudado ou risco de maceração.",
-  },
+  objetivoClinico:
+      "Preservar integridade cutânea adjacente, reduzindo maceração, dermatite por exsudado e dor ao penso.",
+    quandoUsar: [
+      "Sempre que há exsudado com contacto frequente com a pele peri-ferida.",
+      "Pele frágil, irritada ou com risco de lesão por adesivos.",
+    ],
+    quandoEvitar: [
+      "Aplicação excessiva que comprometa adesão do penso sem necessidade.",
+      "Uso de produtos sem compatibilidade com a cobertura selecionada.",
+    ],
+    exemplosPraticos: [
+      "Aplicar barreira cutânea/AGE na periferia antes da cobertura absorvente.",
+      "Se há descolamento recorrente do penso, rever preparação da pele e técnica de fixação.",
+    ],  },
   {
-    titulo: "Materiais desadequados em muitos casos",
-    conteudo:
-      "Álcool e gaze seca podem ser prejudiciais ao leito da ferida. O álcool é citotóxico e a gaze seca pode aderir ao tecido, provocando trauma à remoção.",
-  },
+    titulo: "Materiais desadequados",
+    objetivoClinico:
+      "Evitar intervenções que lesionem tecido viável, atrasem cicatrização ou aumentem dor e trauma.",
+    quandoUsar: [
+      "Secção de segurança clínica: identificar o que não deve ser escolhido como rotina.",
+    ],
+    quandoEvitar: [
+      "Álcool no leito da ferida (citotoxicidade).",
+      "Gaze seca em contacto direto com tecido viável (aderência traumática).",
+      "Corticoterapia tópica fora de indicação específica e sem plano clínico.",
+    ],
+    exemplosPraticos: [
+      "Trocar abordagem agressiva por limpeza adequada + cobertura húmida dirigida ao objetivo da ferida.",
+      "Se houver dúvida terapêutica, priorizar materiais com benefício claro para o problema dominante.",
+    ],  },
   {
-    titulo: "Princípios gerais",
-    conteudo:
-      "A escolha do tratamento deve ser focada no objetivo principal da ferida: controlo do exsudado, desbridamento, controlo microbiano, proteção peri-ferida e promoção de cicatrização. Evita acumular materiais sem função clara.",
-  },
+  titulo: "Princípios de decisão clínica",
+    objetivoClinico:
+      "Tomar decisões estruturadas, reproduzíveis e centradas no problema clínico dominante da ferida.",
+    quandoUsar: [
+      "Em qualquer avaliação: observar → recolher dados → definir objetivo terapêutico → selecionar cobertura.",
+      "Sempre com reavaliação temporal da resposta ao plano instituído.",
+    ],
+    quandoEvitar: [
+      "Polimedicação tópica sem hipótese clínica clara.",
+      "Manter plano ineficaz sem ajustar após reavaliação objetiva.",
+    ],
+    exemplosPraticos: [
+      "Problema dominante = exsudado: priorizar absorção e proteção peri-ferida.",
+      "Problema dominante = tecido desvitalizado: incluir desbridamento e monitorizar evolução do leito.",
+    ],  },
 ];
 
 export default function AprenderPage() {
@@ -42,14 +117,12 @@ export default function AprenderPage() {
         <div className="mb-10 flex flex-wrap items-start justify-between gap-6">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#60a5fa]">
-              Área de estudo
-            </p>
-            <h1 className="mb-3 text-4xl font-bold text-white">
-              Aprender
-            </h1>
-            <p className="max-w-2xl text-sm text-[#64748b]">
-              Material de apoio relacionado com a seleção de tratamentos em feridas.
-            </p>
+              Área pedagógica            
+              </p>
+            <h1 className="mb-3 text-4xl font-bold text-white">Aprender</h1>
+            <p className="max-w-3xl text-sm text-[#64748b]">
+              Guia de estudo para apoio à decisão clínica em tratamento de
+              feridas, com foco em raciocínio terapêutico e segurança.            </p>
           </div>
 
           <div className="flex gap-3">
@@ -75,13 +148,48 @@ export default function AprenderPage() {
               key={secao.titulo}
               className="rounded-2xl border border-[#1e293b] bg-[#0f172a] p-6"
             >
-              <h2 className="mb-3 text-lg font-semibold text-white">
-                {secao.titulo}
+<h2 className="mb-4 text-lg font-semibold text-white">                {secao.titulo}
               </h2>
-              <p className="text-sm leading-relaxed text-[#64748b]">
-                {secao.conteudo}
-              </p>
-            </section>
+
+              <div className="space-y-4 text-sm leading-relaxed text-[#94a3b8]">
+                <div>
+                  <p className="mb-1 font-semibold text-[#60a5fa]">
+                    Objetivo clínico
+                  </p>
+                  <p>{secao.objetivoClinico}</p>
+                </div>
+
+                <div>
+                  <p className="mb-1 font-semibold text-[#60a5fa]">Quando usar</p>
+                  <ul className="list-disc space-y-1 pl-5">
+                    {secao.quandoUsar.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="mb-1 font-semibold text-[#60a5fa]">
+                    Quando evitar
+                  </p>
+                  <ul className="list-disc space-y-1 pl-5">
+                    {secao.quandoEvitar.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="mb-1 font-semibold text-[#60a5fa]">
+                    Exemplos práticos
+                  </p>
+                  <ul className="list-disc space-y-1 pl-5">
+                    {secao.exemplosPraticos.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>            </section>
           ))}
         </div>
       </div>

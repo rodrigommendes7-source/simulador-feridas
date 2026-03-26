@@ -2,73 +2,22 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import {
+  calcularPontuacao,
+  criarHistoricoId,
+  guardarHistorico,
+  normalizarSecoesAvaliacao,
+} from "../../lib/simulador";
+import {
+  type AplicacaoId,
+  type AvaliacaoSecao,
+  type FeedbackLink,
+  type HistoricoResolucao,
+  type PerguntaId,
+  type TratamentoId,
+} from "../../types/simulador";
 
 type Aba = "observacao" | "dialogo" | "tratamento" | "resultado";
-
-type PerguntaId =
-  | "dor"
-  | "duracao"
-  | "posicao"
-  | "pensos"
-  | "febre"
-  | "mobilidade";
-
-type TratamentoId =
-  | "colagenase"
-  | "hidrogel"
-  | "prata"
-  | "iodo"
-  | "hidrofibra"
-  | "carboximetilcelulose"
-  | "nitrato_prata"
-  | "emolientes_ags"
-  | "mel"
-  | "betametasona"
-  | "alcool"
-  | "gaze_seca";
-
-type AplicacaoId =
-  | "apos_limpeza"
-  | "direto_seco"
-  | "sem_desbridamento"
-  | "com_protecao_perilesional"
-  | "compressao_forte";
-
-type AvaliacaoSecao = {
-  nome: string;
-  pontuacao: number;
-  maximo: number;
-  acertou: string[];
-  errou: string[];
-  faltou: string[];
-  excesso: string[];
-  justificacaoPerda: string[];
-};
-
-type FeedbackLink = {
-  material: string;
-  correto?: string;
-  titulo: string;
-  url: string;
-  explicacao: string;
-};
-
-type HistoricoResolucao = {
-  id: string;
-  casoId: string;
-  casoTitulo: string;
-  pontuacao: number;
-  data: string;
-  observacoes: string[];
-  perguntas: string[];
-  tratamentos: string[];
-  aplicacoes: string[];
-  feedback: string;
-  avaliacaoDetalhada: AvaliacaoSecao[];
-  linksFeedback: FeedbackLink[];
-};
-
-const STORAGE_KEY = "historico_resolucoes_feridas";
 
 const respostasDialogo: Record<PerguntaId, string> = {
   dor: "Sinto dor sim... diria 6 em 10, principalmente quando mexem ou quando estou muito tempo na mesma posição.",
@@ -700,7 +649,7 @@ if (tratamentosSelecionados.length >= 5) {
 
     if (aplicacoesSelecionadas.includes("direto_seco")) {
       aplicacao.errou.push(
-        "A aplicação direta em seco não respeita uma abordagem húmida adequada."
+        "A aplicação direta em seco no respeita uma abordagem húmida adequada."
       );
       aplicacao.justificacaoPerda.push(
         "Perdeste pontuação por selecionares aplicação direta em seco."
@@ -749,10 +698,7 @@ if (tratamentosSelecionados.length >= 5) {
 
     secoes.push(aplicacao);
 
-   return secoes.map((secao) => ({
-      ...secao,
-      pontuacao: Math.max(0, Math.min(secao.maximo, secao.pontuacao)),
-    }));
+    return normalizarSecoesAvaliacao(secoes);
   }, [
     observacaoImagemVista,
     observacaoDimensoesVista,
@@ -766,17 +712,7 @@ if (tratamentosSelecionados.length >= 5) {
   ]);
 
   const pontuacao = useMemo(() => {
-    const total = avaliacaoDetalhada.reduce(
-      (acc, secao) => acc + secao.pontuacao,
-      0
-    );
-       const totalMaximo = avaliacaoDetalhada.reduce(
-      (acc, secao) => acc + secao.maximo,
-      0
-    );
-    if (totalMaximo <= 0) return 0;
-    const percentual = (total / totalMaximo) * 100;
-    return Math.round(Math.max(0, Math.min(100, percentual))); 
+    return calcularPontuacao(avaliacaoDetalhada);
   }, [avaliacaoDetalhada]);
 
   const avaliacaoTexto = useMemo(() => {
@@ -829,10 +765,7 @@ if (tratamentosSelecionados.length >= 5) {
     if (typeof window === "undefined") return;
 
     const novaResolucao: HistoricoResolucao = {
-      id:
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `${Date.now()}`,
+      id: criarHistoricoId(),
       casoId: "caso-1",
       casoTitulo: "Caso 1 — Lesão por pressão",
       pontuacao,
@@ -846,16 +779,11 @@ if (tratamentosSelecionados.length >= 5) {
       linksFeedback: linksMateriaisSelecionados,
     };
 
-    const historicoGuardado = localStorage.getItem(STORAGE_KEY);
-    const historicoAtual: HistoricoResolucao[] = historicoGuardado
-      ? JSON.parse(historicoGuardado)
-      : [];
-
-    historicoAtual.unshift(novaResolucao);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(historicoAtual));
+    guardarHistorico(novaResolucao);
   }
 
   function finalizarCaso() {
+    if (abaAtiva === "resultado") return;
     guardarNoHistorico();
     setAbaAtiva("resultado");
     setMostrarDetalhe(false);

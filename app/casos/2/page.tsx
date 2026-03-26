@@ -2,73 +2,22 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import {
+  calcularPontuacao,
+  criarHistoricoId,
+  guardarHistorico,
+  normalizarSecoesAvaliacao,
+} from "../../lib/simulador";
+import {
+  type AplicacaoId,
+  type AvaliacaoSecao,
+  type FeedbackLink,
+  type HistoricoResolucao,
+  type PerguntaId,
+  type TratamentoId,
+} from "../../types/simulador";
 
 type Aba = "observacao" | "dialogo" | "tratamento" | "resultado";
-
-type PerguntaId =
-  | "dor"
-  | "duracao"
-  | "posicao"
-  | "pensos"
-  | "febre"
-  | "mobilidade";
-
-type TratamentoId =
-  | "colagenase"
-  | "hidrogel"
-  | "prata"
-  | "iodo"
-  | "hidrofibra"
-  | "carboximetilcelulose"
-  | "nitrato_prata"
-  | "emolientes_ags"
-  | "mel"
-  | "betametasona"
-  | "alcool"
-  | "gaze_seca";
-
-type AplicacaoId =
-  | "apos_limpeza"
-  | "direto_seco"
-  | "sem_desbridamento"
-  | "com_protecao_perilesional"
-  | "compressao_forte";
-
-type AvaliacaoSecao = {
-  nome: string;
-  pontuacao: number;
-  maximo: number;
-  acertou: string[];
-  errou: string[];
-  faltou: string[];
-  excesso: string[];
-  justificacaoPerda: string[];
-};
-
-type FeedbackLink = {
-  material: string;
-  correto?: string;
-  titulo: string;
-  url: string;
-  explicacao: string;
-};
-
-type HistoricoResolucao = {
-  id: string;
-  casoId: string;
-  casoTitulo: string;
-  pontuacao: number;
-  data: string;
-  observacoes: string[];
-  perguntas: string[];
-  tratamentos: string[];
-  aplicacoes: string[];
-  feedbackResumo: string;
-  secoes: AvaliacaoSecao[];
-  artigos: FeedbackLink[];
-};
-
-const STORAGE_KEY = "historico_resolucoes_feridas";
 
 const respostasDialogo: Record<PerguntaId, string> = {
   dor: "Sim, dói bastante, especialmente ao toque, diria 7 em 10.",
@@ -116,7 +65,7 @@ const nomesAplicacoes: Record<AplicacaoId, string> = {
   apos_limpeza: "Aplicar cobertura após limpeza adequada",
   direto_seco: "Aplicar material diretamente em seco",
   sem_desbridamento:
-    "Não usar desbridamento enzimático como primeira prioridade",
+    "Adiar desbridamento enzimático mesmo com tecido desvitalizado",
   com_protecao_perilesional: "Proteger pele perilesional",
   compressao_forte: "Fazer compressão forte sobre a lesão",
 };
@@ -284,7 +233,7 @@ export default function CasoDoisPage() {
   >([]);
   const [aplicacoesSelecionadas, setAplicacoesSelecionadas] = useState<
     AplicacaoId[]
-  >([]);
+  >[];
 
   function toggleTratamento(id: TratamentoId) {
     setTratamentosSelecionados((prev) =>
@@ -687,12 +636,7 @@ if (tratamentosSelecionados.includes("carboximetilcelulose")) {
       );
     }
 
-    const secoes = [observacao, dialogo, tratamento, aplicacao].map((secao) => ({
-      ...secao,
-      pontuacao: Math.max(0, Math.min(secao.maximo, secao.pontuacao)),
-    }));
-
-    return secoes;
+    return normalizarSecoesAvaliacao([observacao, dialogo, tratamento, aplicacao]);
   }, [
     observacaoImagemVista,
     observacaoDimensoesVista,
@@ -706,17 +650,7 @@ if (tratamentosSelecionados.includes("carboximetilcelulose")) {
   ]);
 
   const pontuacao = useMemo(() => {
-    const total = avaliacaoDetalhada.reduce(
-      (acc, secao) => acc + secao.pontuacao,
-      0
-    );
-    const totalMaximo = avaliacaoDetalhada.reduce(
-      (acc, secao) => acc + secao.maximo,
-      0
-    );
-    if (totalMaximo <= 0) return 0;
-    const percentual = (total / totalMaximo) * 100;
-    return Math.round(Math.max(0, Math.min(100, percentual)));
+    return calcularPontuacao(avaliacaoDetalhada);
   }, [avaliacaoDetalhada]);
 
   const avaliacaoTexto = useMemo(() => {
@@ -771,10 +705,7 @@ if (tratamentosSelecionados.includes("carboximetilcelulose")) {
     if (typeof window === "undefined") return;
 
     const novaResolucao: HistoricoResolucao = {
-      id:
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `${Date.now()}`,
+      id: criarHistoricoId(),
       casoId: "caso-2",
       casoTitulo: "Caso 2 — Ferida cirúrgica com deiscência",
       pontuacao,
@@ -783,23 +714,19 @@ if (tratamentosSelecionados.includes("carboximetilcelulose")) {
       perguntas: perguntasFeitas.map((item) => nomesPerguntas[item]),
       tratamentos: tratamentosSelecionados.map((item) => nomesTratamentos[item]),
       aplicacoes: aplicacoesSelecionadas.map((item) => nomesAplicacoes[item]),
-      feedbackResumo: avaliacaoTexto,
-      secoes: avaliacaoDetalhada,
-      artigos: linksMateriaisSelecionados,
+      feedback: avaliacaoTexto,
+      avaliacaoDetalhada,
+      linksFeedback: linksMateriaisSelecionados,
     };
 
-    const historicoGuardado = localStorage.getItem(STORAGE_KEY);
-    const historicoAtual: HistoricoResolucao[] = historicoGuardado
-      ? JSON.parse(historicoGuardado)
-      : [];
-
-    historicoAtual.unshift(novaResolucao);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(historicoAtual));
+    guardarHistorico(novaResolucao);
   }
 
   function finalizarCaso() {
+    if (abaAtiva === "resultado") return;
     guardarNoHistorico();
     setAbaAtiva("resultado");
+    setMostrarDetalhe(false);
   }
 
   function resetarCaso() {

@@ -1,0 +1,64 @@
+export type PerguntaId =
+  | "dor"
+  | "duracao"
+  | "posicao"
+  | "pensos"
+  | "febre"
+  | "mobilidade";
+
+export type TratamentoId =
+  | "colagenase"
+  | "hidrogel"
+  | "prata"
+  | "iodo"
+  | "hidrofibra"
+  | "carboximetilcelulose"
+  | "nitrato_prata"
+  | "emolientes_ags"
+  | "mel"
+  | "betametasona"
+  | "alcool"
+  | "gaze_seca";
+
+export type AplicacaoId =
+  | "apos_limpeza"
+  | "direto_seco"
+  | "sem_desbridamento"
+  | "com_protecao_perilesional"
+  | "compressao_forte";
+
+export type AvaliacaoSecao = {
+  nome: string;
+  pontuacao: number;
+  maximo: number;
+  acertou: string[];
+  errou: string[];
+  faltou: string[];
+  excesso: string[];
+  justificacaoPerda: string[];
+};
+
+export type FeedbackLink = {
+  material: string;
+  correto?: string;
+  titulo: string;
+  url: string;
+  explicacao: string;
+};
+
+export type HistoricoResolucao = {
+  id: string;
+  casoId: string;
+  casoTitulo: string;
+  pontuacao: number;
+  data: string;
+  observacoes: string[];
+  perguntas: string[];
+  tratamentos: string[];
+  aplicacoes: string[];
+  feedback: string;
+  avaliacaoDetalhada: AvaliacaoSecao[];
+  linksFeedback: FeedbackLink[];
+};
+
+export const STORAGE_KEY = "historico_resolucoes_feridas";

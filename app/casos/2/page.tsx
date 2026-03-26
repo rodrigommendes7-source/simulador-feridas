@@ -467,7 +467,7 @@ export default function CasoDoisPage() {
     const tratamento: AvaliacaoSecao = {
       nome: "Escolha do tratamento",
       pontuacao: 0,
-      maximo: 25,
+      maximo: 22,
       acertou: [],
       errou: [],
       faltou: [],
@@ -710,7 +710,13 @@ if (tratamentosSelecionados.includes("carboximetilcelulose")) {
       (acc, secao) => acc + secao.pontuacao,
       0
     );
-    return Math.max(0, Math.min(100, total));
+    const totalMaximo = avaliacaoDetalhada.reduce(
+      (acc, secao) => acc + secao.maximo,
+      0
+    );
+    if (totalMaximo <= 0) return 0;
+    const percentual = (total / totalMaximo) * 100;
+    return Math.round(Math.max(0, Math.min(100, percentual)));
   }, [avaliacaoDetalhada]);
 
   const avaliacaoTexto = useMemo(() => {

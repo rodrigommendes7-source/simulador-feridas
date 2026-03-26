@@ -37,17 +37,17 @@ const secoes = [
 
 export default function AprenderPage() {
   return (
-    <main className="min-h-screen bg-[#0b1220] px-6 py-8 text-white">
+    <main className="min-h-screen bg-[#0a0f1e] px-6 py-12">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-10 flex flex-wrap items-start justify-between gap-6">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.28em] text-[#3b82f6]">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#60a5fa]">
               Área de estudo
             </p>
-            <h1 className="mt-2 text-4xl font-black text-white">
+            <h1 className="mb-3 text-4xl font-bold text-white">
               Aprender
             </h1>
-            <p className="mt-2 text-lg text-[#cbd5e1]">
+            <p className="max-w-2xl text-sm text-[#64748b]">
               Material de apoio relacionado com a seleção de tratamentos em feridas.
             </p>
           </div>
@@ -55,30 +55,30 @@ export default function AprenderPage() {
           <div className="flex gap-3">
             <Link
               href="/"
-              className="rounded-2xl border border-[#334155] bg-white px-5 py-3 font-black text-[#0f172a] hover:bg-[#f8fafc]"
+              className="rounded-lg border border-[#1e293b] bg-[#0f172a] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1e293b]"
             >
               Página inicial
             </Link>
 
             <Link
               href="/casos"
-              className="rounded-2xl bg-[#facc15] px-5 py-3 font-black text-[#0f172a] hover:bg-[#fde047]"
+              className="rounded-lg bg-[#2563eb] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1d4ed8]"
             >
               Resolver casos
             </Link>
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2">
           {secoes.map((secao) => (
             <section
               key={secao.titulo}
-              className="rounded-[26px] border border-[#334155] bg-[#111827] p-6 shadow-xl"
+              className="rounded-2xl border border-[#1e293b] bg-[#0f172a] p-6"
             >
-              <h2 className="text-2xl font-black text-[#3b82f6]">
+              <h2 className="mb-3 text-lg font-semibold text-white">
                 {secao.titulo}
               </h2>
-              <p className="mt-4 text-[16px] leading-relaxed text-white">
+              <p className="text-sm leading-relaxed text-[#64748b]">
                 {secao.conteudo}
               </p>
             </section>

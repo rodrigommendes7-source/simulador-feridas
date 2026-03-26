@@ -473,7 +473,7 @@ export default function CasoUmPage() {
     const tratamento: AvaliacaoSecao = {
       nome: "Escolha do tratamento",
       pontuacao: 0,
-      maximo: 30,
+      maximo: 15,
       acertou: [],
       errou: [],
       faltou: [],
@@ -747,13 +747,12 @@ if (tratamentosSelecionados.length >= 5) {
       );
     }
 
-    if (aplicacao.pontuacao < 0) aplicacao.pontuacao = 0;
-    if (aplicacao.pontuacao > aplicacao.maximo)
-      aplicacao.pontuacao = aplicacao.maximo;
-
     secoes.push(aplicacao);
 
-    return secoes;
+   return secoes.map((secao) => ({
+      ...secao,
+      pontuacao: Math.max(0, Math.min(secao.maximo, secao.pontuacao)),
+    }));
   }, [
     observacaoImagemVista,
     observacaoDimensoesVista,
@@ -771,9 +770,13 @@ if (tratamentosSelecionados.length >= 5) {
       (acc, secao) => acc + secao.pontuacao,
       0
     );
-    if (total < 0) return 0;
-    if (total > 100) return 100;
-    return total;
+       const totalMaximo = avaliacaoDetalhada.reduce(
+      (acc, secao) => acc + secao.maximo,
+      0
+    );
+    if (totalMaximo <= 0) return 0;
+    const percentual = (total / totalMaximo) * 100;
+    return Math.round(Math.max(0, Math.min(100, percentual))); 
   }, [avaliacaoDetalhada]);
 
   const avaliacaoTexto = useMemo(() => {

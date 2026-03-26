@@ -3,6 +3,24 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+type AvaliacaoSecao = {
+  nome: string;
+  pontuacao: number;
+  maximo: number;
+  acertou: string[];
+  errou: string[];
+  faltou: string[];
+  excesso: string[];
+};
+
+type FeedbackLink = {
+  material: string;
+  correto?: string;
+  titulo: string;
+  url: string;
+  explicacao: string;
+};
+
 type HistoricoResolucao = {
   id: string;
   casoId: string;
@@ -13,13 +31,20 @@ type HistoricoResolucao = {
   perguntas: string[];
   tratamentos: string[];
   aplicacoes: string[];
-  feedback: string;
+  feedbackResumo: string;
+  secoes: AvaliacaoSecao[];
+  artigos: FeedbackLink[];
 };
 
 const STORAGE_KEY = "historico_resolucoes_feridas";
 
+function formatarDataHora(iso: string) {
+  return new Date(iso).toLocaleString("pt-PT");
+}
+
 export default function HistoricoPage() {
   const [resolucoes, setResolucoes] = useState<HistoricoResolucao[]>([]);
+  const [expandido, setExpandido] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const historicoGuardado = localStorage.getItem(STORAGE_KEY);
@@ -127,11 +152,11 @@ export default function HistoricoPage() {
                   </div>
 
                   <p className="mt-2 text-sm font-semibold text-[#94a3b8]">
-                    {new Date(item.data).toLocaleString("pt-PT")}
+                    {formatarDataHora(item.data)}
                   </p>
 
                   <p className="mt-3 text-base text-[#cbd5e1]">
-                    {item.feedback}
+                    {item.feedbackResumo}
                   </p>
 
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -179,6 +204,135 @@ export default function HistoricoPage() {
                       </p>
                     </div>
                   </div>
+
+                  <button
+                    onClick={() =>
+                      setExpandido((prev) => ({
+                        ...prev,
+                        [item.id]: !prev[item.id],
+                      }))
+                    }
+                    className="mt-4 rounded-xl bg-[#1d4ed8] px-4 py-2 text-sm font-black text-white hover:bg-[#2563eb]"
+                  >
+                    {expandido[item.id]
+                      ? "Esconder detalhe"
+                      : "Ver detalhe completo"}
+                  </button>
+
+                  {expandido[item.id] && (
+                    <div className="mt-4 space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {item.secoes.map((secao) => (
+                          <div
+                            key={secao.nome}
+                            className="rounded-xl border border-[#334155] bg-[#111827] p-4"
+                          >
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                              <p className="text-lg font-black text-[#3b82f6]">
+                                {secao.nome}
+                              </p>
+                              <span className="rounded-full bg-[#0f172a] px-3 py-1 text-xs font-black text-white">
+                                {secao.pontuacao}/{secao.maximo}
+                              </span>
+                            </div>
+
+                            <div className="space-y-3 text-sm text-white">
+                              <div>
+                                <p className="mb-1 font-black text-[#22c55e]">
+                                  Acertos
+                                </p>
+                                {secao.acertou.length > 0 ? (
+                                  secao.acertou.map((linha, i) => (
+                                    <div key={i}>• {linha}</div>
+                                  ))
+                                ) : (
+                                  <div>Sem acertos assinaláveis.</div>
+                                )}
+                              </div>
+
+                              <div>
+                                <p className="mb-1 font-black text-[#facc15]">
+                                  Faltou
+                                </p>
+                                {secao.faltou.length > 0 ? (
+                                  secao.faltou.map((linha, i) => (
+                                    <div key={i}>• {linha}</div>
+                                  ))
+                                ) : (
+                                  <div>Sem omissões relevantes.</div>
+                                )}
+                              </div>
+
+                              <div>
+                                <p className="mb-1 font-black text-[#f87171]">
+                                  Erros
+                                </p>
+                                {secao.errou.length > 0 ? (
+                                  secao.errou.map((linha, i) => (
+                                    <div key={i}>• {linha}</div>
+                                  ))
+                                ) : (
+                                  <div>Sem erros críticos.</div>
+                                )}
+                              </div>
+
+                              <div>
+                                <p className="mb-1 font-black text-[#c084fc]">
+                                  Excesso
+                                </p>
+                                {secao.excesso.length > 0 ? (
+                                  secao.excesso.map((linha, i) => (
+                                    <div key={i}>• {linha}</div>
+                                  ))
+                                ) : (
+                                  <div>Sem excesso relevante.</div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="rounded-xl border border-[#334155] bg-[#111827] p-4">
+                        <p className="mb-3 text-lg font-black text-[#3b82f6]">
+                          Artigos e justificação
+                        </p>
+
+                        <div className="space-y-3 text-sm text-white">
+                          {item.artigos.length > 0 ? (
+                            item.artigos.map((artigo, i) => (
+                              <div
+                                key={`${artigo.material}-${i}`}
+                                className="rounded-xl border border-[#334155] bg-[#0f172a] p-3"
+                              >
+                                <p className="font-black">{artigo.material}</p>
+                                {artigo.correto && (
+                                  <p className="mt-1 text-[#facc15]">
+                                    Alternativa mais adequada: {artigo.correto}
+                                  </p>
+                                )}
+                                <p className="mt-2 text-[#cbd5e1]">
+                                  {artigo.explicacao}
+                                </p>
+                                <a
+                                  href={artigo.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mt-2 inline-block text-[#93c5fd] underline hover:text-white"
+                                >
+                                  {artigo.titulo}
+                                </a>
+                              </div>
+                            ))
+                          ) : (
+                            <div>
+                              Não há artigos guardados para esta resolução.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

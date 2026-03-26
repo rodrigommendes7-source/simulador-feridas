@@ -34,6 +34,24 @@ type AplicacaoId =
   | "com_protecao_perilesional"
   | "compressao_forte";
 
+type AvaliacaoSecao = {
+  nome: string;
+  pontuacao: number;
+  maximo: number;
+  acertou: string[];
+  errou: string[];
+  faltou: string[];
+  excesso: string[];
+};
+
+type FeedbackLink = {
+  material: string;
+  correto?: string;
+  titulo: string;
+  url: string;
+  explicacao: string;
+};
+
 type HistoricoResolucao = {
   id: string;
   casoId: string;
@@ -44,7 +62,9 @@ type HistoricoResolucao = {
   perguntas: string[];
   tratamentos: string[];
   aplicacoes: string[];
-  feedback: string;
+  feedbackResumo: string;
+  secoes: AvaliacaoSecao[];
+  artigos: FeedbackLink[];
 };
 
 const STORAGE_KEY = "historico_resolucoes_feridas";
@@ -61,7 +81,7 @@ const respostasDialogo: Record<PerguntaId, string> = {
 const nomesPerguntas: Record<PerguntaId, string> = {
   dor: "dor",
   duracao: "duração",
-  posicao: "posição do membro / tempo declive",
+  posicao: "posição do membro / tempo em declive",
   pensos: "pensos prévios",
   febre: "febre",
   mobilidade: "mobilidade",
@@ -193,8 +213,55 @@ const linksEvidencia: Partial<
   },
 };
 
+const recomendacoesPorErro: Partial<
+  Record<
+    TratamentoId,
+    {
+      correto: string;
+      titulo: string;
+      url: string;
+      explicacao: string;
+    }
+  >
+> = {
+  alcool: {
+    correto: "Hidrofibra ou carboximetilcelulose, com antimicrobiano se indicado",
+    titulo: "Hydrofiber dressing applications: review",
+    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/",
+    explicacao:
+      "Num caso com deiscência e exsudado, o álcool é lesivo para o tecido; a prioridade é controlo do exsudado e proteção do leito.",
+  },
+  gaze_seca: {
+    correto: "Hidrofibra ou carboximetilcelulose",
+    titulo: "Hydrofiber/CMC dressings in exudate management",
+    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/",
+    explicacao:
+      "A gaze seca pode aderir ao leito e traumatizar o tecido; materiais absorventes são mais ajustados neste contexto.",
+  },
+  hidrogel: {
+    correto: "Hidrofibra ou carboximetilcelulose",
+    titulo: "Hydrofiber/CMC dressings in exudate management",
+    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/",
+    explicacao:
+      "Com exsudado moderado a abundante, o hidrogel não é a prioridade; o controlo do exsudado é mais importante.",
+  },
+  betametasona: {
+    correto: "Prata ou iodo, e considerar colagenase se houver tecido desvitalizado",
+    titulo: "Silver-releasing dressings: systematic review",
+    url: "https://pubmed.ncbi.nlm.nih.gov/18705778/",
+    explicacao:
+      "Num quadro com suspeita de infeção local e deiscência, betametasona não é prioridade terapêutica.",
+  },
+};
+
+function formatarDataHora(iso: string) {
+  return new Date(iso).toLocaleString("pt-PT");
+}
+
 export default function CasoDoisPage() {
   const [abaAtiva, setAbaAtiva] = useState<Aba>("observacao");
+  const [iniciado, setIniciado] = useState(false);
+  const [mostrarDetalhe, setMostrarDetalhe] = useState(false);
 
   const [observacaoImagemVista, setObservacaoImagemVista] = useState(false);
   const [observacaoDimensoesVista, setObservacaoDimensoesVista] = useState(false);
@@ -250,59 +317,255 @@ export default function CasoDoisPage() {
     observacaoPerilesionalVista,
   ]);
 
-  const pontuacao = useMemo(() => {
-    let score = 0;
+  const avaliacaoDetalhada = useMemo(() => {
+    const observacao: AvaliacaoSecao = {
+      nome: "Observação",
+      pontuacao: 0,
+      maximo: 40,
+      acertou: [],
+      errou: [],
+      faltou: [],
+      excesso: [],
+    };
 
-    if (observacaoImagemVista) score += 8;
-    if (observacaoDimensoesVista) score += 8;
-    if (observacaoExsudadoVista) score += 8;
-    if (observacaoCheiroVista) score += 6;
-    if (observacaoTecidoVista) score += 8;
-    if (observacaoPerilesionalVista) score += 8;
+    if (observacaoImagemVista) {
+      observacao.pontuacao += 6;
+      observacao.acertou.push("Visualizaste a imagem da ferida.");
+    } else {
+      observacao.faltou.push("Faltou observar a imagem da ferida.");
+    }
 
-    if (perguntasFeitas.includes("dor")) score += 8;
-    if (perguntasFeitas.includes("duracao")) score += 5;
-    if (perguntasFeitas.includes("posicao")) score += 8;
-    if (perguntasFeitas.includes("febre")) score += 8;
-    if (perguntasFeitas.includes("mobilidade")) score += 5;
-    if (perguntasFeitas.includes("pensos")) score += 4;
+    if (observacaoDimensoesVista) {
+      observacao.pontuacao += 7;
+      observacao.acertou.push("Consultaste as dimensões e extensão da deiscência.");
+    } else {
+      observacao.faltou.push("Faltou avaliar as dimensões da ferida.");
+    }
 
-    if (tratamentosSelecionados.includes("prata")) score += 8;
-    if (tratamentosSelecionados.includes("iodo")) score += 6;
+    if (observacaoExsudadoVista) {
+      observacao.pontuacao += 8;
+      observacao.acertou.push("Valorizaste o exsudado, essencial neste caso.");
+    } else {
+      observacao.faltou.push("Faltou avaliar o exsudado.");
+    }
 
-    if (tratamentosSelecionados.includes("hidrofibra")) score += 6;
-    if (tratamentosSelecionados.includes("carboximetilcelulose")) score += 6;
+    if (observacaoCheiroVista) {
+      observacao.pontuacao += 5;
+      observacao.acertou.push("Observaste o odor da ferida.");
+    } else {
+      observacao.faltou.push("Faltou observar o cheiro.");
+    }
 
-    if (tratamentosSelecionados.includes("colagenase")) score += 6;
+    if (observacaoTecidoVista) {
+      observacao.pontuacao += 8;
+      observacao.acertou.push("Identificaste tecido fibrinoso/desvitalizado.");
+    } else {
+      observacao.faltou.push("Faltou avaliar os tecidos presentes.");
+    }
 
-    if (tratamentosSelecionados.includes("emolientes_ags")) score += 3;
-    if (tratamentosSelecionados.includes("mel")) score += 1;
-    if (tratamentosSelecionados.includes("nitrato_prata")) score += 0;
+    if (observacaoPerilesionalVista) {
+      observacao.pontuacao += 6;
+      observacao.acertou.push("Observaste a pele peri-ferida.");
+    } else {
+      observacao.faltou.push("Faltou observar a pele peri-ferida.");
+    }
 
-    if (tratamentosSelecionados.includes("hidrogel")) score -= 4;
-    if (tratamentosSelecionados.includes("betametasona")) score -= 6;
-    if (tratamentosSelecionados.includes("alcool")) score -= 15;
-    if (tratamentosSelecionados.includes("gaze_seca")) score -= 12;
+    const dialogo: AvaliacaoSecao = {
+      nome: "Diálogo / colheita de dados",
+      pontuacao: 0,
+      maximo: 25,
+      acertou: [],
+      errou: [],
+      faltou: [],
+      excesso: [],
+    };
 
-    const numeroTratamentos = tratamentosSelecionados.length;
-    if (numeroTratamentos === 0) score -= 15;
-    if (numeroTratamentos === 1) score += 2;
-    if (numeroTratamentos === 2) score += 6;
-    if (numeroTratamentos === 3) score -= 2;
-    if (numeroTratamentos >= 4) score -= 10;
-    if (numeroTratamentos >= 5) score -= 18;
+    if (perguntasFeitas.includes("dor")) {
+      dialogo.pontuacao += 5;
+      dialogo.acertou.push("Avaliaste a dor.");
+    } else {
+      dialogo.faltou.push("Faltou avaliar a dor.");
+    }
 
-    if (aplicacoesSelecionadas.includes("apos_limpeza")) score += 8;
-    if (aplicacoesSelecionadas.includes("com_protecao_perilesional")) score += 6;
-    if (aplicacoesSelecionadas.includes("sem_desbridamento")) score -= 4;
-    if (aplicacoesSelecionadas.includes("direto_seco")) score -= 10;
-    if (aplicacoesSelecionadas.includes("compressao_forte")) score -= 12;
-    if (aplicacoesSelecionadas.length >= 4) score -= 6;
+    if (perguntasFeitas.includes("febre")) {
+      dialogo.pontuacao += 7;
+      dialogo.acertou.push("Exploraste febre, relevante para suspeita de infeção.");
+    } else {
+      dialogo.faltou.push("Faltou explorar febre ou sinais sistémicos.");
+    }
 
-    if (score < 0) score = 0;
-    if (score > 100) score = 100;
+    if (perguntasFeitas.includes("posicao")) {
+      dialogo.pontuacao += 5;
+      dialogo.acertou.push("Perguntaste sobre posição/declive do membro.");
+    } else {
+      dialogo.faltou.push("Faltou perguntar sobre posição da perna.");
+    }
 
-    return score;
+    if (perguntasFeitas.includes("duracao")) {
+      dialogo.pontuacao += 4;
+      dialogo.acertou.push("Exploraste a evolução temporal da ferida.");
+    } else {
+      dialogo.faltou.push("Faltou perguntar há quanto tempo a ferida evolui mal.");
+    }
+
+    if (perguntasFeitas.includes("pensos")) {
+      dialogo.pontuacao += 2;
+      dialogo.acertou.push("Perguntaste pelos pensos prévios.");
+    }
+
+    if (perguntasFeitas.includes("mobilidade")) {
+      dialogo.pontuacao += 2;
+      dialogo.acertou.push("Exploraste a mobilidade.");
+    }
+
+    const tratamento: AvaliacaoSecao = {
+      nome: "Escolha do tratamento",
+      pontuacao: 0,
+      maximo: 25,
+      acertou: [],
+      errou: [],
+      faltou: [],
+      excesso: [],
+    };
+
+    if (
+      tratamentosSelecionados.includes("prata") ||
+      tratamentosSelecionados.includes("iodo")
+    ) {
+      tratamento.pontuacao += 8;
+      tratamento.acertou.push(
+        "Consideraste antimicrobiano perante suspeita de infeção local."
+      );
+    } else {
+      tratamento.faltou.push(
+        "Faltou considerar um antimicrobiano, como prata ou iodo."
+      );
+    }
+
+    if (
+      tratamentosSelecionados.includes("hidrofibra") ||
+      tratamentosSelecionados.includes("carboximetilcelulose")
+    ) {
+      tratamento.pontuacao += 8;
+      tratamento.acertou.push(
+        "Selecionaste material orientado para gestão de exsudado."
+      );
+    } else {
+      tratamento.faltou.push(
+        "Faltou selecionar material orientado ao controlo do exsudado."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("colagenase")) {
+      tratamento.pontuacao += 6;
+      tratamento.acertou.push(
+        "Valorizaste o desbridamento do tecido desvitalizado."
+      );
+    } else {
+      tratamento.faltou.push(
+        "Faltou considerar colagenase perante tecido desvitalizado."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("hidrogel")) {
+      tratamento.pontuacao -= 4;
+      tratamento.errou.push(
+        "O hidrogel não é prioritário num caso com exsudado moderado a abundante."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("betametasona")) {
+      tratamento.pontuacao -= 6;
+      tratamento.errou.push(
+        "Betametasona não é prioritária neste contexto de deiscência e suspeita de infeção."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("alcool")) {
+      tratamento.pontuacao -= 8;
+      tratamento.errou.push("A aplicação de álcool na ferida é desadequada.");
+    }
+
+    if (tratamentosSelecionados.includes("gaze_seca")) {
+      tratamento.pontuacao -= 8;
+      tratamento.errou.push(
+        "A gaze seca pode aderir ao leito e traumatizar o tecido."
+      );
+    }
+
+    if (tratamentosSelecionados.length >= 4) {
+      tratamento.excesso.push(
+        "Selecionaste materiais em excesso para o mesmo objetivo terapêutico."
+      );
+      tratamento.pontuacao -= 5;
+    }
+
+    if (
+      tratamentosSelecionados.includes("hidrofibra") &&
+      tratamentosSelecionados.includes("carboximetilcelulose")
+    ) {
+      tratamento.excesso.push(
+        "Hidrofibra e carboximetilcelulose podem sobrepor função no controlo do exsudado."
+      );
+      tratamento.pontuacao -= 3;
+    }
+
+    const aplicacao: AvaliacaoSecao = {
+      nome: "Forma de aplicação",
+      pontuacao: 0,
+      maximo: 10,
+      acertou: [],
+      errou: [],
+      faltou: [],
+      excesso: [],
+    };
+
+    if (aplicacoesSelecionadas.includes("apos_limpeza")) {
+      aplicacao.pontuacao += 5;
+      aplicacao.acertou.push("Prevês aplicação após limpeza adequada.");
+    } else {
+      aplicacao.faltou.push("Faltou indicar limpeza adequada antes da cobertura.");
+    }
+
+    if (aplicacoesSelecionadas.includes("com_protecao_perilesional")) {
+      aplicacao.pontuacao += 3;
+      aplicacao.acertou.push("Consideraste proteção da pele peri-ferida.");
+    }
+
+    if (aplicacoesSelecionadas.includes("sem_desbridamento")) {
+      aplicacao.pontuacao -= 3;
+      aplicacao.errou.push(
+        "Assinalaste ausência de desbridamento como prioridade, o que não é o mais ajustado aqui."
+      );
+    }
+
+    if (aplicacoesSelecionadas.includes("direto_seco")) {
+      aplicacao.pontuacao -= 4;
+      aplicacao.errou.push(
+        "Aplicação direta em seco não é adequada neste contexto."
+      );
+    }
+
+    if (aplicacoesSelecionadas.includes("compressao_forte")) {
+      aplicacao.pontuacao -= 5;
+      aplicacao.errou.push(
+        "Compressão forte sobre a lesão não é adequada."
+      );
+    }
+
+    if (aplicacoesSelecionadas.length >= 4) {
+      aplicacao.excesso.push(
+        "Selecionaste demasiadas formas de aplicação em simultâneo."
+      );
+      aplicacao.pontuacao -= 2;
+    }
+
+    const secoes = [observacao, dialogo, tratamento, aplicacao].map((secao) => ({
+      ...secao,
+      pontuacao: Math.max(0, Math.min(secao.maximo, secao.pontuacao)),
+    }));
+
+    return secoes;
   }, [
     observacaoImagemVista,
     observacaoDimensoesVista,
@@ -315,136 +578,61 @@ export default function CasoDoisPage() {
     aplicacoesSelecionadas,
   ]);
 
+  const pontuacao = useMemo(() => {
+    const total = avaliacaoDetalhada.reduce(
+      (acc, secao) => acc + secao.pontuacao,
+      0
+    );
+    return Math.max(0, Math.min(100, total));
+  }, [avaliacaoDetalhada]);
+
   const avaliacaoTexto = useMemo(() => {
     if (pontuacao >= 85) {
-      return "Desempenho muito bom. Identificaste sinais compatíveis com deiscência e provável infeção local, recolheste dados relevantes e escolheste uma abordagem terapêutica adequada ao controlo do exsudado e da carga bacteriana.";
+      return "Desempenho muito bom. Reconheceste bem os sinais de deiscência, exsudado e provável infeção local, com uma abordagem globalmente adequada.";
     }
 
     if (pontuacao >= 70) {
-      return "Bom desempenho. Reconheceste vários elementos importantes do caso, mas faltou afinar alguns aspetos da avaliação ou da seleção dos materiais.";
+      return "Bom desempenho. A tua resolução foi globalmente útil, mas ainda houve aspetos importantes a afinar na escolha dos materiais ou no raciocínio terapêutico.";
     }
 
     if (pontuacao >= 50) {
-      return "Desempenho intermédio. Houve recolha parcial de dados e algumas escolhas terapêuticas úteis, mas a resolução ficou incompleta para a complexidade do caso.";
+      return "Desempenho intermédio. Identificaste parte dos problemas, mas faltaram etapas importantes para uma abordagem mais segura e dirigida ao caso.";
     }
 
-    return "Desempenho insuficiente. Este caso exige reconhecimento de deiscência, suspeita de infeção local e gestão adequada do exsudado; faltaram passos importantes.";
+    return "Desempenho insuficiente. Este caso exigia maior atenção à suspeita de infeção, gestão de exsudado, desbridamento e adequação da cobertura.";
   }, [pontuacao]);
 
-  const resumoPontosFortes = useMemo(() => {
-    const pontos: string[] = [];
-
-    if (observacaoDimensoesVista) {
-      pontos.push("Consultaste a extensão da ferida e das áreas de deiscência.");
-    }
-    if (observacaoExsudadoVista) {
-      pontos.push("Valorizaste a quantidade e o tipo de exsudado.");
-    }
-    if (observacaoTecidoVista) {
-      pontos.push("Observaste tecido fibrinoso e desvitalizado.");
-    }
-    if (perguntasFeitas.includes("febre")) {
-      pontos.push("Exploraste sinais sistémicos relevantes, como febre.");
-    }
-    if (perguntasFeitas.includes("dor")) {
-      pontos.push("Avaliaste a dor, importante no seguimento da ferida.");
-    }
-    if (
-      tratamentosSelecionados.includes("prata") ||
-      tratamentosSelecionados.includes("iodo")
-    ) {
-      pontos.push("Consideraste um antimicrobiano perante suspeita de infeção local.");
-    }
-    if (
-      tratamentosSelecionados.includes("hidrofibra") ||
-      tratamentosSelecionados.includes("carboximetilcelulose")
-    ) {
-      pontos.push("Selecionaste um material orientado para gestão de exsudado.");
-    }
-    if (tratamentosSelecionados.includes("colagenase")) {
-      pontos.push("Valorizaste a possibilidade de desbridamento do tecido desvitalizado.");
-    }
-
-    return pontos;
-  }, [
-    observacaoDimensoesVista,
-    observacaoExsudadoVista,
-    observacaoTecidoVista,
-    perguntasFeitas,
-    tratamentosSelecionados,
-  ]);
-
-  const resumoMelhorar = useMemo(() => {
-    const pontos: string[] = [];
-
-    if (!observacaoCheiroVista) {
-      pontos.push("Faltou verificar o odor da ferida.");
-    }
-    if (!observacaoPerilesionalVista) {
-      pontos.push("Faltou observar a pele perilesional e a presença de maceração.");
-    }
-    if (!perguntasFeitas.includes("febre")) {
-      pontos.push("Faltou explorar sinais sistémicos compatíveis com infeção.");
-    }
-    if (!perguntasFeitas.includes("posicao")) {
-      pontos.push("Faltou avaliar o posicionamento do membro e o tempo em declive.");
-    }
-    if (
-      !tratamentosSelecionados.includes("prata") &&
-      !tratamentosSelecionados.includes("iodo")
-    ) {
-      pontos.push("Perante suspeita de infeção, faltou considerar um agente antimicrobiano.");
-    }
-    if (!tratamentosSelecionados.includes("colagenase")) {
-      pontos.push("A presença de tecido desvitalizado poderia beneficiar de desbridamento.");
-    }
-    if (tratamentosSelecionados.includes("hidrogel")) {
-      pontos.push("O hidrogel não é a melhor prioridade num contexto de exsudado moderado a abundante.");
-    }
-    if (tratamentosSelecionados.includes("betametasona")) {
-      pontos.push("Betametasona não é adequada como prioridade neste contexto de deiscência e suspeita de infeção.");
-    }
-    if (tratamentosSelecionados.includes("alcool")) {
-      pontos.push("A aplicação de álcool na ferida é desadequada.");
-    }
-    if (tratamentosSelecionados.includes("gaze_seca")) {
-      pontos.push("A gaze seca pode traumatizar o leito e aderir ao tecido.");
-    }
-    if (aplicacoesSelecionadas.includes("sem_desbridamento")) {
-      pontos.push("Ao assinalar ausência de desbridamento como prioridade, afastaste uma intervenção potencialmente útil neste caso.");
-    }
-    if (tratamentosSelecionados.length >= 4) {
-      pontos.push("Selecionaste materiais em excesso; o penso deve ser dirigido ao objetivo principal e não cumulativo.");
-    }
-    if (
-      tratamentosSelecionados.includes("hidrofibra") &&
-      tratamentosSelecionados.includes("carboximetilcelulose")
-    ) {
-      pontos.push("Hidrofibra e carboximetilcelulose podem sobrepor função no controlo do exsudado; revê se precisas mesmo de ambas.");
-    }
-    if (pontos.length === 0) {
-      pontos.push("Resolução globalmente muito forte; para melhorar ainda mais, torna a tua decisão terapêutica ainda mais específica ao objetivo principal da ferida.");
-    }
-
-    return pontos;
-  }, [
-    observacaoCheiroVista,
-    observacaoPerilesionalVista,
-    perguntasFeitas,
-    tratamentosSelecionados,
-    aplicacoesSelecionadas,
-  ]);
-
-  const linksMateriaisSelecionados = useMemo(() => {
-    return tratamentosSelecionados
+    const linksMateriaisSelecionados = useMemo<FeedbackLink[]>(() => {
+    const selecionados: FeedbackLink[] = tratamentosSelecionados
       .filter((item) => linksEvidencia[item])
       .map((item) => ({
-        nome: nomesTratamentos[item],
+        material: nomesTratamentos[item],
         titulo: linksEvidencia[item]!.titulo,
         url: linksEvidencia[item]!.url,
+        explicacao: "Artigo de apoio relacionado com o material selecionado.",
       }));
-  }, [tratamentosSelecionados]);
 
+    const errados: FeedbackLink[] = tratamentosSelecionados
+      .filter((item) => recomendacoesPorErro[item])
+      .map((item) => ({
+        material: nomesTratamentos[item],
+        correto: recomendacoesPorErro[item]!.correto,
+        titulo: recomendacoesPorErro[item]!.titulo,
+        url: recomendacoesPorErro[item]!.url,
+        explicacao: recomendacoesPorErro[item]!.explicacao,
+      }));
+
+    const combinados: FeedbackLink[] = [...selecionados, ...errados];
+
+    const unicos = combinados.filter(
+      (item, index, arr) =>
+        arr.findIndex(
+          (x) => x.material === item.material && x.url === item.url
+        ) === index
+    );
+
+    return unicos;
+  }, [tratamentosSelecionados]);
   function guardarNoHistorico() {
     if (typeof window === "undefined") return;
 
@@ -461,7 +649,9 @@ export default function CasoDoisPage() {
       perguntas: perguntasFeitas.map((item) => nomesPerguntas[item]),
       tratamentos: tratamentosSelecionados.map((item) => nomesTratamentos[item]),
       aplicacoes: aplicacoesSelecionadas.map((item) => nomesAplicacoes[item]),
-      feedback: avaliacaoTexto,
+      feedbackResumo: avaliacaoTexto,
+      secoes: avaliacaoDetalhada,
+      artigos: linksMateriaisSelecionados,
     };
 
     const historicoGuardado = localStorage.getItem(STORAGE_KEY);
@@ -479,6 +669,8 @@ export default function CasoDoisPage() {
   }
 
   function resetarCaso() {
+    setIniciado(false);
+    setMostrarDetalhe(false);
     setAbaAtiva("observacao");
     setObservacaoImagemVista(false);
     setObservacaoDimensoesVista(false);
@@ -515,8 +707,11 @@ export default function CasoDoisPage() {
             <div className="space-y-3">
               <button
                 onClick={() => setAbaAtiva("observacao")}
+                disabled={!iniciado}
                 className={`w-full rounded-[18px] border px-4 py-3 text-left text-[19px] font-bold transition ${
-                  abaAtiva === "observacao"
+                  !iniciado
+                    ? "cursor-not-allowed border-[#334155] bg-[#475569] text-[#cbd5e1]"
+                    : abaAtiva === "observacao"
                     ? "border-[#1d4ed8] bg-[#0f172a] text-[#1d4ed8]"
                     : "border-[#334155] bg-white text-[#0f172a] hover:bg-[#f8fafc]"
                 }`}
@@ -526,8 +721,11 @@ export default function CasoDoisPage() {
 
               <button
                 onClick={() => setAbaAtiva("dialogo")}
+                disabled={!iniciado}
                 className={`w-full rounded-[18px] border px-4 py-3 text-left text-[19px] font-bold transition ${
-                  abaAtiva === "dialogo"
+                  !iniciado
+                    ? "cursor-not-allowed border-[#334155] bg-[#475569] text-[#cbd5e1]"
+                    : abaAtiva === "dialogo"
                     ? "border-[#1d4ed8] bg-[#0f172a] text-[#1d4ed8]"
                     : "border-[#334155] bg-white text-[#0f172a] hover:bg-[#f8fafc]"
                 }`}
@@ -537,8 +735,11 @@ export default function CasoDoisPage() {
 
               <button
                 onClick={() => setAbaAtiva("tratamento")}
+                disabled={!iniciado}
                 className={`w-full rounded-[18px] border px-4 py-3 text-left text-[19px] font-bold transition ${
-                  abaAtiva === "tratamento"
+                  !iniciado
+                    ? "cursor-not-allowed border-[#334155] bg-[#475569] text-[#cbd5e1]"
+                    : abaAtiva === "tratamento"
                     ? "border-[#1d4ed8] bg-[#0f172a] text-[#1d4ed8]"
                     : "border-[#334155] bg-white text-[#0f172a] hover:bg-[#f8fafc]"
                 }`}
@@ -553,8 +754,7 @@ export default function CasoDoisPage() {
               </p>
               <p className="mt-1 text-[13px] leading-snug text-[#cbd5e1]">
                 Avaliar deiscência cirúrgica, sinais de infeção local, tecido
-                desvitalizado e selecionar um tratamento adequado ao exsudado e
-                controlo bacteriano.
+                desvitalizado e selecionar um tratamento adequado.
               </p>
             </div>
           </div>
@@ -562,7 +762,12 @@ export default function CasoDoisPage() {
           <div className="mt-4 space-y-3">
             <button
               onClick={finalizarCaso}
-              className="w-full rounded-[20px] bg-[#facc15] px-4 py-4 text-[24px] font-black text-[#0f172a] shadow hover:bg-[#fde047]"
+              disabled={!iniciado}
+              className={`w-full rounded-[20px] px-4 py-4 text-[24px] font-black shadow ${
+                iniciado
+                  ? "bg-[#facc15] text-[#0f172a] hover:bg-[#fde047]"
+                  : "cursor-not-allowed bg-[#64748b] text-[#e2e8f0]"
+              }`}
             >
               Terminar
             </button>
@@ -584,7 +789,43 @@ export default function CasoDoisPage() {
         </aside>
 
         <section className="flex h-full min-w-0 flex-1 flex-col rounded-[34px] border border-[#334155] bg-[#111827] p-4 shadow-2xl">
-          {abaAtiva !== "resultado" && (
+          {!iniciado && (
+            <div className="flex h-full items-center justify-center">
+              <div className="w-full max-w-3xl rounded-[30px] border border-[#334155] bg-[#0f172a] p-10 text-center shadow-2xl">
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#1d4ed8]">
+                  Caso clínico
+                </p>
+                <h2 className="mt-4 text-4xl font-black text-white">
+                  Caso 2 — Ferida cirúrgica com deiscência
+                </h2>
+                <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[#cbd5e1]">
+                  Utente de 72 anos, submetido a cirurgia vascular há 10 dias,
+                  com ferida na perna esquerda, na região da canela/tíbia,
+                  apresentando abertura parcial da sutura, aumento de exsudado e
+                  dor local.
+                </p>
+
+                <div className="mt-8 rounded-2xl border border-[#334155] bg-[#111827] p-5 text-left">
+                  <p className="text-sm font-bold uppercase tracking-wide text-[#1d4ed8]">
+                    Foco do caso
+                  </p>
+                  <p className="mt-2 text-base text-white">
+                    Avaliar deiscência, infeção local, exsudado, tecido
+                    desvitalizado e escolher uma abordagem terapêutica coerente.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setIniciado(true)}
+                  className="mt-8 rounded-2xl bg-[#facc15] px-8 py-4 text-lg font-black text-[#0f172a] hover:bg-[#fde047]"
+                >
+                  Iniciar caso
+                </button>
+              </div>
+            </div>
+          )}
+
+          {iniciado && abaAtiva !== "resultado" && (
             <>
               <div className="mb-3 rounded-[24px] border border-[#334155] bg-[#0f172a] px-5 py-3">
                 <p className="text-[16px] font-bold text-[#e2e8f0]">
@@ -597,7 +838,10 @@ export default function CasoDoisPage() {
 
               <div className="grid min-h-0 flex-1 grid-cols-[1.35fr_0.85fr] gap-3">
                 <div className="flex min-h-0 flex-col rounded-[32px] border border-[#334155] bg-[#0f172a] p-4">
-                
+                  <div className="mb-3 text-center text-[24px] font-black text-[#1d4ed8]">
+                    FOTOGRAFIA
+                  </div>
+
                   <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[26px] border border-[#334155] bg-black">
                     {abaAtiva === "observacao" ? (
                       observacaoImagemVista ? (
@@ -609,9 +853,13 @@ export default function CasoDoisPage() {
                       ) : (
                         <div className="px-8 text-center text-[18px] font-semibold text-[#94a3b8]">
                           Clica em{" "}
-                          <span className="font-black text-[#1d4ed8]">
+                          <button
+                            type="button"
+                            onClick={() => setObservacaoImagemVista(true)}
+                            className="font-black text-[#1d4ed8] underline hover:text-white"
+                          >
                             Ver imagem da ferida
-                          </span>{" "}
+                          </button>{" "}
                           para visualizar a fotografia.
                         </div>
                       )
@@ -632,11 +880,16 @@ export default function CasoDoisPage() {
                                 {
                                   {
                                     dor: "Tem dor? Se sim, quanto daria numa escala de 0 a 10?",
-                                    duracao: "Há quanto tempo nota que a ferida não está a fechar bem?",
-                                    posicao: "Costuma manter a perna muito tempo para baixo ou elevada?",
-                                    pensos: "Sabe dizer como têm sido feitos os pensos?",
-                                    febre: "Teve febre, arrepios ou sensação de mal-estar?",
-                                    mobilidade: "Consegue andar bem ou tem dificuldade na mobilização?",
+                                    duracao:
+                                      "Há quanto tempo nota que a ferida não está a fechar bem?",
+                                    posicao:
+                                      "Costuma manter a perna muito tempo para baixo ou elevada?",
+                                    pensos:
+                                      "Sabe dizer como têm sido feitos os pensos?",
+                                    febre:
+                                      "Teve febre, arrepios ou sensação de mal-estar?",
+                                    mobilidade:
+                                      "Consegue andar bem ou tem dificuldade na mobilização?",
                                   }[perguntaAtual]
                                 }
                               </p>
@@ -705,13 +958,6 @@ export default function CasoDoisPage() {
                   <div className="min-h-0 flex-1 overflow-auto rounded-[22px] bg-[#111827] p-3">
                     {abaAtiva === "observacao" && (
                       <div className="space-y-3">
-                        <button
-                          onClick={() => setObservacaoImagemVista(true)}
-                          className={botaoAcao}
-                        >
-                          Ver imagem da ferida
-                        </button>
-
                         <button
                           onClick={() => setObservacaoDimensoesVista(true)}
                           className={botaoAcao}
@@ -903,7 +1149,9 @@ export default function CasoDoisPage() {
                           <label className={botaoOpcao}>
                             <input
                               type="checkbox"
-                              checked={aplicacoesSelecionadas.includes("sem_desbridamento")}
+                              checked={aplicacoesSelecionadas.includes(
+                                "sem_desbridamento"
+                              )}
                               onChange={() =>
                                 toggleAplicacao("sem_desbridamento")
                               }
@@ -977,112 +1225,113 @@ export default function CasoDoisPage() {
                 <div className="mt-4 rounded-[22px] border border-[#334155] bg-[#111827] p-4 text-[16px] font-semibold text-white">
                   {avaliacaoTexto}
                 </div>
+
+                <button
+                  onClick={() => setMostrarDetalhe((v) => !v)}
+                  className="mt-4 rounded-[18px] bg-[#1d4ed8] px-5 py-3 text-[16px] font-black text-white hover:bg-[#2563eb]"
+                >
+                  {mostrarDetalhe
+                    ? "Esconder avaliação detalhada"
+                    : "Ver avaliação detalhada"}
+                </button>
               </div>
 
-              <div className="grid min-h-0 flex-1 grid-cols-3 gap-4">
-                <div className="rounded-[24px] border border-[#334155] bg-[#111827] p-4">
-                  <h3 className="mb-3 text-[22px] font-black text-[#22c55e]">
-                    Pontos positivos
-                  </h3>
-                  <div className="space-y-2 text-[15px] font-semibold text-white">
-                    {resumoPontosFortes.length > 0 ? (
-                      resumoPontosFortes.map((item, index) => (
-                        <div key={index}>• {item}</div>
-                      ))
-                    ) : (
-                      <div>
-                        Ainda não há pontos fortes suficientes registados.
+              {mostrarDetalhe && (
+                <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-auto">
+                  {avaliacaoDetalhada.map((secao) => (
+                    <div
+                      key={secao.nome}
+                      className="rounded-[24px] border border-[#334155] bg-[#111827] p-4"
+                    >
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <h3 className="text-[22px] font-black text-[#1d4ed8]">
+                          {secao.nome}
+                        </h3>
+                        <span className="rounded-full bg-[#0f172a] px-3 py-1 text-sm font-black text-white">
+                          {secao.pontuacao}/{secao.maximo}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                <div className="rounded-[24px] border border-[#334155] bg-[#111827] p-4">
-                  <h3 className="mb-3 text-[22px] font-black text-[#facc15]">
-                    Aspetos a melhorar
-                  </h3>
-                  <div className="space-y-2 text-[15px] font-semibold text-white">
-                    {resumoMelhorar.length > 0 ? (
-                      resumoMelhorar.map((item, index) => (
-                        <div key={index}>• {item}</div>
-                      ))
-                    ) : (
-                      <div>
-                        Não foram identificados aspetos de melhoria relevantes.
+                      <div className="space-y-4 text-[14px] font-semibold text-white">
+                        <div>
+                          <p className="mb-2 font-black text-[#22c55e]">Acertos</p>
+                          {secao.acertou.length > 0 ? (
+                            secao.acertou.map((item, i) => <div key={i}>• {item}</div>)
+                          ) : (
+                            <div>Sem acertos assinaláveis nesta secção.</div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="mb-2 font-black text-[#facc15]">
+                            O que faltou
+                          </p>
+                          {secao.faltou.length > 0 ? (
+                            secao.faltou.map((item, i) => <div key={i}>• {item}</div>)
+                          ) : (
+                            <div>Sem omissões relevantes.</div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="mb-2 font-black text-[#f87171]">Erros</p>
+                          {secao.errou.length > 0 ? (
+                            secao.errou.map((item, i) => <div key={i}>• {item}</div>)
+                          ) : (
+                            <div>Sem erros críticos nesta secção.</div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="mb-2 font-black text-[#c084fc]">Excesso</p>
+                          {secao.excesso.length > 0 ? (
+                            secao.excesso.map((item, i) => <div key={i}>• {item}</div>)
+                          ) : (
+                            <div>Sem excesso de opções nesta secção.</div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="rounded-[24px] border border-[#334155] bg-[#111827] p-4">
-                  <h3 className="mb-3 text-[22px] font-black text-[#1d4ed8]">
-                    Resumo
-                  </h3>
-
-                  <div className="space-y-3 text-[14px] font-semibold text-white">
-                    <div>
-                      <strong>Observações:</strong>{" "}
-                      {observacoesRealizadas.join(", ") || "nenhuma"}
                     </div>
+                  ))}
 
-                    <div>
-                      <strong>Perguntas:</strong>{" "}
-                      {perguntasFeitas.length > 0
-                        ? perguntasFeitas
-                            .map((item) => nomesPerguntas[item])
-                            .join(", ")
-                        : "nenhuma"}
-                    </div>
+                  <div className="col-span-2 rounded-[24px] border border-[#334155] bg-[#111827] p-4">
+                    <h3 className="mb-3 text-[22px] font-black text-[#1d4ed8]">
+                      Artigos e correção de escolhas
+                    </h3>
 
-                    <div>
-                      <strong>Tratamentos:</strong>{" "}
-                      {tratamentosSelecionados.length > 0
-                        ? tratamentosSelecionados
-                            .map((item) => nomesTratamentos[item])
-                            .join(", ")
-                        : "nenhum"}
-                    </div>
-
-                    <div>
-                      <strong>Aplicação:</strong>{" "}
-                      {aplicacoesSelecionadas.length > 0
-                        ? aplicacoesSelecionadas
-                            .map((item) => nomesAplicacoes[item])
-                            .join(", ")
-                        : "nenhuma"}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 rounded-2xl border border-[#334155] bg-[#0f172a] p-3">
-                    <p className="mb-2 text-[14px] font-black text-[#1d4ed8]">
-                      Evidência científica dos materiais selecionados
-                    </p>
-
-                    {linksMateriaisSelecionados.length > 0 ? (
-                      <div className="space-y-2 text-[14px] font-semibold text-white">
-                        {linksMateriaisSelecionados.map((item) => (
-                          <div key={item.url}>
-                            • {item.nome}:{" "}
+                    <div className="space-y-3 text-[14px] font-semibold text-white">
+                      {linksMateriaisSelecionados.length > 0 ? (
+                        linksMateriaisSelecionados.map((item, index) => (
+                          <div
+                            key={`${item.material}-${index}`}
+                            className="rounded-2xl border border-[#334155] bg-[#0f172a] p-3"
+                          >
+                            <p className="font-black text-white">
+                              Material: {item.material}
+                            </p>
+                            {item.correto && (
+                              <p className="mt-1 text-[#facc15]">
+                                Alternativa mais adequada: {item.correto}
+                              </p>
+                            )}
+                            <p className="mt-2 text-[#cbd5e1]">{item.explicacao}</p>
                             <a
                               href={item.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#93c5fd] underline hover:text-white"
+                              className="mt-2 inline-block text-[#93c5fd] underline hover:text-white"
                             >
                               {item.titulo}
                             </a>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-[14px] font-semibold text-white">
-                        Não há artigos associados aos materiais selecionados nesta
-                        tentativa.
-                      </p>
-                    )}
+                        ))
+                      ) : (
+                        <div>Não há artigos associados às escolhas desta tentativa.</div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex gap-3">
                 <button

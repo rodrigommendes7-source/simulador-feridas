@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🩺 Simulador de Tratamento de Feridas
 
-## Getting Started
+Simulador interativo desenvolvido no âmbito da Licenciatura em Enfermagem da Universidade dos Açores, com o objetivo de apoiar a aprendizagem prática na avaliação e tratamento de feridas em contexto clínico.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🎯 Objetivo
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Este projeto tem como finalidade permitir aos estudantes de enfermagem:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Desenvolver raciocínio clínico na abordagem à ferida
+- Treinar a seleção adequada de materiais de tratamento
+- Compreender a evolução de uma ferida ao longo do tempo
+- Receber feedback sobre decisões clínicas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🧠 Funcionalidades
 
-To learn more about Next.js, take a look at the following resources:
+- 📂 Casos clínicos interativos (aleatórios ou selecionáveis)
+- 📝 Contextualização inicial do utente e da ferida
+- 🖼️ Visualização da ferida (imagem clínica)
+- 🔍 Consulta de dados clínicos (exsudado, tecido, odor, dimensões)
+- ✍️ Identificação de tecidos (interface interativa)
+- 🧴 Seleção de materiais de tratamento
+- 📊 Sistema de avaliação com feedback automático
+- 📜 Histórico de casos resolvidos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🏗️ Estrutura do Projeto
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+simulador-feridas/
+│
+├── src/
+│ ├── app/
+│ │ ├── page.tsx (menu principal)
+│ │ ├── casos/
+│ │ ├── aprender/
+│ │ └── historico/
+│ │
+│ ├── components/
+│ ├── data/ (casos clínicos em JSON)
+│ └── styles/
+│
+├── public/
+├── package.json
+└── README.md
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+---
+
+## ⚙️ Tecnologias Utilizadas
+
+- React / Next.js
+- TypeScript
+- CSS / Tailwind (se aplicável)
+- Estrutura baseada em componentes reutilizáveis
+
+---
+
+## 🧪 Estado Atual
+
+✔ Interface base funcional  
+✔ Sistema de casos clínicos implementado  
+✔ Lógica de seleção de materiais  
+✔ Sistema de feedback em desenvolvimento  
+
+---
+
+## 🚧 Próximos Passos
+
+- Melhorar sistema de avaliação (evitar conflitos de feedback)
+- Implementar página "Aprender" com conteúdo teórico
+- Criar histórico persistente de casos
+- Otimizar UI/UX (design mais minimalista e responsivo)
+- Adaptar totalmente para mobile (iPhone)
+
+---
+
+## 👨‍⚕️ Contexto Académico
+
+Projeto desenvolvido por **Rodrigo Marques Mendes**, estudante do 4.º ano da Licenciatura em Enfermagem na Universidade dos Açores, no âmbito do Ensino Clínico em Unidade de Tratamentos.
+
+Este contexto foca-se particularmente no tratamento de feridas, área central da prática em cuidados de saúde primários :contentReference[oaicite:0]{index=0}.
+
+---
+
+## 📚 Enquadramento
+
+A prática de enfermagem em contexto de tratamento de feridas exige:
+
+- Avaliação clínica rigorosa
+- Seleção adequada de materiais
+- Adaptação contínua do plano de cuidados
+
+Este simulador pretende funcionar como ferramenta complementar ao ensino clínico, facilitando a consolidação destas competências.
+
+---
+
+## 📌 Nota
+
+Este projeto encontra-se em desenvolvimento ativo e poderá sofrer alterações frequentes.
+
+---
+
+## 📬 Contacto
+
+Rodrigo Marques Mendes  
+📧 2022108118@uac.pt  

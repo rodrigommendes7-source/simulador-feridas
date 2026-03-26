@@ -34,6 +34,25 @@ type AplicacaoId =
   | "com_protecao_perilesional"
   | "compressao_forte";
 
+type AvaliacaoSecao = {
+  nome: string;
+  pontuacao: number;
+  maximo: number;
+  acertou: string[];
+  errou: string[];
+  faltou: string[];
+  excesso: string[];
+  justificacaoPerda: string[];
+};
+
+type FeedbackLink = {
+  material: string;
+  correto?: string;
+  titulo: string;
+  url: string;
+  explicacao: string;
+};
+
 type HistoricoResolucao = {
   id: string;
   casoId: string;
@@ -45,6 +64,8 @@ type HistoricoResolucao = {
   tratamentos: string[];
   aplicacoes: string[];
   feedback: string;
+  avaliacaoDetalhada: AvaliacaoSecao[];
+  linksFeedback: FeedbackLink[];
 };
 
 const STORAGE_KEY = "historico_resolucoes_feridas";
@@ -58,10 +79,19 @@ const respostasDialogo: Record<PerguntaId, string> = {
   mobilidade: "Preciso de ajuda para me virar e para sair da cama.",
 };
 
+const textoPerguntas: Record<PerguntaId, string> = {
+  dor: "Tem dor? Se sim, quanto daria numa escala de 0 a 10?",
+  duracao: "Há quanto tempo tem esta ferida?",
+  posicao: "Consegue mudar de posição? Passa muito tempo na mesma postura?",
+  pensos: "Sabe que tipo de pensos lhe têm sido feitos?",
+  febre: "Tem tido febre ou arrepios?",
+  mobilidade: "Consegue mobilizar-se sozinho ou precisa de ajuda?",
+};
+
 const nomesPerguntas: Record<PerguntaId, string> = {
   dor: "dor",
   duracao: "duração",
-  posicao: "posição",
+  posicao: "posição / alívio de pressão",
   pensos: "pensos prévios",
   febre: "febre",
   mobilidade: "mobilidade",
@@ -143,7 +173,7 @@ const materiaisPorCategoria = [
     categoria: "Anti-inflamatório",
     itens: [{ id: "betametasona" as TratamentoId, nome: "Betametasona" }],
   },
-      {
+  {
     categoria: "Outros materiais / abordagens",
     itens: [
       { id: "alcool" as TratamentoId, nome: "Aplicação de álcool" },
@@ -193,15 +223,59 @@ const linksEvidencia: Partial<
   },
 };
 
+const recomendacoesPorErro: Partial<
+  Record<
+    TratamentoId,
+    {
+      correto: string;
+      titulo: string;
+      url: string;
+      explicacao: string;
+    }
+  >
+> = {
+  alcool: {
+    correto: "Hidrofibra",
+    titulo: "Hydrofiber dressing applications: review",
+    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/",
+    explicacao:
+      "O álcool é citotóxico e desadequado no leito da ferida. Neste caso, seria mais apropriado um material dirigido ao controlo do exsudado, como a hidrofibra.",
+  },
+  gaze_seca: {
+    correto: "Hidrofibra ou carboximetilcelulose",
+    titulo: "Hydrofiber/CMC dressings in exudate management",
+    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/",
+    explicacao:
+      "A gaze seca pode aderir ao leito e traumatizar tecido viável. Uma abordagem húmida e absorvente é mais adequada neste contexto.",
+  },
+  nitrato_prata: {
+    correto: "Hidrofibra",
+    titulo: "Hydrofiber dressing applications: review",
+    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/",
+    explicacao:
+      "O nitrato de prata está mais associado ao controlo de hipergranulação, o que não é o foco principal deste caso.",
+  },
+  betametasona: {
+    correto: "Proteção da pele perilesional e gestão do exsudado",
+    titulo: "Essential fatty acids and skin breakdown prevention",
+    url: "https://pubmed.ncbi.nlm.nih.gov/9233238/",
+    explicacao:
+      "A betametasona não é uma escolha de primeira linha neste caso. A prioridade clínica é proteger a pele peri-ferida e controlar o exsudado.",
+  },
+};
+
 export default function CasoUmPage() {
+  const [iniciado, setIniciado] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState<Aba>("observacao");
+  const [mostrarDetalhe, setMostrarDetalhe] = useState(false);
 
   const [observacaoImagemVista, setObservacaoImagemVista] = useState(false);
   const [observacaoDimensoesVista, setObservacaoDimensoesVista] = useState(false);
   const [observacaoExsudadoVista, setObservacaoExsudadoVista] = useState(false);
   const [observacaoCheiroVista, setObservacaoCheiroVista] = useState(false);
   const [observacaoTecidoVista, setObservacaoTecidoVista] = useState(false);
-  const [observacaoPerilesionalVista, setObservacaoPerilesionalVista] = useState(false);
+  const [observacaoPerilesionalVista, setObservacaoPerilesionalVista] =
+    useState(false);
 
   const [perguntasFeitas, setPerguntasFeitas] = useState<PerguntaId[]>([]);
   const [perguntaAtual, setPerguntaAtual] = useState<PerguntaId | null>(null);
@@ -250,57 +324,418 @@ export default function CasoUmPage() {
     observacaoPerilesionalVista,
   ]);
 
-  const pontuacao = useMemo(() => {
-    let score = 0;
+  const avaliacaoDetalhada = useMemo<AvaliacaoSecao[]>(() => {
+    const secoes: AvaliacaoSecao[] = [];
 
-    if (observacaoImagemVista) score += 8;
-    if (observacaoDimensoesVista) score += 8;
-    if (observacaoExsudadoVista) score += 6;
-    if (observacaoCheiroVista) score += 6;
-    if (observacaoTecidoVista) score += 8;
-    if (observacaoPerilesionalVista) score += 8;
+    const observacao: AvaliacaoSecao = {
+      nome: "Observação",
+      pontuacao: 0,
+      maximo: 25,
+      acertou: [],
+      errou: [],
+      faltou: [],
+      excesso: [],
+      justificacaoPerda: [],
+    };
 
-    if (perguntasFeitas.includes("dor")) score += 8;
-    if (perguntasFeitas.includes("duracao")) score += 5;
-    if (perguntasFeitas.includes("posicao")) score += 8;
-    if (perguntasFeitas.includes("febre")) score += 4;
-    if (perguntasFeitas.includes("mobilidade")) score += 7;
-    if (perguntasFeitas.includes("pensos")) score += 3;
+    if (observacaoImagemVista) {
+      observacao.pontuacao += 4;
+      observacao.acertou.push("Visualizaste a imagem da ferida.");
+    } else {
+      observacao.faltou.push("Faltou observar diretamente a imagem da ferida.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não visualizares a imagem da ferida."
+      );
+    }
 
-    if (tratamentosSelecionados.includes("hidrofibra")) score += 10;
-    if (tratamentosSelecionados.includes("carboximetilcelulose")) score += 8;
-    if (tratamentosSelecionados.includes("hidrogel")) score += 3;
-    if (tratamentosSelecionados.includes("colagenase")) score += 2;
-    if (tratamentosSelecionados.includes("prata")) score += 2;
-    if (tratamentosSelecionados.includes("iodo")) score += 1;
-    if (tratamentosSelecionados.includes("emolientes_ags")) score += 4;
+    if (observacaoDimensoesVista) {
+      observacao.pontuacao += 5;
+      observacao.acertou.push("Consultaste as dimensões da ferida.");
+    } else {
+      observacao.faltou.push("Faltou verificar as dimensões da ferida.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares as dimensões da ferida."
+      );
+    }
 
-    if (tratamentosSelecionados.includes("mel")) score += 1;
-    if (tratamentosSelecionados.includes("betametasona")) score += 0;
-    if (tratamentosSelecionados.includes("nitrato_prata")) score += 0;
+    if (observacaoExsudadoVista) {
+      observacao.pontuacao += 4;
+      observacao.acertou.push("Observaste o exsudado.");
+    } else {
+      observacao.faltou.push("Faltou avaliar o exsudado.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares o exsudado."
+      );
+    }
 
-    if (tratamentosSelecionados.includes("alcool")) score -= 15;
-    if (tratamentosSelecionados.includes("gaze_seca")) score -= 12;
+    if (observacaoCheiroVista) {
+      observacao.pontuacao += 3;
+      observacao.acertou.push("Verificaste o odor da ferida.");
+    } else {
+      observacao.faltou.push("Faltou verificar o odor da ferida.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não verificares o odor da ferida."
+      );
+    }
 
-    const numeroTratamentos = tratamentosSelecionados.length;
-    if (numeroTratamentos === 0) score -= 15;
-    if (numeroTratamentos === 1) score += 4;
-    if (numeroTratamentos === 2) score += 6;
-    if (numeroTratamentos === 3) score -= 3;
-    if (numeroTratamentos >= 4) score -= 10;
-    if (numeroTratamentos >= 5) score -= 18;
+    if (observacaoTecidoVista) {
+      observacao.pontuacao += 5;
+      observacao.acertou.push("Observaste os tecidos presentes no leito.");
+    } else {
+      observacao.faltou.push("Faltou avaliar os tecidos presentes no leito.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não identificares os tecidos presentes no leito."
+      );
+    }
 
-    if (aplicacoesSelecionadas.includes("apos_limpeza")) score += 8;
-    if (aplicacoesSelecionadas.includes("com_protecao_perilesional")) score += 8;
-    if (aplicacoesSelecionadas.includes("sem_desbridamento")) score += 2;
-    if (aplicacoesSelecionadas.includes("direto_seco")) score -= 10;
-    if (aplicacoesSelecionadas.includes("compressao_forte")) score -= 12;
-    if (aplicacoesSelecionadas.length >= 4) score -= 6;
+    if (observacaoPerilesionalVista) {
+      observacao.pontuacao += 4;
+      observacao.acertou.push("Observaste a pele perilesional.");
+    } else {
+      observacao.faltou.push("Faltou avaliar a pele perilesional.");
+      observacao.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares a pele perilesional."
+      );
+    }
 
-    if (score < 0) score = 0;
-    if (score > 100) score = 100;
+    secoes.push(observacao);
 
-    return score;
+    const dialogo: AvaliacaoSecao = {
+      nome: "Diálogo / colheita de dados",
+      pontuacao: 0,
+      maximo: 25,
+      acertou: [],
+      errou: [],
+      faltou: [],
+      excesso: [],
+      justificacaoPerda: [],
+    };
+
+    if (perguntasFeitas.includes("dor")) {
+      dialogo.pontuacao += 6;
+      dialogo.acertou.push("Avaliaste a dor do utente.");
+    } else {
+      dialogo.faltou.push("Faltou avaliar a dor.");
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares a dor."
+      );
+    }
+
+    if (perguntasFeitas.includes("duracao")) {
+      dialogo.pontuacao += 3;
+      dialogo.acertou.push("Perguntaste há quanto tempo existe a ferida.");
+    } else {
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não explorares a duração da ferida."
+      );
+    }
+
+    if (perguntasFeitas.includes("posicao")) {
+      dialogo.pontuacao += 6;
+      dialogo.acertou.push("Exploraste posicionamento e alívio de pressão.");
+    } else {
+      dialogo.faltou.push("Faltou explorar posicionamento e alívio de pressão.");
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não explorares alívio de pressão e posicionamento."
+      );
+    }
+
+    if (perguntasFeitas.includes("mobilidade")) {
+      dialogo.pontuacao += 5;
+      dialogo.acertou.push("Avaliaste a mobilidade / dependência.");
+    } else {
+      dialogo.faltou.push("Faltou avaliar a mobilidade / dependência.");
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não avaliares a mobilidade / dependência."
+      );
+    }
+
+    if (perguntasFeitas.includes("febre")) {
+      dialogo.pontuacao += 3;
+      dialogo.acertou.push("Questionaste sinais sistémicos como febre.");
+    } else {
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não explorares sinais sistémicos como febre."
+      );
+    }
+
+    if (perguntasFeitas.includes("pensos")) {
+      dialogo.pontuacao += 2;
+      dialogo.acertou.push("Questionaste pensos prévios.");
+    } else {
+      dialogo.justificacaoPerda.push(
+        "Perdeste pontuação por não questionares os pensos prévios."
+      );
+    }
+
+    secoes.push(dialogo);
+
+    const tratamento: AvaliacaoSecao = {
+      nome: "Escolha do tratamento",
+      pontuacao: 0,
+      maximo: 30,
+      acertou: [],
+      errou: [],
+      faltou: [],
+      excesso: [],
+      justificacaoPerda: [],
+    };
+
+    if (tratamentosSelecionados.includes("hidrofibra")) {
+      tratamento.pontuacao += 10;
+      tratamento.acertou.push(
+        "Selecionaste hidrofibra para controlo do exsudado."
+      );
+    } else {
+      tratamento.faltou.push(
+        "Faltou considerar um material absorvente dirigido ao exsudado, como a hidrofibra."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por não selecionares um material principal de controlo do exsudado."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("carboximetilcelulose")) {
+      tratamento.pontuacao += 7;
+      tratamento.acertou.push(
+        "Selecionaste carboximetilcelulose para gestão do exsudado."
+      );
+    } else {
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por não considerares carboximetilcelulose como alternativa absorvente."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("emolientes_ags")) {
+      tratamento.pontuacao += 4;
+      tratamento.acertou.push(
+        "Consideraste proteção da pele perilesional com emolientes / AGE."
+      );
+    } else {
+      tratamento.faltou.push(
+        "Faltou considerar proteção da pele perilesional."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por não protegeres a pele perilesional."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("hidrogel")) {
+      tratamento.pontuacao += 2;
+      tratamento.acertou.push(
+        "O hidrogel pode ser útil em alguns contextos, mas não é a prioridade principal aqui."
+      );
+      tratamento.justificacaoPerda.push(
+        "Não tiveste pontuação máxima nesta componente porque o hidrogel é apenas uma opção secundária neste caso."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("colagenase")) {
+      tratamento.pontuacao += 1;
+      tratamento.acertou.push(
+        "A colagenase pode ter utilidade se houver necessidade clara de desbridamento, mas não é a prioridade principal neste caso."
+      );
+      tratamento.justificacaoPerda.push(
+        "A colagenase foi valorizada apenas parcialmente porque o desbridamento enzimático não é o foco principal aqui."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("prata")) {
+      tratamento.pontuacao += 1;
+      tratamento.acertou.push(
+        "A prata pode ter lugar em contexto infecioso, mas não é a escolha principal neste cenário."
+      );
+      tratamento.justificacaoPerda.push(
+        "A prata recebeu apenas pontuação parcial porque não há evidência forte de infeção como problema dominante."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("iodo")) {
+      tratamento.pontuacao += 1;
+      tratamento.acertou.push(
+        "O iodo pode ter utilidade pontual, mas não é a prioridade terapêutica principal aqui."
+      );
+      tratamento.justificacaoPerda.push(
+        "O iodo recebeu apenas pontuação parcial porque não responde ao objetivo terapêutico central deste caso."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("mel")) {
+      tratamento.pontuacao += 1;
+      tratamento.acertou.push(
+        "O mel tem potencial bioativo, embora não seja a escolha principal neste caso."
+      );
+      tratamento.justificacaoPerda.push(
+        "O mel recebeu apenas pontuação parcial porque não é a escolha prioritária para o problema dominante."
+      );
+    }
+
+    if (tratamentosSelecionados.includes("betametasona")) {
+      tratamento.errou.push(
+        "A betametasona não é uma escolha adequada como foco principal neste caso."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por selecionares betametasona sem indicação principal neste contexto."
+      );
+      tratamento.pontuacao -= 4;
+    }
+
+    if (tratamentosSelecionados.includes("nitrato_prata")) {
+      tratamento.errou.push(
+        "O nitrato de prata não responde ao principal problema clínico deste caso."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por selecionares nitrato de prata para um caso em que a hipergranulação não é o foco."
+      );
+      tratamento.pontuacao -= 4;
+    }
+
+    if (tratamentosSelecionados.includes("alcool")) {
+      tratamento.errou.push(
+        "A aplicação de álcool na ferida é desadequada e citotóxica."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por escolheres álcool, que é prejudicial ao leito da ferida."
+      );
+      tratamento.pontuacao -= 12;
+    }
+
+    if (tratamentosSelecionados.includes("gaze_seca")) {
+      tratamento.errou.push(
+        "A gaze seca pode aderir ao leito e traumatizar tecido viável."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por escolheres gaze seca, que pode traumatizar a ferida."
+      );
+      tratamento.pontuacao -= 10;
+    }
+
+    if (
+      tratamentosSelecionados.includes("hidrofibra") &&
+      tratamentosSelecionados.includes("carboximetilcelulose")
+    ) {
+      tratamento.excesso.push(
+        "Hidrofibra e carboximetilcelulose podem sobrepor função; revê se precisas mesmo de ambas."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste parte da pontuação por sobreposição funcional entre materiais absorventes."
+      );
+      tratamento.pontuacao -= 2;
+    }
+
+    if (tratamentosSelecionados.length === 0) {
+      tratamento.faltou.push("Não selecionaste qualquer material de tratamento.");
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por não selecionares materiais de tratamento."
+      );
+      tratamento.pontuacao -= 10;
+    }
+
+    if (tratamentosSelecionados.length >= 4) {
+      tratamento.excesso.push(
+        "Selecionaste materiais em excesso; o penso deve ser mais dirigido."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste pontuação por excesso de materiais e falta de foco terapêutico."
+      );
+      tratamento.pontuacao -= 6;
+    }
+
+    if (tratamentosSelecionados.length >= 5) {
+      tratamento.excesso.push(
+        "A seleção ficou demasiado cumulativa e pouco focada no objetivo principal."
+      );
+      tratamento.justificacaoPerda.push(
+        "Perdeste ainda mais pontuação porque a seleção ficou demasiado ampla e pouco criteriosa."
+      );
+      tratamento.pontuacao -= 4;
+    }
+
+    if (tratamento.pontuacao < 0) tratamento.pontuacao = 0;
+    if (tratamento.pontuacao > tratamento.maximo)
+      tratamento.pontuacao = tratamento.maximo;
+
+    secoes.push(tratamento);
+
+    const aplicacao: AvaliacaoSecao = {
+      nome: "Forma de aplicação",
+      pontuacao: 0,
+      maximo: 20,
+      acertou: [],
+      errou: [],
+      faltou: [],
+      excesso: [],
+      justificacaoPerda: [],
+    };
+
+    if (aplicacoesSelecionadas.includes("apos_limpeza")) {
+      aplicacao.pontuacao += 7;
+      aplicacao.acertou.push("Indicaste aplicação após limpeza adequada.");
+    } else {
+      aplicacao.faltou.push("Faltou referir limpeza adequada antes da aplicação.");
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por não incluíres limpeza adequada antes da cobertura."
+      );
+    }
+
+    if (aplicacoesSelecionadas.includes("com_protecao_perilesional")) {
+      aplicacao.pontuacao += 7;
+      aplicacao.acertou.push("Consideraste proteção da pele perilesional.");
+    } else {
+      aplicacao.faltou.push("Faltou incluir proteção da pele perilesional.");
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por não incluíres proteção da pele perilesional."
+      );
+    }
+
+    if (aplicacoesSelecionadas.includes("sem_desbridamento")) {
+      aplicacao.pontuacao += 3;
+      aplicacao.acertou.push(
+        "Reconheceste que o desbridamento enzimático não é a prioridade principal nesta fase."
+      );
+    } else {
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por não demonstrares prioridade terapêutica adequada nesta fase."
+      );
+    }
+
+    if (aplicacoesSelecionadas.includes("direto_seco")) {
+      aplicacao.errou.push(
+        "A aplicação direta em seco não respeita uma abordagem húmida adequada."
+      );
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por selecionares aplicação direta em seco."
+      );
+      aplicacao.pontuacao -= 8;
+    }
+
+    if (aplicacoesSelecionadas.includes("compressao_forte")) {
+      aplicacao.errou.push(
+        "A compressão forte sobre a lesão não é adequada neste contexto."
+      );
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por selecionares compressão forte sobre a lesão."
+      );
+      aplicacao.pontuacao -= 10;
+    }
+
+    if (aplicacoesSelecionadas.length >= 4) {
+      aplicacao.excesso.push(
+        "Selecionaste demasiadas formas de aplicação sem foco suficiente."
+      );
+      aplicacao.justificacaoPerda.push(
+        "Perdeste pontuação por excesso de opções de aplicação."
+      );
+      aplicacao.pontuacao -= 3;
+    }
+
+    if (aplicacao.pontuacao < 0) aplicacao.pontuacao = 0;
+    if (aplicacao.pontuacao > aplicacao.maximo)
+      aplicacao.pontuacao = aplicacao.maximo;
+
+    secoes.push(aplicacao);
+
+    return secoes;
   }, [
     observacaoImagemVista,
     observacaoDimensoesVista,
@@ -313,9 +748,19 @@ export default function CasoUmPage() {
     aplicacoesSelecionadas,
   ]);
 
+  const pontuacao = useMemo(() => {
+    const total = avaliacaoDetalhada.reduce(
+      (acc, secao) => acc + secao.pontuacao,
+      0
+    );
+    if (total < 0) return 0;
+    if (total > 100) return 100;
+    return total;
+  }, [avaliacaoDetalhada]);
+
   const avaliacaoTexto = useMemo(() => {
     if (pontuacao >= 85) {
-      return "Desempenho muito bom. Fizeste uma avaliação abrangente, recolheste dados relevantes junto do utente e escolheste uma abordagem terapêutica globalmente adequada para o caso.";
+      return "Desempenho muito bom. Fizeste uma avaliação abrangente, recolheste dados clinicamente relevantes e selecionaste uma abordagem globalmente adequada para a lesão por pressão.";
     }
 
     if (pontuacao >= 70) {
@@ -329,112 +774,34 @@ export default function CasoUmPage() {
     return "Desempenho insuficiente. Faltaram etapas importantes de avaliação e houve decisões terapêuticas desadequadas para este caso.";
   }, [pontuacao]);
 
-  const resumoPontosFortes = useMemo(() => {
-    const pontos: string[] = [];
-
-    if (observacaoDimensoesVista) {
-      pontos.push("Consultaste as dimensões da ferida.");
-    }
-    if (observacaoTecidoVista) {
-      pontos.push("Observaste o tipo de tecido presente no leito.");
-    }
-    if (perguntasFeitas.includes("dor")) {
-      pontos.push("Avaliaste a dor do utente.");
-    }
-    if (perguntasFeitas.includes("mobilidade")) {
-      pontos.push("Exploraste a mobilidade e dependência.");
-    }
-    if (tratamentosSelecionados.includes("hidrofibra")) {
-      pontos.push("Selecionaste hidrofibra para gestão do exsudado.");
-    }
-    if (tratamentosSelecionados.includes("carboximetilcelulose")) {
-      pontos.push("Consideraste um material absorvente dirigido ao exsudado.");
-    }
-    if (aplicacoesSelecionadas.includes("com_protecao_perilesional")) {
-      pontos.push("Consideraste proteção da pele perilesional.");
-    }
-
-    return pontos;
-  }, [
-    observacaoDimensoesVista,
-    observacaoTecidoVista,
-    perguntasFeitas,
-    tratamentosSelecionados,
-    aplicacoesSelecionadas,
-  ]);
-
-  const resumoMelhorar = useMemo(() => {
-    const pontos: string[] = [];
-
-    if (!observacaoCheiroVista) {
-      pontos.push("Faltou verificar o odor da ferida.");
-    }
-    if (!observacaoPerilesionalVista) {
-      pontos.push("Faltou observar a pele perilesional.");
-    }
-    if (!perguntasFeitas.includes("dor")) {
-      pontos.push("Faltou avaliar a dor.");
-    }
-    if (!perguntasFeitas.includes("posicao")) {
-      pontos.push(
-        "Faltou explorar alívio de pressão e posicionamento."
-      );
-    }
-    if (tratamentosSelecionados.includes("alcool")) {
-      pontos.push("A aplicação de álcool na ferida é desadequada.");
-    }
-    if (tratamentosSelecionados.includes("gaze_seca")) {
-      pontos.push("A gaze seca pode traumatizar o leito da ferida.");
-    }
-    if (aplicacoesSelecionadas.includes("compressao_forte")) {
-      pontos.push("Compressão forte não é adequada neste contexto.");
-    }
-    if (aplicacoesSelecionadas.includes("direto_seco")) {
-      pontos.push(
-        "A aplicação direta em seco não respeita uma abordagem húmida adequada."
-      );
-    }
-    if (tratamentosSelecionados.length >= 4) {
-      pontos.push(
-        "Selecionaste materiais em excesso; o penso deve ser mais dirigido e menos cumulativo."
-      );
-    }
-    if (
-      tratamentosSelecionados.includes("hidrofibra") &&
-      tratamentosSelecionados.includes("carboximetilcelulose")
-    ) {
-      pontos.push(
-        "Hidrofibra e carboximetilcelulose podem sobrepor função no controlo do exsudado; revê se precisas mesmo de ambas."
-      );
-    }
-    if (tratamentosSelecionados.length === 1) {
-      pontos.push(
-        "Podias justificar melhor a tua escolha principal com base no objetivo terapêutico."
-      );
-    }
-    if (pontos.length === 0) {
-      pontos.push(
-        "Resolução globalmente muito forte; para melhorar ainda mais, torna a tua seleção de materiais mais explicitamente justificada pelo objetivo principal da ferida."
-      );
-    }
-
-    return pontos;
-  }, [
-    observacaoCheiroVista,
-    observacaoPerilesionalVista,
-    perguntasFeitas,
-    tratamentosSelecionados,
-    aplicacoesSelecionadas,
-  ]);
-
-  const linksMateriaisSelecionados = useMemo(() => {
-    return tratamentosSelecionados
+  const linksMateriaisSelecionados = useMemo<FeedbackLink[]>(() => {
+    const selecionados: FeedbackLink[] = tratamentosSelecionados
       .filter((item) => linksEvidencia[item])
       .map((item) => ({
-        nome: nomesTratamentos[item],
+        material: nomesTratamentos[item],
         titulo: linksEvidencia[item]!.titulo,
         url: linksEvidencia[item]!.url,
+        explicacao: "Artigo de apoio relacionado com o material selecionado.",
       }));
+
+    const errados: FeedbackLink[] = tratamentosSelecionados
+      .filter((item) => recomendacoesPorErro[item])
+      .map((item) => ({
+        material: nomesTratamentos[item],
+        correto: recomendacoesPorErro[item]!.correto,
+        titulo: recomendacoesPorErro[item]!.titulo,
+        url: recomendacoesPorErro[item]!.url,
+        explicacao: recomendacoesPorErro[item]!.explicacao,
+      }));
+
+    const combinados: FeedbackLink[] = [...selecionados, ...errados];
+
+    return combinados.filter(
+      (item, index, arr) =>
+        arr.findIndex(
+          (x) => x.material === item.material && x.url === item.url
+        ) === index
+    );
   }, [tratamentosSelecionados]);
 
   function guardarNoHistorico() {
@@ -454,6 +821,8 @@ export default function CasoUmPage() {
       tratamentos: tratamentosSelecionados.map((item) => nomesTratamentos[item]),
       aplicacoes: aplicacoesSelecionadas.map((item) => nomesAplicacoes[item]),
       feedback: avaliacaoTexto,
+      avaliacaoDetalhada,
+      linksFeedback: linksMateriaisSelecionados,
     };
 
     const historicoGuardado = localStorage.getItem(STORAGE_KEY);
@@ -468,10 +837,13 @@ export default function CasoUmPage() {
   function finalizarCaso() {
     guardarNoHistorico();
     setAbaAtiva("resultado");
+    setMostrarDetalhe(false);
   }
 
   function resetarCaso() {
+    setIniciado(false);
     setAbaAtiva("observacao");
+    setMostrarDetalhe(false);
     setObservacaoImagemVista(false);
     setObservacaoDimensoesVista(false);
     setObservacaoExsudadoVista(false);
@@ -513,7 +885,7 @@ export default function CasoUmPage() {
                     : "border-[#334155] bg-white text-[#0f172a] hover:bg-[#f8fafc]"
                 }`}
               >
-                Observar
+                Observação
               </button>
 
               <button
@@ -540,9 +912,7 @@ export default function CasoUmPage() {
             </div>
 
             <div className="mt-6 rounded-[20px] border border-[#334155] bg-[#0f172a] p-3">
-              <p className="text-[14px] font-bold text-[#1d4ed8]">
-                Objetivo
-              </p>
+              <p className="text-[14px] font-bold text-[#1d4ed8]">Objetivo</p>
               <p className="mt-1 text-[13px] leading-snug text-[#cbd5e1]">
                 Avaliar a lesão, recolher informação relevante e escolher uma
                 abordagem terapêutica adequada.
@@ -574,8 +944,36 @@ export default function CasoUmPage() {
           </div>
         </aside>
 
-        <section className="flex h-full min-w-0 flex-1 flex-col rounded-[34px] border border-[#334155] bg-[#111827] p-4 shadow-2xl">
-          {abaAtiva !== "resultado" && (
+        <section className="flex h-full min-w-0 flex-1 flex-col rounded-[34px] border border-[#334155] bg-[#111827] p-4 shadow-2xl overflow-hidden">
+          {!iniciado ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="max-w-[760px] rounded-[28px] border border-[#334155] bg-[#0f172a] p-8 text-center">
+                <h2 className="mb-4 text-[32px] font-black text-white">
+                  Caso 1 — Lesão por pressão
+                </h2>
+
+                <p className="mb-6 text-[16px] text-[#cbd5e1]">
+                  Utente de 78 anos, dependente parcial, com lesão por pressão
+                  na região sagrada. Apresenta mobilidade reduzida e necessidade
+                  de ajuda no posicionamento.
+                </p>
+
+                <p className="mb-8 text-[15px] leading-relaxed text-[#94a3b8]">
+                  Neste caso deves observar a ferida, recolher informação
+                  relevante junto do utente e selecionar uma abordagem
+                  terapêutica ajustada ao estado do leito, exsudado e pele
+                  peri-ferida.
+                </p>
+
+                <button
+                  onClick={() => setIniciado(true)}
+                  className="rounded-[18px] bg-[#1d4ed8] px-6 py-3 text-[18px] font-black text-white hover:bg-[#2563eb]"
+                >
+                  Iniciar caso
+                </button>
+              </div>
+            </div>
+          ) : abaAtiva !== "resultado" ? (
             <>
               <div className="mb-3 rounded-[24px] border border-[#334155] bg-[#0f172a] px-5 py-3">
                 <p className="text-[16px] font-bold text-[#e2e8f0]">
@@ -587,7 +985,6 @@ export default function CasoUmPage() {
 
               <div className="grid min-h-0 flex-1 grid-cols-[1.35fr_0.85fr] gap-3">
                 <div className="flex min-h-0 flex-col rounded-[32px] border border-[#334155] bg-[#0f172a] p-4">
-                
                   <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[26px] border border-[#334155] bg-black">
                     {abaAtiva === "observacao" ? (
                       observacaoImagemVista ? (
@@ -597,13 +994,17 @@ export default function CasoUmPage() {
                           className="max-h-full max-w-full rounded-[20px] object-contain"
                         />
                       ) : (
-                        <div className="px-8 text-center text-[18px] font-semibold text-[#94a3b8]">
+                        <button
+                          type="button"
+                          onClick={() => setObservacaoImagemVista(true)}
+                          className="px-8 text-center text-[18px] font-semibold text-[#94a3b8]"
+                        >
                           Clica em{" "}
-                          <span className="font-black text-[#1d4ed8]">
+                          <span className="font-black text-[#1d4ed8] underline underline-offset-4">
                             Ver imagem da ferida
                           </span>{" "}
                           para visualizar a fotografia.
-                        </div>
+                        </button>
                       )
                     ) : abaAtiva === "dialogo" ? (
                       <div className="w-full px-6">
@@ -619,20 +1020,7 @@ export default function CasoUmPage() {
                                 Tu
                               </p>
                               <p className="text-[17px] font-semibold text-white">
-                                {
-                                  {
-                                    dor: "Tem dor? Se sim, quanto daria numa escala de 0 a 10?",
-                                    duracao:
-                                      "Há quanto tempo tem esta ferida?",
-                                    posicao:
-                                      "Consegue mudar de posição? Passa muito tempo na mesma postura?",
-                                    pensos:
-                                      "Sabe que tipo de pensos lhe têm sido feitos?",
-                                    febre: "Tem tido febre ou arrepios?",
-                                    mobilidade:
-                                      "Consegue mobilizar-se sozinho ou precisa de ajuda?",
-                                  }[perguntaAtual]
-                                }
+                                {textoPerguntas[perguntaAtual]}
                               </p>
                             </div>
 
@@ -657,9 +1045,7 @@ export default function CasoUmPage() {
                             <div className="space-y-2 text-[15px] font-semibold text-white">
                               {tratamentosSelecionados.length > 0 ? (
                                 tratamentosSelecionados.map((item) => (
-                                  <div key={item}>
-                                    • {nomesTratamentos[item]}
-                                  </div>
+                                  <div key={item}>• {nomesTratamentos[item]}</div>
                                 ))
                               ) : (
                                 <div className="text-[#94a3b8]">
@@ -676,9 +1062,7 @@ export default function CasoUmPage() {
                             <div className="space-y-2 text-[15px] font-semibold text-white">
                               {aplicacoesSelecionadas.length > 0 ? (
                                 aplicacoesSelecionadas.map((item) => (
-                                  <div key={item}>
-                                    • {nomesAplicacoes[item]}
-                                  </div>
+                                  <div key={item}>• {nomesAplicacoes[item]}</div>
                                 ))
                               ) : (
                                 <div className="text-[#94a3b8]">
@@ -751,8 +1135,8 @@ export default function CasoUmPage() {
                               <strong className="text-[#1d4ed8]">
                                 Dimensões:
                               </strong>{" "}
-                              aproximadamente 4 cm x 3 cm, profundidade ligeira
-                              a moderada.
+                              aproximadamente 4 cm x 3 cm, profundidade ligeira a
+                              moderada.
                             </div>
                           )}
                           {observacaoExsudadoVista && (
@@ -765,7 +1149,9 @@ export default function CasoUmPage() {
                           )}
                           {observacaoCheiroVista && (
                             <div className="rounded-2xl border border-[#334155] bg-[#0f172a] p-3 text-[14px] font-semibold text-white">
-                              <strong className="text-[#1d4ed8]">Cheiro:</strong>{" "}
+                              <strong className="text-[#1d4ed8]">
+                                Cheiro:
+                              </strong>{" "}
                               ligeiro, sem odor fétido intenso.
                             </div>
                           )}
@@ -774,8 +1160,8 @@ export default function CasoUmPage() {
                               <strong className="text-[#1d4ed8]">
                                 Tecido presente:
                               </strong>{" "}
-                              granulação viável com áreas de
-                              fibrina/amarelecida.
+                              granulação viável com áreas de fibrina /
+                              amarelecida.
                             </div>
                           )}
                           {observacaoPerilesionalVista && (
@@ -955,10 +1341,8 @@ export default function CasoUmPage() {
                 </div>
               </div>
             </>
-          )}
-
-          {abaAtiva === "resultado" && (
-            <div className="flex h-full min-h-0 flex-col gap-4">
+          ) : (
+            <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto pr-1">
               <div className="rounded-[28px] border border-[#334155] bg-[#0f172a] p-5">
                 <h2 className="text-[34px] font-black text-[#f8fafc]">
                   Resultado final
@@ -990,46 +1374,120 @@ export default function CasoUmPage() {
                 <div className="mt-4 rounded-[22px] border border-[#334155] bg-[#111827] p-4 text-[16px] font-semibold text-white">
                   {avaliacaoTexto}
                 </div>
+
+                <button
+                  onClick={() => setMostrarDetalhe((prev) => !prev)}
+                  className="mt-4 rounded-[18px] border border-[#334155] bg-white px-4 py-3 text-[15px] font-black text-[#0f172a] hover:bg-[#f8fafc]"
+                >
+                  {mostrarDetalhe
+                    ? "Ocultar avaliação detalhada"
+                    : "Mostrar avaliação detalhada"}
+                </button>
               </div>
 
-              <div className="grid min-h-0 flex-1 grid-cols-3 gap-4">
-                <div className="rounded-[24px] border border-[#334155] bg-[#111827] p-4">
-                  <h3 className="mb-3 text-[22px] font-black text-[#22c55e]">
-                    Pontos positivos
-                  </h3>
-                  <div className="space-y-2 text-[15px] font-semibold text-white">
-                    {resumoPontosFortes.length > 0 ? (
-                      resumoPontosFortes.map((item, index) => (
-                        <div key={index}>• {item}</div>
-                      ))
-                    ) : (
-                      <div>
-                        Ainda não há pontos fortes suficientes registados.
+              {mostrarDetalhe && (
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {avaliacaoDetalhada.map((secao) => (
+                    <div
+                      key={secao.nome}
+                      className="rounded-[24px] border border-[#334155] bg-[#111827] p-4"
+                    >
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <h3 className="text-[22px] font-black text-[#1d4ed8]">
+                          {secao.nome}
+                        </h3>
+                        <span className="rounded-full bg-[#0f172a] px-3 py-1 text-[14px] font-black text-white">
+                          {secao.pontuacao}/{secao.maximo}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                <div className="rounded-[24px] border border-[#334155] bg-[#111827] p-4">
-                  <h3 className="mb-3 text-[22px] font-black text-[#facc15]">
-                    Aspetos a melhorar
-                  </h3>
-                  <div className="space-y-2 text-[15px] font-semibold text-white">
-                    {resumoMelhorar.length > 0 ? (
-                      resumoMelhorar.map((item, index) => (
-                        <div key={index}>• {item}</div>
-                      ))
-                    ) : (
-                      <div>
-                        Não foram identificados aspetos de melhoria relevantes.
+                      <div className="space-y-4 text-[14px] font-semibold text-white">
+                        <div>
+                          <p className="mb-2 font-black text-[#22c55e]">
+                            Acertos
+                          </p>
+                          {secao.acertou.length > 0 ? (
+                            <div className="space-y-1">
+                              {secao.acertou.map((item, index) => (
+                                <div key={index}>• {item}</div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[#94a3b8]">Sem registos.</div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="mb-2 font-black text-[#ef4444]">
+                            Erros
+                          </p>
+                          {secao.errou.length > 0 ? (
+                            <div className="space-y-1">
+                              {secao.errou.map((item, index) => (
+                                <div key={index}>• {item}</div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[#94a3b8]">Sem registos.</div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="mb-2 font-black text-[#facc15]">
+                            Faltou
+                          </p>
+                          {secao.faltou.length > 0 ? (
+                            <div className="space-y-1">
+                              {secao.faltou.map((item, index) => (
+                                <div key={index}>• {item}</div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[#94a3b8]">Sem registos.</div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="mb-2 font-black text-[#93c5fd]">
+                            Excesso
+                          </p>
+                          {secao.excesso.length > 0 ? (
+                            <div className="space-y-1">
+                              {secao.excesso.map((item, index) => (
+                                <div key={index}>• {item}</div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[#94a3b8]">Sem registos.</div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="mb-2 font-black text-[#f59e0b]">
+                            Porque não tiveste a pontuação máxima
+                          </p>
+                          {secao.justificacaoPerda.length > 0 ? (
+                            <div className="space-y-1">
+                              {secao.justificacaoPerda.map((item, index) => (
+                                <div key={index}>• {item}</div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[#94a3b8]">
+                              Tiveste pontuação máxima nesta secção.
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  ))}
                 </div>
+              )}
 
+              <div className="grid gap-4 lg:grid-cols-2">
                 <div className="rounded-[24px] border border-[#334155] bg-[#111827] p-4">
                   <h3 className="mb-3 text-[22px] font-black text-[#1d4ed8]">
-                    Resumo
+                    Resumo da resolução
                   </h3>
 
                   <div className="space-y-3 text-[14px] font-semibold text-white">
@@ -1065,39 +1523,53 @@ export default function CasoUmPage() {
                         : "nenhuma"}
                     </div>
                   </div>
+                </div>
 
-                  <div className="mt-4 rounded-2xl border border-[#334155] bg-[#0f172a] p-3">
-                    <p className="mb-2 text-[14px] font-black text-[#1d4ed8]">
-                      Evidência científica dos materiais selecionados
+                <div className="rounded-[24px] border border-[#334155] bg-[#111827] p-4">
+                  <h3 className="mb-3 text-[22px] font-black text-[#1d4ed8]">
+                    Artigos e justificações
+                  </h3>
+
+                  {linksMateriaisSelecionados.length > 0 ? (
+                    <div className="space-y-3 text-[14px] font-semibold text-white">
+                      {linksMateriaisSelecionados.map((item) => (
+                        <div
+                          key={`${item.material}-${item.url}`}
+                          className="rounded-2xl border border-[#334155] bg-[#0f172a] p-3"
+                        >
+                          <p className="font-black text-white">
+                            {item.material}
+                          </p>
+
+                          {item.correto && (
+                            <p className="mt-1 text-[#facc15]">
+                              Alternativa mais adequada: {item.correto}
+                            </p>
+                          )}
+
+                          <p className="mt-2 text-[#cbd5e1]">{item.explicacao}</p>
+
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-block text-[#93c5fd] underline hover:text-white"
+                          >
+                            {item.titulo}
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[14px] font-semibold text-white">
+                      Não há artigos associados aos materiais selecionados nesta
+                      tentativa.
                     </p>
-
-                    {linksMateriaisSelecionados.length > 0 ? (
-                      <div className="space-y-2 text-[14px] font-semibold text-white">
-                        {linksMateriaisSelecionados.map((item) => (
-                          <div key={item.url}>
-                            • {item.nome}:{" "}
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[#93c5fd] underline hover:text-white"
-                            >
-                              {item.titulo}
-                            </a>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-[14px] font-semibold text-white">
-                        Não há artigos associados aos materiais selecionados nesta
-                        tentativa.
-                      </p>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 pb-2">
                 <button
                   onClick={resetarCaso}
                   className="rounded-[18px] bg-[#1d4ed8] px-5 py-3 text-[17px] font-black text-white hover:bg-[#2563eb]"

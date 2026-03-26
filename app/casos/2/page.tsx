@@ -232,8 +232,8 @@ export default function CasoDoisPage() {
     TratamentoId[]
   >([]);
   const [aplicacoesSelecionadas, setAplicacoesSelecionadas] = useState<
-    AplicacaoId[]
-  >[];
+  AplicacaoId[]
+>([]);
 
   function toggleTratamento(id: TratamentoId) {
     setTratamentosSelecionados((prev) =>

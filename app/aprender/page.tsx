@@ -13,7 +13,7 @@ type SecaoAprendizagem = {
 const secoes: SecaoAprendizagem[] = [
   {
     titulo: "Desbridamento",
-      objetivoClinico:
+    objetivoClinico:
       "Remover tecido desvitalizado/biofilme para reduzir carga inflamatória e preparar o leito da ferida.",
     quandoUsar: [
       "Presença de fibrina aderente, necrose húmida ou tecido desvitalizado que atrasa granulação.",
@@ -30,7 +30,7 @@ const secoes: SecaoAprendizagem[] = [
   },
   {
     titulo: "Gestão de exsudado",
-  objetivoClinico:
+    objetivoClinico:
       "Controlar humidade, prevenir maceração peri-ferida e manter ambiente terapêutico para cicatrização.",
     quandoUsar: [
       "Exsudado moderado/abundante com risco de extravasamento e dano cutâneo.",
@@ -43,10 +43,11 @@ const secoes: SecaoAprendizagem[] = [
     exemplosPraticos: [
       "Lesão por pressão com exsudado: escolher um material absorvente principal e reavaliar em 24–48h.",
       "Maceração peri-ferida: otimizar absorção + reforçar proteção cutânea periférica.",
-    ],  },
+    ],
+  },
   {
     titulo: "Antimicrobianos",
-  objetivoClinico:
+    objetivoClinico:
       "Reduzir carga microbiana local quando há suspeita de infeção crítica ou infeção local estabelecida.",
     quandoUsar: [
       "Sinais locais de infeção: aumento de exsudado, odor, dor, atraso de cicatrização, tecido friável.",
@@ -59,10 +60,11 @@ const secoes: SecaoAprendizagem[] = [
     exemplosPraticos: [
       "Ferida cirúrgica deiscente com febre ligeira: ponderar prata/iodo e monitorizar resposta clínica.",
       "Sem melhoria após ciclo antimicrobiano: rever diagnóstico, técnica e fatores sistémicos.",
-    ],  },
+    ],
+  },
   {
     titulo: "Proteção da pele peri-ferida",
-  objetivoClinico:
+    objetivoClinico:
       "Preservar integridade cutânea adjacente, reduzindo maceração, dermatite por exsudado e dor ao penso.",
     quandoUsar: [
       "Sempre que há exsudado com contacto frequente com a pele peri-ferida.",
@@ -75,7 +77,8 @@ const secoes: SecaoAprendizagem[] = [
     exemplosPraticos: [
       "Aplicar barreira cutânea/AGE na periferia antes da cobertura absorvente.",
       "Se há descolamento recorrente do penso, rever preparação da pele e técnica de fixação.",
-    ],  },
+    ],
+  },
   {
     titulo: "Materiais desadequados",
     objetivoClinico:
@@ -91,9 +94,10 @@ const secoes: SecaoAprendizagem[] = [
     exemplosPraticos: [
       "Trocar abordagem agressiva por limpeza adequada + cobertura húmida dirigida ao objetivo da ferida.",
       "Se houver dúvida terapêutica, priorizar materiais com benefício claro para o problema dominante.",
-    ],  },
+    ],
+  },
   {
-  titulo: "Princípios de decisão clínica",
+    titulo: "Princípios de decisão clínica",
     objetivoClinico:
       "Tomar decisões estruturadas, reproduzíveis e centradas no problema clínico dominante da ferida.",
     quandoUsar: [
@@ -107,7 +111,8 @@ const secoes: SecaoAprendizagem[] = [
     exemplosPraticos: [
       "Problema dominante = exsudado: priorizar absorção e proteção peri-ferida.",
       "Problema dominante = tecido desvitalizado: incluir desbridamento e monitorizar evolução do leito.",
-    ],  },
+    ],
+  },
 ];
 
 export default function AprenderPage() {
@@ -117,12 +122,13 @@ export default function AprenderPage() {
         <div className="mb-10 flex flex-wrap items-start justify-between gap-6">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#60a5fa]">
-              Área pedagógica            
-              </p>
+              Área pedagógica
+            </p>
             <h1 className="mb-3 text-4xl font-bold text-white">Aprender</h1>
             <p className="max-w-3xl text-sm text-[#64748b]">
               Guia de estudo para apoio à decisão clínica em tratamento de
-              feridas, com foco em raciocínio terapêutico e segurança.            </p>
+              feridas, com foco em raciocínio terapêutico e segurança.
+            </p>
           </div>
 
           <div className="flex gap-3">
@@ -148,7 +154,8 @@ export default function AprenderPage() {
               key={secao.titulo}
               className="rounded-2xl border border-[#1e293b] bg-[#0f172a] p-6"
             >
-<h2 className="mb-4 text-lg font-semibold text-white">                {secao.titulo}
+              <h2 className="mb-4 text-lg font-semibold text-white">
+                {secao.titulo}
               </h2>
 
               <div className="space-y-4 text-sm leading-relaxed text-[#94a3b8]">
@@ -189,7 +196,8 @@ export default function AprenderPage() {
                     ))}
                   </ul>
                 </div>
-              </div>            </section>
+              </div>
+            </section>
           ))}
         </div>
       </div>

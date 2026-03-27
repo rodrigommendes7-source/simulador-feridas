@@ -16,202 +16,23 @@ import {
   type PerguntaId,
   type TratamentoId,
 } from "../../types/simulador";
+import type { CasoConfig } from "../../types/caso-config";
+import casoConfigRaw from "../../../data/casos/caso2.json";
 
 type Aba = "observacao" | "dialogo" | "tratamento" | "resultado";
 
-const respostasDialogo: Record<PerguntaId, string> = {
-  dor: "Sim, dói bastante, especialmente ao toque, diria 7 em 10.",
-  duracao: "Desde a cirurgia que nunca fechou bem.",
-  posicao: "Ando pouco, mas fico muito tempo com a perna para baixo.",
-  pensos: "Têm feito penso todos os dias, mas tenho notado mais líquido.",
-  febre: "Tive febre ligeira ontem.",
-  mobilidade: "Consigo andar, mas com dificuldade.",
-};
+const casoConfig = casoConfigRaw as CasoConfig;
 
-const nomesPerguntas: Record<PerguntaId, string> = {
-  dor: "dor",
-  duracao: "duração",
-  posicao: "posição do membro / tempo em declive",
-  pensos: "pensos prévios",
-  febre: "febre",
-  mobilidade: "mobilidade",
-};
-
-const textoPerguntas: Record<PerguntaId, string> = {
-  dor: "Tem dor? Se sim, quanto daria numa escala de 0 a 10?",
-  duracao: "Há quanto tempo nota que a ferida não está a fechar bem?",
-  posicao: "Costuma manter a perna muito tempo para baixo ou elevada?",
-  pensos: "Sabe dizer como têm sido feitos os pensos?",
-  febre: "Teve febre, arrepios ou sensação de mal-estar?",
-  mobilidade: "Consegue andar bem ou tem dificuldade na mobilização?",
-};
-
-const nomesTratamentos: Record<TratamentoId, string> = {
-  colagenase: "Colagenase",
-  hidrogel: "Hidrogel",
-  prata: "Prata",
-  iodo: "Iodo (povidona-iodo)",
-  hidrofibra: "Hidrofibra",
-  carboximetilcelulose: "Carboximetilcelulose",
-  nitrato_prata: "Nitrato de prata",
-  emolientes_ags: "Emolientes (ácidos gordos essenciais)",
-  mel: "Mel",
-  betametasona: "Betametasona",
-  alcool: "Aplicação de álcool",
-  gaze_seca: "Gaze seca",
-};
-
-const nomesAplicacoes: Record<AplicacaoId, string> = {
-  apos_limpeza: "Aplicar cobertura após limpeza adequada",
-  direto_seco: "Aplicar material diretamente em seco",
-  sem_desbridamento:
-    "Adiar desbridamento enzimático mesmo com tecido desvitalizado",
-  com_protecao_perilesional: "Proteger pele perilesional",
-  compressao_forte: "Fazer compressão forte sobre a lesão",
-};
-
-const materiaisPorCategoria = [
-  {
-    categoria: "Desbridamento",
-    itens: [
-      { id: "colagenase" as TratamentoId, nome: "Colagenase" },
-      { id: "hidrogel" as TratamentoId, nome: "Hidrogel" },
-    ],
-  },
-  {
-    categoria: "Antimicrobianos",
-    itens: [
-      { id: "prata" as TratamentoId, nome: "Prata" },
-      { id: "iodo" as TratamentoId, nome: "Iodo (povidona-iodo)" },
-    ],
-  },
-  {
-    categoria: "Gestão de exsudado",
-    itens: [
-      { id: "hidrofibra" as TratamentoId, nome: "Hidrofibra" },
-      {
-        id: "carboximetilcelulose" as TratamentoId,
-        nome: "Carboximetilcelulose",
-      },
-    ],
-  },
-  {
-    categoria: "Hidratação",
-    itens: [{ id: "hidrogel" as TratamentoId, nome: "Hidrogel" }],
-  },
-  {
-    categoria: "Hipergranulação",
-    itens: [
-      { id: "nitrato_prata" as TratamentoId, nome: "Nitrato de prata" },
-    ],
-  },
-  {
-    categoria: "Pele peri-ferida",
-    itens: [
-      {
-        id: "emolientes_ags" as TratamentoId,
-        nome: "Emolientes (ácidos gordos essenciais)",
-      },
-    ],
-  },
-  {
-    categoria: "Cicatrização / bioativos",
-    itens: [{ id: "mel" as TratamentoId, nome: "Mel" }],
-  },
-  {
-    categoria: "Anti-inflamatório",
-    itens: [{ id: "betametasona" as TratamentoId, nome: "Betametasona" }],
-  },
-  {
-    categoria: "Outros materiais / abordagens",
-    itens: [
-      { id: "alcool" as TratamentoId, nome: "Aplicação de álcool" },
-      { id: "gaze_seca" as TratamentoId, nome: "Gaze seca" },
-    ],
-  },
-];
-
-const linksEvidencia: Partial<
-  Record<TratamentoId, { titulo: string; url: string }>
-> = {
-  colagenase: {
-    titulo: "Collagenase for enzymatic debridement: systematic review",
-    url: "https://pubmed.ncbi.nlm.nih.gov/19918148/",
-  },
-  hidrogel: {
-    titulo: "Hydrogels and wound healing: review",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10815795/",
-  },
-  prata: {
-    titulo: "Silver-releasing dressings: systematic review",
-    url: "https://pubmed.ncbi.nlm.nih.gov/18705778/",
-  },
-  iodo: {
-    titulo: "Povidone iodine in wound healing: review",
-    url: "https://pubmed.ncbi.nlm.nih.gov/28648795/",
-  },
-  hidrofibra: {
-    titulo: "Hydrofiber dressing applications: review",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/",
-  },
-  carboximetilcelulose: {
-    titulo: "Hydrofiber/CMC dressings in exudate management",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/",
-  },
-  mel: {
-    titulo: "Honey in modern wound care: systematic review",
-    url: "https://pubmed.ncbi.nlm.nih.gov/23896128/",
-  },
-  emolientes_ags: {
-    titulo: "Essential fatty acids and skin breakdown prevention",
-    url: "https://pubmed.ncbi.nlm.nih.gov/9233238/",
-  },
-  betametasona: {
-    titulo: "Topical corticosteroids for hypergranulation: case review",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9498163/",
-  },
-};
-
-const recomendacoesPorErro: Partial<
-  Record<
-    TratamentoId,
-    {
-      correto: string;
-      titulo: string;
-      url: string;
-      explicacao: string;
-    }
-  >
-> = {
-  alcool: {
-    correto: "Hidrofibra ou carboximetilcelulose, com antimicrobiano se indicado",
-    titulo: "Hydrofiber dressing applications: review",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/",
-    explicacao:
-      "Num caso com deiscência e exsudado, o álcool é lesivo para o tecido; a prioridade é controlo do exsudado e proteção do leito.",
-  },
-  gaze_seca: {
-    correto: "Hidrofibra ou carboximetilcelulose",
-    titulo: "Hydrofiber/CMC dressings in exudate management",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/",
-    explicacao:
-      "A gaze seca pode aderir ao leito e traumatizar o tecido; materiais absorventes são mais ajustados neste contexto.",
-  },
-  hidrogel: {
-    correto: "Hidrofibra ou carboximetilcelulose",
-    titulo: "Hydrofiber/CMC dressings in exudate management",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/",
-    explicacao:
-      "Com exsudado moderado a abundante, o hidrogel não é a prioridade; o controlo do exsudado é mais importante.",
-  },
-  betametasona: {
-    correto: "Prata ou iodo, e considerar colagenase se houver tecido desvitalizado",
-    titulo: "Silver-releasing dressings: systematic review",
-    url: "https://pubmed.ncbi.nlm.nih.gov/18705778/",
-    explicacao:
-      "Num quadro com suspeita de infeção local e deiscência, betametasona não é prioridade terapêutica.",
-  },
-};
+const {
+  respostasDialogo,
+  textoPerguntas,
+  nomesPerguntas,
+  nomesTratamentos,
+  nomesAplicacoes,
+  materiaisPorCategoria,
+  linksEvidencia,
+  recomendacoesPorErro,
+} = casoConfig;
 
 export default function CasoDoisPage() {
   const [abaAtiva, setAbaAtiva] = useState<Aba>("observacao");
@@ -1138,13 +959,13 @@ if (tratamentosSelecionados.includes("carboximetilcelulose")) {
                     {abaAtiva === "tratamento" && (
                       <div className="grid gap-4 lg:grid-cols-2">
                         <div className="space-y-4">
-                          {materiaisPorCategoria.map((grupo) => (
+                          {materiaisPorCategoria.map((grupo: typeof materiaisPorCategoria[number]) => (
                             <div key={grupo.categoria} className="space-y-2">
                               <p className="text-[14px] font-black text-[#1d4ed8]">
                                 🔹 {grupo.categoria}
                               </p>
 
-                              {grupo.itens.map((item) => (
+                              {grupo.itens.map((item: typeof grupo.itens[number]) => (
                                 <label
                                   key={`${grupo.categoria}-${item.id}`}
                                   className={botaoOpcao}

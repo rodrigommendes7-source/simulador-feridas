@@ -8,6 +8,7 @@ import {
   guardarHistorico,
   normalizarSecoesAvaliacao,
 } from "@/app/lib/simulador";
+import { calcularPontuacaoTratamentoCaso1 } from "@/app/lib/avaliacao-tratamentos";
 import { agruparTratamentosPorCategoria } from "@/app/lib/tratamentos-helper";
 import {
   type AplicacaoId,
@@ -122,7 +123,7 @@ export default function CasoUmPage() {
     const observacao: AvaliacaoSecao = {
       nome: "Observação",
       pontuacao: 0,
-      maximo: 25,
+      maximo: 15,
       acertou: [],
       errou: [],
       faltou: [],
@@ -131,7 +132,7 @@ export default function CasoUmPage() {
     };
 
     if (observacaoImagemVista) {
-      observacao.pontuacao += 4;
+      observacao.pontuacao += 3;
       observacao.acertou.push("Visualizaste a imagem da ferida.");
     } else {
       observacao.faltou.push("Faltou observar diretamente a imagem da ferida.");
@@ -141,7 +142,7 @@ export default function CasoUmPage() {
     }
 
     if (observacaoDimensoesVista) {
-      observacao.pontuacao += 5;
+      observacao.pontuacao += 3;
       observacao.acertou.push("Consultaste as dimensões da ferida.");
     } else {
       observacao.faltou.push("Faltou verificar as dimensões da ferida.");
@@ -151,7 +152,7 @@ export default function CasoUmPage() {
     }
 
     if (observacaoExsudadoVista) {
-      observacao.pontuacao += 4;
+      observacao.pontuacao += 3;
       observacao.acertou.push("Observaste o exsudado.");
     } else {
       observacao.faltou.push("Faltou avaliar o exsudado.");
@@ -161,7 +162,7 @@ export default function CasoUmPage() {
     }
 
     if (observacaoCheiroVista) {
-      observacao.pontuacao += 3;
+      observacao.pontuacao += 2;
       observacao.acertou.push("Verificaste o odor da ferida.");
     } else {
       observacao.faltou.push("Faltou verificar o odor da ferida.");
@@ -171,7 +172,7 @@ export default function CasoUmPage() {
     }
 
     if (observacaoTecidoVista) {
-      observacao.pontuacao += 5;
+      observacao.pontuacao += 2;
       observacao.acertou.push("Observaste os tecidos presentes no leito.");
     } else {
       observacao.faltou.push("Faltou avaliar os tecidos presentes no leito.");
@@ -181,7 +182,7 @@ export default function CasoUmPage() {
     }
 
     if (observacaoPerilesionalVista) {
-      observacao.pontuacao += 4;
+      observacao.pontuacao += 2;
       observacao.acertou.push("Observaste a pele perilesional.");
     } else {
       observacao.faltou.push("Faltou avaliar a pele perilesional.");
@@ -195,7 +196,7 @@ export default function CasoUmPage() {
     const dialogo: AvaliacaoSecao = {
       nome: "Diálogo / colheita de dados",
       pontuacao: 0,
-      maximo: 25,
+      maximo: 15,
       acertou: [],
       errou: [],
       faltou: [],
@@ -204,7 +205,7 @@ export default function CasoUmPage() {
     };
 
     if (perguntasFeitas.includes("dor")) {
-      dialogo.pontuacao += 6;
+      dialogo.pontuacao += 4;
       dialogo.acertou.push("Avaliaste a dor do utente.");
     } else {
       dialogo.faltou.push("Faltou avaliar a dor.");
@@ -214,7 +215,7 @@ export default function CasoUmPage() {
     }
 
     if (perguntasFeitas.includes("duracao")) {
-      dialogo.pontuacao += 3;
+      dialogo.pontuacao += 2;
       dialogo.acertou.push("Perguntaste há quanto tempo existe a ferida.");
     } else {
       dialogo.justificacaoPerda.push(
@@ -223,7 +224,7 @@ export default function CasoUmPage() {
     }
 
     if (perguntasFeitas.includes("posicao")) {
-      dialogo.pontuacao += 6;
+      dialogo.pontuacao += 4;
       dialogo.acertou.push("Exploraste posicionamento e alívio de pressão.");
     } else {
       dialogo.faltou.push("Faltou explorar posicionamento e alívio de pressão.");
@@ -233,7 +234,7 @@ export default function CasoUmPage() {
     }
 
     if (perguntasFeitas.includes("mobilidade")) {
-      dialogo.pontuacao += 5;
+      dialogo.pontuacao += 3;
       dialogo.acertou.push("Avaliaste a mobilidade / dependência.");
     } else {
       dialogo.faltou.push("Faltou avaliar a mobilidade / dependência.");
@@ -243,7 +244,7 @@ export default function CasoUmPage() {
     }
 
     if (perguntasFeitas.includes("febre")) {
-      dialogo.pontuacao += 3;
+      dialogo.pontuacao += 1;
       dialogo.acertou.push("Questionaste sinais sistémicos como febre.");
     } else {
       dialogo.justificacaoPerda.push(
@@ -252,7 +253,7 @@ export default function CasoUmPage() {
     }
 
     if (perguntasFeitas.includes("pensos")) {
-      dialogo.pontuacao += 2;
+      dialogo.pontuacao += 1;
       dialogo.acertou.push("Questionaste pensos prévios.");
     } else {
       dialogo.justificacaoPerda.push(
@@ -262,190 +263,7 @@ export default function CasoUmPage() {
 
     secoes.push(dialogo);
 
-    const tratamento: AvaliacaoSecao = {
-      nome: "Escolha do tratamento",
-      pontuacao: 0,
-      maximo: 15,
-      acertou: [],
-      errou: [],
-      faltou: [],
-      excesso: [],
-      justificacaoPerda: [],
-    };
-
-   if (
-  tratamentosSelecionados.includes("hidrofibra") ||
-  tratamentosSelecionados.includes("carboximetilcelulose")
-) {
-  tratamento.pontuacao += 10;
-  tratamento.acertou.push(
-    "Selecionaste um material adequado para controlo do exsudado."
-  );
-} else {
-  tratamento.faltou.push(
-    "Faltou considerar um material absorvente dirigido ao exsudado, como hidrofibra ou carboximetilcelulose."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por não selecionares um material principal para controlo do exsudado."
-  );
-}
-
-if (tratamentosSelecionados.includes("hidrofibra")) {
-  tratamento.acertou.push(
-    "A hidrofibra é adequada para gestão de exsudado neste caso."
-  );
-}
-
-if (tratamentosSelecionados.includes("carboximetilcelulose")) {
-  tratamento.acertou.push(
-    "A carboximetilcelulose é adequada para gestão de exsudado neste caso."
-  );
-}
-
-if (tratamentosSelecionados.includes("emolientes_ags")) {
-  tratamento.pontuacao += 4;
-  tratamento.acertou.push(
-    "Consideraste proteção da pele perilesional com emolientes / AGE."
-  );
-} else {
-  tratamento.faltou.push(
-    "Faltou considerar proteção da pele perilesional."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por não protegeres a pele perilesional."
-  );
-}
-
-if (tratamentosSelecionados.includes("hidrogel")) {
-  tratamento.pontuacao += 1;
-  tratamento.acertou.push(
-    "O hidrogel pode ter utilidade pontual, mas não é a prioridade principal aqui."
-  );
-  tratamento.justificacaoPerda.push(
-    "O hidrogel foi valorizado apenas parcialmente porque não é a escolha principal neste caso."
-  );
-}
-
-if (tratamentosSelecionados.includes("colagenase")) {
-  tratamento.pontuacao += 1;
-  tratamento.acertou.push(
-    "A colagenase pode ter utilidade se houver necessidade clara de desbridamento, mas não é a prioridade principal neste caso."
-  );
-  tratamento.justificacaoPerda.push(
-    "A colagenase foi valorizada apenas parcialmente porque o desbridamento enzimático não é o foco principal aqui."
-  );
-}
-
-if (tratamentosSelecionados.includes("prata")) {
-  tratamento.pontuacao += 1;
-  tratamento.acertou.push(
-    "A prata pode ter lugar em contexto infecioso, mas não é a escolha principal neste cenário."
-  );
-  tratamento.justificacaoPerda.push(
-    "A prata recebeu apenas pontuação parcial porque não há evidência forte de infeção como problema dominante."
-  );
-}
-
-if (tratamentosSelecionados.includes("iodo")) {
-  tratamento.pontuacao += 1;
-  tratamento.acertou.push(
-    "O iodo pode ter utilidade pontual, mas não é a prioridade terapêutica principal aqui."
-  );
-  tratamento.justificacaoPerda.push(
-    "O iodo recebeu apenas pontuação parcial porque não responde ao objetivo terapêutico central deste caso."
-  );
-}
-
-if (tratamentosSelecionados.includes("mel")) {
-  tratamento.pontuacao += 1;
-  tratamento.acertou.push(
-    "O mel tem potencial bioativo, embora não seja a escolha principal neste caso."
-  );
-  tratamento.justificacaoPerda.push(
-    "O mel recebeu apenas pontuação parcial porque não é a escolha prioritária para o problema dominante."
-  );
-}
-
-if (tratamentosSelecionados.includes("betametasona")) {
-  tratamento.errou.push(
-    "A betametasona não é uma escolha adequada como foco principal neste caso."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por selecionares betametasona sem indicação principal neste contexto."
-  );
-  tratamento.pontuacao -= 4;
-}
-
-if (tratamentosSelecionados.includes("nitrato_prata")) {
-  tratamento.errou.push(
-    "O nitrato de prata não responde ao principal problema clínico deste caso."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por selecionares nitrato de prata para um caso em que a hipergranulação não é o foco."
-  );
-  tratamento.pontuacao -= 4;
-}
-
-if (tratamentosSelecionados.includes("alcool")) {
-  tratamento.errou.push(
-    "A aplicação de álcool na ferida é desadequada e citotóxica."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por escolheres álcool, que é prejudicial ao leito da ferida."
-  );
-  tratamento.pontuacao -= 12;
-}
-
-if (tratamentosSelecionados.includes("gaze_seca")) {
-  tratamento.errou.push(
-    "A gaze seca pode aderir ao leito e traumatizar tecido viável."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por escolheres gaze seca, que pode traumatizar a ferida."
-  );
-  tratamento.pontuacao -= 10;
-}
-
-if (
-  tratamentosSelecionados.includes("hidrofibra") &&
-  tratamentosSelecionados.includes("carboximetilcelulose")
-) {
-  tratamento.excesso.push(
-    "Selecionaste dois materiais com função semelhante no controlo do exsudado; geralmente bastaria um deles."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por sobreposição funcional entre dois materiais de gestão de exsudado."
-  );
-  tratamento.pontuacao -= 2;
-}
-
-if (tratamentosSelecionados.length === 0) {
-  tratamento.faltou.push("Não selecionaste qualquer material de tratamento.");
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por não selecionares materiais de tratamento."
-  );
-  tratamento.pontuacao -= 10;
-}
-
-if (tratamentosSelecionados.length >= 4) {
-  tratamento.excesso.push(
-    "Selecionaste materiais em excesso; o penso deve ser mais dirigido."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste pontuação por excesso de materiais e falta de foco terapêutico."
-  );
-  tratamento.pontuacao -= 6;
-}
-
-if (tratamentosSelecionados.length >= 5) {
-  tratamento.excesso.push(
-    "A seleção ficou demasiado cumulativa e pouco focada no objetivo principal."
-  );
-  tratamento.justificacaoPerda.push(
-    "Perdeste ainda mais pontuação porque a seleção ficou demasiado ampla e pouco criteriosa."
-  );
-  tratamento.pontuacao -= 4;
-}
+    const tratamento = calcularPontuacaoTratamentoCaso1(tratamentosSelecionados);
     secoes.push(tratamento);
 
     const aplicacao: AvaliacaoSecao = {
@@ -780,7 +598,7 @@ if (tratamentosSelecionados.length >= 5) {
                     {abaAtiva === "observacao" ? (
                       observacaoImagemVista ? (
                         <img
-                          src="/Pressure-ulcer-copy.jpg"
+                          src="/caso1.jpg"
                           alt="Úlcera por pressão"
                           className="h-full w-full rounded-[20px] object-cover"
                         />

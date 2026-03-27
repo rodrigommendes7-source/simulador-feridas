@@ -8,6 +8,7 @@ import {
   guardarHistorico,
   normalizarSecoesAvaliacao,
 } from "../../lib/simulador";
+import { agruparTratamentosPorCategoria } from "../../lib/tratamentos-helper";
 import {
   type AplicacaoId,
   type AvaliacaoSecao,
@@ -27,14 +28,36 @@ const {
   respostasDialogo,
   textoPerguntas,
   nomesPerguntas,
-  nomesTratamentos,
   nomesAplicacoes,
-  materiaisPorCategoria,
   linksEvidencia,
   recomendacoesPorErro,
 } = casoConfig;
 
 export default function CasoDoisPage() {
+  const materiaisPorCategoria = useMemo(
+    () =>
+      Object.entries(agruparTratamentosPorCategoria()).map(
+        ([categoria, tratamentos]) => ({
+          categoria,
+          itens: tratamentos.map((tratamento) => ({
+            id: tratamento.id as TratamentoId,
+            nome: tratamento.nome,
+          })),
+        })
+      ),
+    []
+  );
+
+  const nomesTratamentos = useMemo(
+    () =>
+      Object.fromEntries(
+        materiaisPorCategoria.flatMap((grupo) =>
+          grupo.itens.map((item) => [item.id, item.nome])
+        )
+      ) as Record<TratamentoId, string>,
+    [materiaisPorCategoria]
+  );
+  
   const [abaAtiva, setAbaAtiva] = useState<Aba>("observacao");
   const [iniciado, setIniciado] = useState(false);
   const [mostrarDetalhe, setMostrarDetalhe] = useState(false);

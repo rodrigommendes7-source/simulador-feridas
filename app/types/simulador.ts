@@ -6,19 +6,7 @@ export type PerguntaId =
   | "febre"
   | "mobilidade";
 
-export type TratamentoId =
-  | "colagenase"
-  | "hidrogel"
-  | "prata"
-  | "iodo"
-  | "hidrofibra"
-  | "carboximetilcelulose"
-  | "nitrato_prata"
-  | "emolientes_ags"
-  | "mel"
-  | "betametasona"
-  | "alcool"
-  | "gaze_seca";
+export type TratamentoId = string;
 
 export type AplicacaoId =
   | "apos_limpeza"

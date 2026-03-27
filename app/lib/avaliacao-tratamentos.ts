@@ -262,10 +262,107 @@ const casoDoisPerfil: PerfilAvaliacaoTratamento = {
   },
 };
 
+
+const casoTresPerfil: PerfilAvaliacaoTratamento = {
+  nome: "Escolha do tratamento",
+  maximo: 50,
+  objetivos: [
+    {
+      id: "controlo_infeccao",
+      pontos: 18,
+      obrigatorio: true,
+      descricaoAcerto:
+        "Incluíste cobertura antimicrobiana adequada para infeção local.",
+      descricaoFalta: "Faltou incluir opção com controlo microbiano.",
+      corresponde: temFuncao("controlo_microbiano", "prata", "antisseptico"),
+    },
+    {
+      id: "controlo_exsudado",
+      pontos: 14,
+      obrigatorio: true,
+      descricaoAcerto: "Selecionaste material absorvente para exsudado abundante.",
+      descricaoFalta: "Faltou selecionar material para gestão do exsudado.",
+      corresponde: temFuncao("controlo_exsudado", "absorcao"),
+    },
+    {
+      id: "desbridamento",
+      pontos: 10,
+      obrigatorio: true,
+      descricaoAcerto: "Selecionaste estratégia de desbridamento adequada.",
+      descricaoFalta: "Faltou considerar desbridamento perante tecido desvitalizado.",
+      corresponde: temFuncao("desbridamento", "desbridamento_enzimatico", "desbridamento_autolitico"),
+    },
+    {
+      id: "protecao_perilesional",
+      pontos: 8,
+      obrigatorio: true,
+      descricaoAcerto: "Incluíste proteção da pele perilesional.",
+      descricaoFalta: "Faltou proteção da pele perilesional.",
+      corresponde: temFuncao("protecao_perilesional", "barreira_cutanea", "hidratacao_pele"),
+    },
+  ],
+  penalizacoes: [
+    {
+      id: "antissepticos-contraindicados",
+      pontos: 10,
+      descricaoErro:
+        "Selecionaste antisséptico contraindicado para o leito da ferida (ex.: álcool 70%/água oxigenada).",
+      justificacao: "Perdeste pontuação por utilização de produto lesivo para tecido viável.",
+      aplica: (selecionados) =>
+        selecionados.some((tratamento) =>
+          (tratamento.contraindicacoes ?? []).some((item) =>
+            ["ferida_cronica", "tecido_viavel", "leito_da_ferida"].includes(item)
+          )
+        ),
+    },
+    {
+      id: "hidrogel-fora-prioridade",
+      pontos: 6,
+      descricaoErro:
+        "Selecionaste hidrogel num contexto em que exsudado abundante e maceração exigem prioridade absorvente.",
+      justificacao: "Perdeste pontuação por priorização terapêutica inadequada.",
+      aplica: (selecionados) => selecionados.some((tratamento) => tratamento.id === "hidrogel"),
+    },
+    {
+      id: "redundancia-prata",
+      pontos: 8,
+      descricaoErro:
+        "Selecionaste simultaneamente hidrofibra com prata e alginato com prata (redundância terapêutica).",
+      justificacao: "Perdeste pontuação por redundância de materiais com função semelhante.",
+      aplica: (selecionados) => {
+        const ids = new Set(selecionados.map((item) => item.id));
+        return ids.has("aquacel-ag") && ids.has("silvercel");
+      },
+    },
+  ],
+  limiteSelecaoExcessiva: {
+    limite: 6,
+    penalizacao: 5,
+    mensagemExcesso: "Selecionaste demasiados tratamentos para o mesmo plano de penso.",
+    justificacao: "Perdeste pontuação por excesso de materiais e menor coerência terapêutica.",
+  },
+};
+
 export function calcularPontuacaoTratamentoCaso1(idsSelecionados: TratamentoId[]): AvaliacaoSecao {
   return avaliarTratamentos(idsSelecionados, casoUmPerfil);
 }
 
 export function calcularPontuacaoTratamentoCaso2(idsSelecionados: TratamentoId[]): AvaliacaoSecao {
   return avaliarTratamentos(idsSelecionados, casoDoisPerfil);
+}
+export function calcularPontuacaoTratamentoCaso3(idsSelecionados: TratamentoId[]): AvaliacaoSecao {
+  const secao = avaliarTratamentos(idsSelecionados, casoTresPerfil);
+
+  const idsSelecionadosSet = new Set(idsSelecionados);
+  const temPrincipalCorreto = idsSelecionadosSet.has("aquacel-ag") || idsSelecionadosSet.has("silvercel");
+
+  if (!temPrincipalCorreto) {
+    secao.pontuacao = 0;
+    secao.faltou.push("Não selecionaste nenhum tratamento principal correto para controlo de infeção/exsudado.");
+    secao.justificacaoPerda.push(
+      "Regra especial do caso: sem tratamento principal correto, a pontuação da secção de tratamento é 0."
+    );
+  }
+
+  return secao;
 }

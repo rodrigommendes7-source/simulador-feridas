@@ -29,11 +29,11 @@ export const casosCatalogo: CasoCatalogoItem[] = [
   },
   {
     id: "3",
-    titulo: "Base do caso 3",
+    titulo: "Ferida pós-amputação com infeção e exsudado abundante",
     descricao:
-      "Estrutura inicial criada para facilitar a implementação do terceiro caso clínico.",
+      "Avaliação de ferida pós-amputação no pé diabético com exsudado abundante, odor, tecido desvitalizado e maceração perilesional.",
     competencias:
-      "Modelação do cenário, definição de critérios de avaliação e curadoria de materiais",
-    status: "preparacao",
+      "Controlo de infeção, gestão de exsudado, desbridamento e proteção perilesional",
+    status: "disponivel",
   },
 ];

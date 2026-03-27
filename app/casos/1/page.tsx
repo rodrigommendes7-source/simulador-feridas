@@ -753,13 +753,13 @@ if (tratamentosSelecionados.length >= 5) {
 
               <div className="grid min-h-0 flex-1 grid-cols-[1.35fr_0.85fr] gap-3">
                 <div className="flex min-h-0 flex-col rounded-[32px] border border-[#334155] bg-[#0f172a] p-4">
-                  <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[26px] border border-[#334155] bg-black">
+                  <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[26px] border border-[#334155] bg-black p-4">
                     {abaAtiva === "observacao" ? (
                       observacaoImagemVista ? (
                         <img
                           src="/Pressure-ulcer-copy.jpg"
                           alt="Úlcera por pressão"
-                          className="max-h-full max-w-full rounded-[20px] object-contain"
+                          className="h-full w-full rounded-[20px] object-cover"
                         />
                       ) : (
                         <button

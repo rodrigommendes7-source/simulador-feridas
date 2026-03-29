@@ -466,4 +466,20 @@ export const tratamentos: Tratamento[] = [
     funcoes: ["cobertura", "absorcao"],
     indicacoes: ["exsudado_moderado"],
   },
+  {
+    id: "irrigacao-soro-desbridamento-mecanico",
+    categoria: "Desbridamento",
+    subcategoria: "Mecânico",
+    nome: "Irrigação com cloreto de sódio 0,9%",
+    funcoes: ["desbridamento", "desbridamento_mecanico", "irrigacao"],
+    indicacoes: ["tecido_desvitalizado", "residuos_superficiais"],
+  },
+  {
+    id: "compressas-desbridamento-mecanico",
+    categoria: "Desbridamento",
+    subcategoria: "Mecânico",
+    nome: "Compressas",
+    funcoes: ["desbridamento", "desbridamento_mecanico"],
+    indicacoes: ["residuos_superficiais"],
+  },
 ];

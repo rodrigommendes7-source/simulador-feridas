@@ -63,39 +63,20 @@ export function obterNomesTratamentos(ids: TratamentoId[]): Record<TratamentoId,
   return nomes;
 }
 
-export function agruparTratamentosPorCategoria(): Record<string, Tratamento[]> {
-  const grupos: Record<string, Tratamento[]> = {};
+function agruparTratamentosPorCategoriaESubcategoria(tratamentos: Tratamento[]) {
+  return tratamentos.reduce((acc, tratamento) => {
+    const { categoria, subcategoria } = tratamento;
 
-  for (const tratamento of tratamentos) {
-    const categoria = tratamento.categoria;
-
-    if (!grupos[categoria]) {
-      grupos[categoria] = [];
+    if (!acc[categoria]) {
+      acc[categoria] = {};
     }
 
-    grupos[categoria].push(tratamento);
-  }
-
-  return grupos;
-}
-
-export function agruparTratamentosPorSubcategoria(): Record<string, Record<string, Tratamento[]>> {
-  const grupos: Record<string, Record<string, Tratamento[]>> = {};
-
-  for (const tratamento of tratamentos) {
-    const categoria = tratamento.categoria;
-    const subcategoria = tratamento.subcategoria;
-
-    if (!grupos[categoria]) {
-      grupos[categoria] = {};
+    if (!acc[categoria][subcategoria]) {
+      acc[categoria][subcategoria] = [];
     }
 
-    if (!grupos[categoria][subcategoria]) {
-      grupos[categoria][subcategoria] = [];
-    }
+    acc[categoria][subcategoria].push(tratamento);
 
-    grupos[categoria][subcategoria].push(tratamento);
-  }
-
-  return grupos;
+    return acc;
+  }, {} as Record<string, Record<string, Tratamento[]>>);
 }

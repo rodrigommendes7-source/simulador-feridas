@@ -21,6 +21,8 @@ import {
 } from "@/app/types/simulador";
 import type { CasoConfig } from "@/app/types/caso-config";
 import casoConfigRaw from "@/data/casos/caso1.json";
+import { tratamentos } from "@/data/tratamentos";
+
 type Aba = "observacao" | "dialogo" | "tratamento" | "resultado";
 
 const casoConfig = casoConfigRaw as CasoConfig;

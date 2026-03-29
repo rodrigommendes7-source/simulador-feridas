@@ -21,6 +21,7 @@ import {
 } from "../../types/simulador";
 import type { CasoConfig } from "../../types/caso-config";
 import casoConfigRaw from "../../../data/casos/caso3.json";
+import { tratamentos } from "@/data/tratamentos";
 
 type Aba = "observacao" | "dialogo" | "tratamento" | "resultado";
 

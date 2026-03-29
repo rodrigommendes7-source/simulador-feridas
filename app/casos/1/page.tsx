@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
   calcularPontuacao,
@@ -420,7 +421,7 @@ export default function CasoUmPage() {
           (x) => x.material === item.material && x.url === item.url
         ) === index
     );
-  }, [tratamentosSelecionados]);
+  }, [nomesTratamentos, tratamentosSelecionados]);
 
   function guardarNoHistorico() {
     if (typeof window === "undefined") return;
@@ -597,9 +598,11 @@ export default function CasoUmPage() {
                   <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[26px] border border-[#334155] bg-black p-4">
                     {abaAtiva === "observacao" ? (
                       observacaoImagemVista ? (
-                        <img
+                        <Image
                           src="/caso1.jpg"
                           alt="Úlcera por pressão"
+                          width={1600}
+                          height={1200}
                           className="h-full w-full rounded-[20px] object-cover"
                         />
                       ) : (

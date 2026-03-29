@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
   calcularPontuacao,
@@ -414,7 +415,7 @@ export default function CasoDoisPage() {
     );
 
     return unicos;
-  }, [tratamentosSelecionados]);
+  }, [nomesTratamentos, tratamentosSelecionados]);
 
   function guardarNoHistorico() {
     if (typeof window === "undefined") return;
@@ -621,9 +622,11 @@ export default function CasoDoisPage() {
                   <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[26px] border border-[#334155] bg-black">
                     {abaAtiva === "observacao" ? (
                       observacaoImagemVista ? (
-                        <img
+                        <Image
                           src="/caso2.png"
                           alt="Ferida cirúrgica com deiscência na perna esquerda"
+                         width={1600}
+                          height={1200}
                           className="max-h-full max-w-full rounded-[20px] object-contain"
                         />
                       ) : (

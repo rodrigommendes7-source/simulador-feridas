@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
   calcularPontuacao,
@@ -414,7 +415,7 @@ export default function CasoTresPage() {
     );
 
     return unicos;
-  }, [tratamentosSelecionados]);
+  }, [nomesTratamentos, tratamentosSelecionados]);
 
   function guardarNoHistorico() {
     if (typeof window === "undefined") return;
@@ -613,8 +614,10 @@ export default function CasoTresPage() {
                   <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[26px] border border-[#334155] bg-black">
                     {abaAtiva === "observacao" ? (
                       observacaoImagemVista ? (
-                        <img
+                        <Image
                           src="/caso3.jpeg"
+                          width={1600}
+                          height={1200}
                           alt="Ferida pós-amputação na extremidade distal do pé"
                           className="max-h-full max-w-full rounded-[20px] object-contain"
                         />

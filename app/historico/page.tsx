@@ -282,10 +282,6 @@ export default function HistoricoPage() {
                                     <p className="mt-1 text-[#94a3b8]">{artigo.titulo}</p>
                                   )}
 
-                                  {artigo.motivo && (
-                                    <p className="mt-2 text-[#f59e0b]">{artigo.motivo}</p>
-                                  )}
-
                                   <a
                                     href={artigo.url}
                                     target="_blank"

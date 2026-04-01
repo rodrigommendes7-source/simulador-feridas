@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { tratamentos } from "@/data/tratamentos";
+import { obterEvidenciaMaterial } from "@/app/lib/evidencia-materiais";
+import type { TratamentoId } from "@/app/types/simulador";
 
 type SecaoAprendizagem = {
   titulo: string;
@@ -223,13 +225,31 @@ export default function AprenderPage() {
                     <p className="mb-2 font-black text-[#60a5fa]">{categoria}</p>
                     <ul className="space-y-1 text-sm text-[#e2e8f0]">
                       {itens.map((tratamento) => (
-                        <li key={tratamento.id}>• {tratamento.nome}</li>
+                        <li key={tratamento.id}>
+                          • {tratamento.nome}
+                          {(() => {
+                            const evidencia = obterEvidenciaMaterial(
+                              tratamento.id as TratamentoId
+                            );
+                            if (!evidencia) return null;
+                            return (
+                              <a
+                                href={evidencia.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-2 text-xs text-[#93c5fd] underline"
+                              >
+                                artigo científico
+                              </a>
+                            );
+                          })()}
+                        </li>
                       ))}
                     </ul>
                   </div>
                 ))}
               </div>
-            </div>
+             </div>
           </section>
         </div>
       </div>

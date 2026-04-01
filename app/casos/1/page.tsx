@@ -10,7 +10,7 @@ import {
   normalizarSecoesAvaliacao,
 } from "@/app/lib/simulador";
 import { calcularPontuacaoTratamentoCaso1 } from "@/app/lib/avaliacao-tratamentos";
-import { agruparTratamentosPorCategoria } from "@/app/lib/tratamentos-helper";
+import { agruparTratamentosPorCategoriaESubcategoria } from "@/app/lib/tratamentos-helper";
 import {
   type AplicacaoId,
   type AvaliacaoSecao,
@@ -21,7 +21,6 @@ import {
 } from "@/app/types/simulador";
 import type { CasoConfig } from "@/app/types/caso-config";
 import casoConfigRaw from "@/data/casos/caso1.json";
-import { tratamentos } from "@/data/tratamentos";
 
 type Aba = "observacao" | "dialogo" | "tratamento" | "resultado";
 
@@ -39,14 +38,19 @@ const {
 export default function CasoUmPage() {
   const materiaisPorCategoria = useMemo(
     () =>
-      Object.entries(agruparTratamentosPorCategoria()).map(
-        ([categoria, tratamentos]) => ({
+      Object.entries(agruparTratamentosPorCategoriaESubcategoria()).map(
+        ([categoria, subcategorias]) => ({  
           categoria,
-          itens: tratamentos.map((tratamento) => ({
-            id: tratamento.id as TratamentoId,
-            nome: tratamento.nome,
-          })),
-        })
+          subcategorias: Object.entries(subcategorias).map(
+            ([subcategoria, tratamentos]) => ({
+              subcategoria,
+              itens: tratamentos.map((tratamento) => ({
+                id: tratamento.id as TratamentoId,
+                nome: tratamento.nome,
+              })),
+            })
+          ),
+       })
       ),
     []
   );
@@ -55,8 +59,10 @@ export default function CasoUmPage() {
     () =>
       Object.fromEntries(
         materiaisPorCategoria.flatMap((grupo) =>
-          grupo.itens.map((item) => [item.id, item.nome])
-        )
+          grupo.subcategorias.flatMap((subgrupo) =>
+            subgrupo.itens.map((item) => [item.id, item.nome])
+          )       
+         )
       ) as Record<TratamentoId, string>,
     [materiaisPorCategoria]
   );
@@ -845,27 +851,40 @@ export default function CasoUmPage() {
                     {abaAtiva === "tratamento" && (
                       <div className="grid gap-4 lg:grid-cols-2">
                         <div className="space-y-4">
-                          {materiaisPorCategoria.map((grupo: { categoria: string; itens: { id: TratamentoId; nome: string }[] }) => (
+                          {materiaisPorCategoria.map((grupo: {
+                            categoria: string;
+                            subcategorias: {
+                              subcategoria: string;
+                              itens: { id: TratamentoId; nome: string }[];
+                            }[];
+                          }) => (
                             <div key={grupo.categoria} className="space-y-2">
                               <p className="text-[14px] font-black text-[#1d4ed8]">
                                 🔹 {grupo.categoria}
                               </p>
 
-                              {grupo.itens.map((item) => (
-                                <label
-                                  key={`${grupo.categoria}-${item.id}`}
-                                  className={botaoOpcao}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={tratamentosSelecionados.includes(
-                                      item.id
-                                    )}
-                                    onChange={() => toggleTratamento(item.id)}
-                                    className="mr-2"
-                                  />
-                                  {item.nome}
-                                </label>
+                              {grupo.subcategorias.map((subcategoria) => (
+                                <div key={subcategoria.subcategoria} className="space-y-2 pl-4">
+                                  <p className="text-[13px] font-semibold text-[#64748b]">
+                                    {subcategoria.subcategoria}
+                                  </p>
+                                  {subcategoria.itens.map((item) => (
+                                    <label
+                                      key={`${grupo.categoria}-${item.id}`}
+                                      className={botaoOpcao}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={tratamentosSelecionados.includes(
+                                          item.id
+                                        )}
+                                        onChange={() => toggleTratamento(item.id)}
+                                        className="mr-2"
+                                      />
+                                      {item.nome}
+                                    </label>
+                                  ))}
+                                </div>
                               ))}
                             </div>
                           ))}

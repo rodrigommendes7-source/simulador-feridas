@@ -1,6 +1,7 @@
 import { tratamentos, type Tratamento } from "@/data/tratamentos";
 import type { TratamentoId } from "../types/simulador";
 import type { GrupoMaterialConfig } from "../types/caso-config";
+
 export function obterTratamentoPorId(id: string): Tratamento | undefined {
   return tratamentos.find((t) => t.id === id);
 }
@@ -27,6 +28,19 @@ export function obterTratamentosPorFuncao(funcao: string): Tratamento[] {
   return tratamentos.filter((t) => t.funcoes.includes(funcao));
 }
 
+export function agruparTratamentosPorCategoria(): Record<string, Tratamento[]> {
+  return tratamentos.reduce(
+    (acc, tratamento) => {
+      if (!acc[tratamento.categoria]) {
+        acc[tratamento.categoria] = [];
+      }
+
+      acc[tratamento.categoria].push(tratamento);
+      return acc;
+    },
+    {} as Record<string, Tratamento[]>
+  );
+}
 
 export function obterTratamentosParaCaso(idsEsperados: TratamentoId[]): GrupoMaterialConfig[] {
  const tratamentosDoCaso = tratamentos.filter((t) => idsEsperados.includes(t.id));
@@ -63,7 +77,10 @@ export function obterNomesTratamentos(ids: TratamentoId[]): Record<TratamentoId,
   return nomes;
 }
 
-function agruparTratamentosPorCategoriaESubcategoria(tratamentos: Tratamento[]) {
+export function agruparTratamentosPorCategoriaESubcategoria(): Record<
+  string,
+  Record<string, Tratamento[]>
+> {  
   return tratamentos.reduce((acc, tratamento) => {
     const { categoria, subcategoria } = tratamento;
 

@@ -849,8 +849,8 @@ export default function CasoUmPage() {
                     )}
 
                     {abaAtiva === "tratamento" && (
-                      <div className="grid gap-4 lg:grid-cols-2">
-                        <div className="space-y-4">
+                      <div className="mx-auto grid w-full max-w-5xl gap-4 xl:grid-cols-[1fr_260px]">
+                        <div className="max-h-[460px] space-y-4 overflow-auto rounded-[26px] border-2 border-[#334155] bg-white p-4">
                           {materiaisPorCategoria.map((grupo: {
                             categoria: string;
                             subcategorias: {
@@ -859,13 +859,11 @@ export default function CasoUmPage() {
                             }[];
                           }) => (
                             <div key={grupo.categoria} className="space-y-2">
-                              <p className="text-[14px] font-black text-[#1d4ed8]">
-                                🔹 {grupo.categoria}
-                              </p>
+                              <p className="text-[14px] font-black text-[#1d4ed8]">{grupo.categoria}</p>
 
                               {grupo.subcategorias.map((subcategoria) => (
                                 <div key={subcategoria.subcategoria} className="space-y-2 pl-4">
-                                  <p className="text-[13px] font-semibold text-[#64748b]">
+                                  <p className="text-[13px] font-semibold text-[#7f1d1d]">
                                     {subcategoria.subcategoria}
                                   </p>
                                   {subcategoria.itens.map((item) => (
@@ -890,9 +888,9 @@ export default function CasoUmPage() {
                           ))}
                         </div>
 
-                        <div className="space-y-3">
-                          <p className="mb-1 text-[14px] font-black text-[#1d4ed8]">
-                            Aplicação
+                        <div className="space-y-3 rounded-[26px] border-2 border-[#334155] bg-[#f8fafc] p-4">
+                          <p className="mb-1 text-[14px] font-black text-[#7f1d1d]">
+                            Produtos e aplicação
                           </p>
 
                           <label className={botaoOpcao}>

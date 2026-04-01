@@ -37,7 +37,7 @@ export default function HistoricoPage() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-wrap items-start justify-between gap-6">
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#60a5fa]">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#facc15]">
               Registo
             </p>
             <h1 className="text-4xl font-bold text-white">
@@ -55,14 +55,14 @@ export default function HistoricoPage() {
 
             <Link
               href="/casos"
-              className="rounded-lg bg-[#2563eb] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1d4ed8]"
+              className="rounded-lg bg-[#1d4ed8] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1e40af]"
             >
               Casos
             </Link>
 
             <button
-              onClick={limparHistorico}
-              className="rounded-lg border border-[#1e293b] bg-[#0f172a] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1e293b]"
+              onClick={limparHistorico}   
+              className="rounded-lg border border-[#7f1d1d] bg-[#0f172a] px-4 py-2.5 text-sm font-medium text-[#fecaca] transition hover:bg-[#1e293b]"
             >
               Limpar histórico
             </button>
@@ -278,29 +278,27 @@ export default function HistoricoPage() {
                                 >
                                   <p className="font-semibold text-white">{artigo.material}</p>
 
-                                  {artigo.correto && (
-                                    <p className="mt-1 text-[#f59e0b]">
-                                      Alternativa mais adequada: {artigo.correto}
-                                    </p>
+                                  {artigo.titulo && (
+                                    <p className="mt-1 text-[#94a3b8]">{artigo.titulo}</p>
                                   )}
 
-                                  <p className="mt-2 text-[#94a3b8]">
-                                    {artigo.explicacao}
-                                  </p>
+                                  {artigo.motivo && (
+                                    <p className="mt-2 text-[#f59e0b]">{artigo.motivo}</p>
+                                  )}
 
                                   <a
                                     href={artigo.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="mt-2 inline-block text-[#60a5fa] underline hover:text-[#93c5fd]"
+                                    className="mt-2 inline-block text-[#60a5fa] hover:text-[#93c5fd]"
                                   >
-                                    {artigo.titulo}
+                                    Abrir recurso ↗
                                   </a>
                                 </div>
                               ))
                             ) : (
-                              <div className="text-[#64748b]">
-                                Não há artigos guardados para esta resolução.
+                              <div className="rounded-lg border border-dashed border-[#1e293b] p-3 text-[#64748b]">
+                                Não existem links detalhados para esta resolução.
                               </div>
                             )}
                           </div>
@@ -314,34 +312,28 @@ export default function HistoricoPage() {
           </section>
 
           <aside className="rounded-2xl border border-[#1e293b] bg-[#0f172a] p-6">
-            <h2 className="mb-6 text-xl font-semibold text-white">Resumo</h2>
+            <h2 className="mb-4 text-lg font-semibold text-white">Resumo</h2>
 
             <div className="space-y-4">
               <div className="rounded-lg border border-[#1e293b] bg-[#0a0f1e] p-4">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#60a5fa]">
-                  Total de tentativas
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#60a5fa]">
+                  Tentativas
                 </p>
-                <p className="text-3xl font-bold text-white">
-                  {resolucoes.length}
-                </p>
+                <p className="mt-2 text-3xl font-bold text-white">{resolucoes.length}</p>
               </div>
 
               <div className="rounded-lg border border-[#1e293b] bg-[#0a0f1e] p-4">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#60a5fa]">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#60a5fa]">
                   Melhor pontuação
                 </p>
-                <p className="text-3xl font-bold text-white">
-                  {melhorPontuacao}
-                </p>
+                <p className="mt-2 text-3xl font-bold text-white">{melhorPontuacao}/100</p>
               </div>
 
               <div className="rounded-lg border border-[#1e293b] bg-[#0a0f1e] p-4">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#60a5fa]">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#60a5fa]">
                   Média
                 </p>
-                <p className="text-3xl font-bold text-white">
-                  {mediaPontuacao}
-                </p>
+                <p className="mt-2 text-3xl font-bold text-white">{mediaPontuacao}/100</p>
               </div>
             </div>
           </aside>

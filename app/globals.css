@@ -12,17 +12,8 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  body {
-  background-color: #f3f4f6; /* cinza claro */
-  color: #111827; /* texto escuro */
-}
+    background-color: #ffffff;
+  color: #171717;
   font-family: Arial, Helvetica, sans-serif;
 }

@@ -90,9 +90,20 @@ export default function CasoUmPage() {
   >([]);
 
   function toggleTratamento(id: TratamentoId) {
-    setTratamentosSelecionados((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    const nome = nomesTratamentos[id];
+    const idsRelacionados = (Object.entries(nomesTratamentos) as [TratamentoId, string][])
+      .filter(([, nomeTratamento]) => nomeTratamento === nome)
+      .map(([tratamentoId]) => tratamentoId);
+
+    setTratamentosSelecionados((prev) => {
+      const todosSelecionados = idsRelacionados.every((item) => prev.includes(item));
+
+      if (todosSelecionados) {
+        return prev.filter((item) => !idsRelacionados.includes(item));
+      }
+
+      return [...new Set([...prev, ...idsRelacionados])];
+    });
   }
 
   function toggleAplicacao(id: AplicacaoId) {
@@ -656,40 +667,33 @@ export default function CasoUmPage() {
                         )}
                       </div>
                     ) : (
-                      <div className="w-full px-6">
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div className="rounded-[22px] border border-[#334155] bg-[#111827] p-4">
-                            <p className="mb-2 text-[14px] font-black uppercase tracking-wide text-[#1d4ed8]">
-                              Produtos selecionados
-                            </p>
-                            <div className="space-y-2 text-[15px] font-semibold text-white">
-                              {tratamentosSelecionados.length > 0 ? (
-                                tratamentosSelecionados.map((item) => (
-                                  <div key={item}>• {nomesTratamentos[item]}</div>
-                                ))
-                              ) : (
-                                <div className="text-[#94a3b8]">
-                                  Nenhum produto selecionado.
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="rounded-[22px] border border-[#334155] bg-[#111827] p-4">
-                            <p className="mb-2 text-[14px] font-black uppercase tracking-wide text-[#1d4ed8]">
-                              Forma de aplicação
-                            </p>
-                            <div className="space-y-2 text-[15px] font-semibold text-white">
-                              {aplicacoesSelecionadas.length > 0 ? (
-                                aplicacoesSelecionadas.map((item) => (
-                                  <div key={item}>• {nomesAplicacoes[item]}</div>
-                                ))
-                              ) : (
-                                <div className="text-[#94a3b8]">
-                                  Nenhuma forma de aplicação selecionada.
-                                </div>
-                              )}
-                            </div>
+                      <div className="h-full w-full overflow-auto px-3">
+                        <div className="rounded-[22px] border border-[#334155] bg-[#111827] p-4">
+                          <p className="mb-3 text-[14px] font-black uppercase tracking-wide text-[#facc15]">
+                            Materiais disponíveis
+                          </p>
+                          <div className="space-y-4">
+                            {materiaisPorCategoria.map((grupo) => (
+                              <div key={grupo.categoria} className="space-y-2">
+                                <p className="text-[14px] font-black text-[#60a5fa]">{grupo.categoria}</p>
+                                {grupo.subcategorias.map((subcategoria) => (
+                                  <div key={subcategoria.subcategoria} className="space-y-2 pl-3">
+                                    <p className="text-[13px] font-semibold text-[#ef4444]">{subcategoria.subcategoria}</p>
+                                    {subcategoria.itens.map((item) => (
+                                      <label key={`${grupo.categoria}-${item.id}`} className={botaoOpcao}>
+                                        <input
+                                          type="checkbox"
+                                          checked={tratamentosSelecionados.includes(item.id)}
+                                          onChange={() => toggleTratamento(item.id)}
+                                          className="mr-2"
+                                        />
+                                        {item.nome}
+                                      </label>
+                                    ))}
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -849,49 +853,19 @@ export default function CasoUmPage() {
                     )}
 
                     {abaAtiva === "tratamento" && (
-                      <div className="mx-auto grid w-full max-w-5xl gap-4 xl:grid-cols-[1fr_260px]">
-                        <div className="max-h-[460px] space-y-4 overflow-auto rounded-[26px] border-2 border-[#334155] bg-white p-4">
-                          {materiaisPorCategoria.map((grupo: {
-                            categoria: string;
-                            subcategorias: {
-                              subcategoria: string;
-                              itens: { id: TratamentoId; nome: string }[];
-                            }[];
-                          }) => (
-                            <div key={grupo.categoria} className="space-y-2">
-                              <p className="text-[14px] font-black text-[#1d4ed8]">{grupo.categoria}</p>
-
-                              {grupo.subcategorias.map((subcategoria) => (
-                                <div key={subcategoria.subcategoria} className="space-y-2 pl-4">
-                                  <p className="text-[13px] font-semibold text-[#7f1d1d]">
-                                    {subcategoria.subcategoria}
-                                  </p>
-                                  {subcategoria.itens.map((item) => (
-                                    <label
-                                      key={`${grupo.categoria}-${item.id}`}
-                                      className={botaoOpcao}
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={tratamentosSelecionados.includes(
-                                          item.id
-                                        )}
-                                        onChange={() => toggleTratamento(item.id)}
-                                        className="mr-2"
-                                      />
-                                      {item.nome}
-                                    </label>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
-                          ))}
+                      <div className="space-y-3 rounded-[22px] border border-[#334155] bg-[#0f172a] p-4">
+                        <p className="mb-1 text-[14px] font-black text-[#facc15]">
+                          Produtos e aplicação
+                        </p>
+                        <div className="space-y-2 text-[13px] text-[#cbd5e1]">
+                          {tratamentosSelecionados.length > 0 ? (
+                            tratamentosSelecionados.map((item) => (
+                              <div key={item}>• {nomesTratamentos[item]}</div>
+                            ))
+                          ) : (
+                            <div>Nenhum produto selecionado.</div>
+                          )}
                         </div>
-
-                        <div className="space-y-3 rounded-[26px] border-2 border-[#334155] bg-[#f8fafc] p-4">
-                          <p className="mb-1 text-[14px] font-black text-[#7f1d1d]">
-                            Produtos e aplicação
-                          </p>
 
                           <label className={botaoOpcao}>
                             <input
@@ -958,7 +932,6 @@ export default function CasoUmPage() {
                             />
                             Fazer compressão forte sobre a lesão
                           </label>
-                        </div>
                       </div>
                     )}
                   </div>

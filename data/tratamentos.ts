@@ -18,14 +18,6 @@ export const tratamentos: Tratamento[] = [
     indicacoes: ["limpeza_geral", "ferida_contaminada", "ferida_aguda", "ferida_cronica"],
   },
   {
-    id: "agua-preparacoes-injetaveis",
-    categoria: "Limpeza",
-    subcategoria: "Irrigação",
-    nome: "Água para preparações injetáveis",
-    funcoes: ["limpeza", "irrigacao"],
-    indicacoes: ["lavagem"],
-  },
-  {
     id: "octenilin-solucao-lavagem",
     categoria: "Limpeza",
     subcategoria: "Solução específica",
@@ -43,36 +35,12 @@ export const tratamentos: Tratamento[] = [
     indicacoes: ["carga_bacteriana", "ferida_contaminada"],
   },
   {
-    id: "iodopovidona-pomada",
-    categoria: "Antissépsia",
-    subcategoria: "Antissépticos iodados",
-    nome: "Iodopovidona pomada",
-    funcoes: ["antisseptico", "controlo_microbiano"],
-    indicacoes: ["carga_bacteriana"],
-  },
-  {
-    id: "iodopovidona-espuma",
-    categoria: "Antissépsia",
-    subcategoria: "Antissépticos iodados",
-    nome: "Iodopovidona espuma",
-    funcoes: ["antisseptico", "controlo_microbiano"],
-    indicacoes: ["limpeza_antisseptica"],
-  },
-  {
     id: "inadine",
     categoria: "Antissépsia",
     subcategoria: "Antissépticos iodados",
     nome: "Compressa impregnada com iodopovidona",
     funcoes: ["antisseptico", "controlo_microbiano", "cobertura"],
     indicacoes: ["carga_bacteriana", "colonizacao_critica"],
-  },
-  {
-    id: "cadexomero-iodo",
-    categoria: "Antissépsia",
-    subcategoria: "Antissépticos iodados",
-    nome: "Cadexómero de iodo",
-    funcoes: ["antisseptico", "controlo_microbiano", "desbridamento"],
-    indicacoes: ["exsudado", "fibrina", "carga_bacteriana"],
   },
   {
     id: "octenidina-gel",
@@ -90,23 +58,6 @@ export const tratamentos: Tratamento[] = [
     funcoes: ["antisseptico", "controlo_microbiano"],
     indicacoes: ["desinfeccao", "carga_bacteriana"],
   },
-  {
-    id: "alcool-70",
-    categoria: "Antissépsia",
-    subcategoria: "Antissépticos não recomendados em feridas crónicas",
-    nome: "Álcool 70%",
-    funcoes: ["antisseptico"],
-    contraindicacoes: ["ferida_cronica", "tecido_viavel", "leito_da_ferida"],
-  },
-  {
-    id: "agua-oxigenada",
-    categoria: "Antissépsia",
-    subcategoria: "Antissépticos não recomendados em feridas crónicas",
-    nome: "Água oxigenada",
-    funcoes: ["antisseptico"],
-    contraindicacoes: ["ferida_cronica", "tecido_viavel", "leito_da_ferida"],
-  },
-
   {
     id: "colagenase",
     categoria: "Desbridamento",
@@ -162,14 +113,6 @@ export const tratamentos: Tratamento[] = [
     nome: "Carboximetilcelulose sódica (hidrofibra)",
     funcoes: ["desbridamento", "desbridamento_autolitico", "absorcao"],
     indicacoes: ["fibrina", "exsudado_moderado"],
-  },
-  {
-    id: "cadexomero-iodo-desbridamento",
-    categoria: "Desbridamento",
-    subcategoria: "Osmótico / químico",
-    nome: "Cadexómero de iodo",
-    funcoes: ["desbridamento", "desbridamento_osmotico", "controlo_microbiano"],
-    indicacoes: ["fibrina", "exsudado", "carga_bacteriana"],
   },
   {
     id: "l-mesitran",
@@ -343,15 +286,6 @@ export const tratamentos: Tratamento[] = [
     indicacoes: ["sangramento"],
   },
   {
-    id: "nitrato-prata-lapis",
-    categoria: "Hemostase",
-    subcategoria: "Cauterização química",
-    nome: "Nitrato de prata lápis",
-    funcoes: ["hemostase", "cauterizacao_quimica"],
-    indicacoes: ["sangramento", "hipergranulacao"],
-  },
-
-  {
     id: "oxido-zinco",
     categoria: "Proteção da pele perilesional",
     subcategoria: "Barreira cutânea",
@@ -391,40 +325,6 @@ export const tratamentos: Tratamento[] = [
     funcoes: ["protecao_perilesional", "barreira_cutanea"],
     indicacoes: ["maceracao", "risco_adesivo"],
   },
-
-  {
-    id: "ligadura-cola-zinco",
-    categoria: "Fixação",
-    subcategoria: "Ligaduras",
-    nome: "Ligadura cola de zinco",
-    funcoes: ["fixacao"],
-    indicacoes: ["fixacao_penso"],
-  },
-  {
-    id: "adesivo-cutaneo-liquido",
-    categoria: "Fixação",
-    subcategoria: "Adesivos",
-    nome: "Adesivo cutâneo líquido",
-    funcoes: ["fixacao"],
-    indicacoes: ["fixacao_penso", "protecao_adesivo"],
-  },
-  {
-    id: "steri-strip",
-    categoria: "Fixação",
-    subcategoria: "Aproximação de bordos",
-    nome: "Adesivo para suturas",
-    funcoes: ["fixacao", "aproximacao_bordos"],
-    indicacoes: ["ferida_superficial", "incisao"],
-  },
-  {
-    id: "tintura-benjoim",
-    categoria: "Fixação",
-    subcategoria: "Adjuvantes de adesão",
-    nome: "Tintura de benjoim",
-    funcoes: ["fixacao", "melhoria_adesao"],
-    indicacoes: ["aderencia_adesivos"],
-  },
-
   {
     id: "betametasona",
     categoria: "Fármacos tópicos",
@@ -432,22 +332,6 @@ export const tratamentos: Tratamento[] = [
     nome: "Betametasona pomada",
     funcoes: ["anti_inflamatorio_topico"],
     indicacoes: ["inflamacao_cutanea"],
-  },
-  {
-    id: "lidocaina-clorohexidina-gel",
-    categoria: "Fármacos tópicos",
-    subcategoria: "Anestésico / lubrificante",
-    nome: "Lidocaína + clorohexidina gel",
-    funcoes: ["analgesia_local", "lubrificacao"],
-    indicacoes: ["procedimento_doloroso"],
-  },
-  {
-    id: "tetracaina-gel",
-    categoria: "Fármacos tópicos",
-    subcategoria: "Anestésico / lubrificante",
-    nome: "Tetracaína gel",
-    funcoes: ["analgesia_local", "lubrificacao"],
-    indicacoes: ["procedimento_doloroso"],
   },
 
   {
@@ -473,13 +357,5 @@ export const tratamentos: Tratamento[] = [
     nome: "Irrigação com cloreto de sódio 0,9%",
     funcoes: ["desbridamento", "desbridamento_mecanico", "irrigacao"],
     indicacoes: ["tecido_desvitalizado", "residuos_superficiais"],
-  },
-  {
-    id: "compressas-desbridamento-mecanico",
-    categoria: "Desbridamento",
-    subcategoria: "Mecânico",
-    nome: "Compressas",
-    funcoes: ["desbridamento", "desbridamento_mecanico"],
-    indicacoes: ["residuos_superficiais"],
   },
 ];

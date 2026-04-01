@@ -10,7 +10,7 @@ import {
   normalizarSecoesAvaliacao,
 } from "../../lib/simulador";
 import { calcularPontuacaoTratamentoCaso3 } from "../../lib/avaliacao-tratamentos";
-import { agruparTratamentosPorCategoria } from "../../lib/tratamentos-helper";
+import { agruparTratamentosPorCategoriaESubcategoria } from "../../lib/tratamentos-helper";
 import {
   type AplicacaoId,
   type AvaliacaoSecao,
@@ -21,7 +21,6 @@ import {
 } from "../../types/simulador";
 import type { CasoConfig } from "../../types/caso-config";
 import casoConfigRaw from "../../../data/casos/caso3.json";
-import { tratamentos } from "@/data/tratamentos";
 
 type Aba = "observacao" | "dialogo" | "tratamento" | "resultado";
 
@@ -39,13 +38,18 @@ const {
 export default function CasoTresPage() {
   const materiaisPorCategoria = useMemo(
     () =>
-      Object.entries(agruparTratamentosPorCategoria()).map(
-        ([categoria, tratamentos]) => ({
+      Object.entries(agruparTratamentosPorCategoriaESubcategoria()).map(
+        ([categoria, subcategorias]) => ({
           categoria,
-          itens: tratamentos.map((tratamento) => ({
-            id: tratamento.id as TratamentoId,
-            nome: tratamento.nome,
-          })),
+           subcategorias: Object.entries(subcategorias).map(
+            ([subcategoria, tratamentos]) => ({
+              subcategoria,
+              itens: tratamentos.map((tratamento) => ({
+                id: tratamento.id as TratamentoId,
+                nome: tratamento.nome,
+              })),
+            })
+          ),
         })
       ),
     []
@@ -55,7 +59,9 @@ export default function CasoTresPage() {
     () =>
       Object.fromEntries(
         materiaisPorCategoria.flatMap((grupo) =>
-          grupo.itens.map((item) => [item.id, item.nome])
+          grupo.subcategorias.flatMap((subgrupo) =>
+            subgrupo.itens.map((item) => [item.id, item.nome])
+          )
         )
       ) as Record<TratamentoId, string>,
     [materiaisPorCategoria]
@@ -83,9 +89,20 @@ export default function CasoTresPage() {
 >([]);
 
   function toggleTratamento(id: TratamentoId) {
-    setTratamentosSelecionados((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    const nome = nomesTratamentos[id];
+    const idsRelacionados = (Object.entries(nomesTratamentos) as [TratamentoId, string][])
+      .filter(([, nomeTratamento]) => nomeTratamento === nome)
+      .map(([tratamentoId]) => tratamentoId);
+
+    setTratamentosSelecionados((prev) => {
+      const todosSelecionados = idsRelacionados.every((item) => prev.includes(item));
+
+      if (todosSelecionados) {
+        return prev.filter((item) => !idsRelacionados.includes(item));
+      }
+
+      return [...new Set([...prev, ...idsRelacionados])];
+    });
   }
 
   function toggleAplicacao(id: AplicacaoId) {
@@ -665,40 +682,35 @@ export default function CasoTresPage() {
                         )}
                       </div>
                     ) : (
-                      <div className="w-full px-6">
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div className="rounded-[22px] border border-[#334155] bg-[#111827] p-4">
-                            <p className="mb-2 text-[14px] font-black uppercase tracking-wide text-[#1d4ed8]">
-                              Produtos selecionados
-                            </p>
-                            <div className="space-y-2 text-[15px] font-semibold text-white">
-                              {tratamentosSelecionados.length > 0 ? (
-                                tratamentosSelecionados.map((item) => (
-                                  <div key={item}>• {nomesTratamentos[item]}</div>
-                                ))
-                              ) : (
-                                <div className="text-[#94a3b8]">
-                                  Nenhum produto selecionado.
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="rounded-[22px] border border-[#334155] bg-[#111827] p-4">
-                            <p className="mb-2 text-[14px] font-black uppercase tracking-wide text-[#1d4ed8]">
-                              Forma de aplicação
-                            </p>
-                            <div className="space-y-2 text-[15px] font-semibold text-white">
-                              {aplicacoesSelecionadas.length > 0 ? (
-                                aplicacoesSelecionadas.map((item) => (
-                                  <div key={item}>• {nomesAplicacoes[item]}</div>
-                                ))
-                              ) : (
-                                <div className="text-[#94a3b8]">
-                                  Nenhuma forma de aplicação selecionada.
-                                </div>
-                              )}
-                            </div>
+                      <div className="h-full w-full overflow-auto px-3">
+                        <div className="rounded-[22px] border border-[#334155] bg-[#111827] p-4">
+                          <p className="mb-3 text-[14px] font-black uppercase tracking-wide text-[#facc15]">
+                            Materiais disponíveis
+                          </p>
+                          <div className="space-y-4">
+                            {materiaisPorCategoria.map((grupo) => (
+                              <div key={grupo.categoria} className="space-y-2">
+                                <p className="text-[14px] font-black text-[#60a5fa]">{grupo.categoria}</p>
+                                {grupo.subcategorias.map((subcategoria) => (
+                                  <div key={subcategoria.subcategoria} className="space-y-2 pl-3">
+                                    <p className="text-[13px] font-semibold text-[#ef4444]">
+                                      {subcategoria.subcategoria}
+                                    </p>
+                                    {subcategoria.itens.map((item) => (
+                                      <label key={`${grupo.categoria}-${item.id}`} className={botaoOpcao}>
+                                        <input
+                                          type="checkbox"
+                                          checked={tratamentosSelecionados.includes(item.id)}
+                                          onChange={() => toggleTratamento(item.id)}
+                                          className="mr-2"
+                                        />
+                                        {item.nome}
+                                      </label>
+                                    ))}
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -846,38 +858,19 @@ export default function CasoTresPage() {
                     )}
 
                     {abaAtiva === "tratamento" && (
-                      <div className="grid gap-4 lg:grid-cols-2">
-                        <div className="space-y-4">
-                          {materiaisPorCategoria.map((grupo: typeof materiaisPorCategoria[number]) => (
-                            <div key={grupo.categoria} className="space-y-2">
-                              <p className="text-[14px] font-black text-[#1d4ed8]">
-                                🔹 {grupo.categoria}
-                              </p>
-
-                              {grupo.itens.map((item: typeof grupo.itens[number]) => (
-                                <label
-                                  key={`${grupo.categoria}-${item.id}`}
-                                  className={botaoOpcao}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={tratamentosSelecionados.includes(
-                                      item.id
-                                    )}
-                                    onChange={() => toggleTratamento(item.id)}
-                                    className="mr-2"
-                                  />
-                                  {item.nome}
-                                </label>
-                              ))}
-                            </div>
-                          ))}
+                      <div className="space-y-3 rounded-[22px] border border-[#334155] bg-[#0f172a] p-4">
+                        <p className="mb-1 text-[14px] font-black text-[#facc15]">
+                          Produtos e aplicação
+                        </p>
+                        <div className="space-y-2 text-[13px] text-[#cbd5e1]">
+                          {tratamentosSelecionados.length > 0 ? (
+                            tratamentosSelecionados.map((item) => (
+                              <div key={item}>• {nomesTratamentos[item]}</div>
+                            ))
+                          ) : (
+                            <div>Nenhum produto selecionado.</div>
+                          )}
                         </div>
-
-                        <div className="space-y-3">
-                          <p className="mb-1 text-[14px] font-black text-[#1d4ed8]">
-                            Aplicação
-                          </p>
 
                           <label className={botaoOpcao}>
                             <input
@@ -940,7 +933,6 @@ export default function CasoTresPage() {
                             />
                             Fazer compressão forte sobre a lesão
                           </label>
-                        </div>
                       </div>
                     )}
                   </div>

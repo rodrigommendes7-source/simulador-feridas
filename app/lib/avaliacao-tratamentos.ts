@@ -1,5 +1,6 @@
-import { tratamentos, type Tratamento } from "@/data/tratamentos";
+import type { Tratamento } from "@/data/tratamentos";
 import type { AvaliacaoSecao, TratamentoId } from "@/app/types/simulador";
+import { listTreatments } from "@/lib/treatments";
 
 type ObjetivoTratamento = {
   id: string;
@@ -31,7 +32,9 @@ type PerfilAvaliacaoTratamento = {
   };
 };
 
-const tratamentoPorId = new Map(tratamentos.map((tratamento) => [tratamento.id, tratamento]));
+const tratamentoPorId = new Map(
+  listTreatments().map((tratamento) => [tratamento.id, tratamento])
+);
 
 function criarSecaoTratamento(nome: string, maximo: number): AvaliacaoSecao {
   return {
@@ -79,7 +82,7 @@ function avaliarTratamentos(
       `Foram ignorados tratamentos não reconhecidos na lista atual: ${desconhecidos.join(", ")}.`
     );
     secao.justificacaoPerda.push(
-      "Perdeste pontuação potencial porque alguns itens não existem em data/tratamentos.ts."
+      "Perdeste pontuação potencial porque alguns itens não existem no catálogo clínico atual."
     );
   }
 
@@ -365,4 +368,72 @@ export function calcularPontuacaoTratamentoCaso3(idsSelecionados: TratamentoId[]
   }
 
   return secao;
+}
+
+const casoQuatroPerfil: PerfilAvaliacaoTratamento = {
+  nome: "Escolha do tratamento",
+  maximo: 50,
+  objetivos: [
+    {
+      id: "controlo_exsudado",
+      pontos: 20,
+      obrigatorio: true,
+      descricaoAcerto: "Selecionaste material ajustado ao controlo do exsudado.",
+      descricaoFalta: "Faltou selecionar cobertura com capacidade absorvente adequada.",
+      corresponde: temFuncao("controlo_exsudado", "absorcao"),
+    },
+    {
+      id: "protecao_perilesional",
+      pontos: 12,
+      obrigatorio: true,
+      descricaoAcerto: "Incluíste proteção da pele peri-ferida.",
+      descricaoFalta: "Faltou proteger a pele peri-ferida.",
+      corresponde: temFuncao("protecao_perilesional", "barreira_cutanea", "hidratacao_pele"),
+    },
+    {
+      id: "desbridamento",
+      pontos: 10,
+      obrigatorio: true,
+      descricaoAcerto: "Consideraste preparação do leito perante áreas de fibrina.",
+      descricaoFalta: "Faltou incluir estratégia de preparação do leito/desbridamento.",
+      corresponde: temFuncao("desbridamento", "desbridamento_enzimatico", "desbridamento_autolitico"),
+    },
+    {
+      id: "cobertura-nao-aderente",
+      pontos: 8,
+      descricaoAcerto: "Selecionaste cobertura que respeita tecido viável e reduz trauma local.",
+      descricaoFalta: "",
+      corresponde: temFuncao("cobertura", "contacto_nao_aderente"),
+    },
+  ],
+  penalizacoes: [
+    {
+      id: "anti-inflamatorio-fora-prioridade",
+      pontos: 8,
+      descricaoErro: "Selecionaste anti-inflamatório tópico sem ser o problema dominante do caso.",
+      justificacao:
+        "Perdeste pontuação por uma decisão terapêutica pouco alinhada com exsudado, fibrina e proteção peri-ferida.",
+      aplica: (selecionados) => selecionados.some(temFuncao("anti_inflamatorio_topico")),
+    },
+    {
+      id: "antimicrobiano-sem-sinais-fortes",
+      pontos: 4,
+      descricaoErro: "Selecionaste antimicrobiano como foco principal sem sinais fortes de infeção local.",
+      justificacao:
+        "Perdeste pontuação por privilegiar controlo microbiano num caso em que o foco principal está no leito e exsudado.",
+      aplica: (selecionados) =>
+        selecionados.some(temFuncao("controlo_microbiano", "prata")) &&
+        !selecionados.some(temFuncao("desbridamento")),
+    },
+  ],
+  limiteSelecaoExcessiva: {
+    limite: 6,
+    penalizacao: 5,
+    mensagemExcesso: "Selecionaste demasiados materiais para o mesmo plano terapêutico.",
+    justificacao: "Perdeste pontuação por excesso de materiais e menor foco clínico.",
+  },
+};
+
+export function calcularPontuacaoTratamentoCaso4(idsSelecionados: TratamentoId[]): AvaliacaoSecao {
+  return avaliarTratamentos(idsSelecionados, casoQuatroPerfil);
 }

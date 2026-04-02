@@ -1,5 +1,5 @@
-import { tratamentos } from "@/data/tratamentos";
 import type { TratamentoId } from "@/app/types/simulador";
+import { getTreatmentById } from "@/lib/treatments";
 
 export type EvidenciaMaterial = {
   titulo: string;
@@ -74,7 +74,7 @@ export function obterEvidenciaMaterial(id: TratamentoId): EvidenciaMaterial | nu
     return evidenciaPorId[id] ?? null;
   }
 
-  const tratamento = tratamentos.find((item) => item.id === id);
+  const tratamento = getTreatmentById(id);
   if (!tratamento) {
     return null;
   }

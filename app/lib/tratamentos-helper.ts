@@ -1,49 +1,46 @@
-import { tratamentos, type Tratamento } from "@/data/tratamentos";
+import type { Tratamento } from "@/data/tratamentos";
+import {
+  getTreatmentById,
+  getTreatmentsByCategory,
+  getTreatmentsByFunction,
+  getTreatmentsBySubcategory,
+  groupTreatmentsByCategory,
+  groupTreatmentsByCategoryAndSubcategory,
+  listTreatments,
+} from "@/lib/treatments";
 import type { TratamentoId } from "../types/simulador";
 import type { GrupoMaterialConfig } from "../types/caso-config";
 
 export function obterTratamentoPorId(id: string): Tratamento | undefined {
-  return tratamentos.find((t) => t.id === id);
+  return getTreatmentById(id);
 }
 
 export function obterTratamentosPorCategoria(categoria: string): Tratamento[] {
-  return tratamentos.filter((t) => t.categoria === categoria);
+  return getTreatmentsByCategory(categoria);
 }
 
 export function obterTratamentosPorSubcategoria(
   categoria: string,
   subcategoria: string
 ): Tratamento[] {
-  return tratamentos.filter(
-    (t) => t.categoria === categoria && t.subcategoria === subcategoria
-  );
+  return getTreatmentsBySubcategory(categoria, subcategoria);
 }
 
 export function obterTodasCategorias(): string[] {
-  const categorias = new Set(tratamentos.map((t) => t.categoria));
+  const categorias = new Set(listTreatments().map((t) => t.categoria));
   return Array.from(categorias);
 }
 
 export function obterTratamentosPorFuncao(funcao: string): Tratamento[] {
-  return tratamentos.filter((t) => t.funcoes.includes(funcao));
+  return getTreatmentsByFunction(funcao);
 }
 
 export function agruparTratamentosPorCategoria(): Record<string, Tratamento[]> {
-  return tratamentos.reduce(
-    (acc, tratamento) => {
-      if (!acc[tratamento.categoria]) {
-        acc[tratamento.categoria] = [];
-      }
-
-      acc[tratamento.categoria].push(tratamento);
-      return acc;
-    },
-    {} as Record<string, Tratamento[]>
-  );
+  return groupTreatmentsByCategory();
 }
 
 export function obterTratamentosParaCaso(idsEsperados: TratamentoId[]): GrupoMaterialConfig[] {
- const tratamentosDoCaso = tratamentos.filter((t) => idsEsperados.includes(t.id));
+ const tratamentosDoCaso = listTreatments().filter((t) => idsEsperados.includes(t.id));
 
  const grupos = new Map<string, { id: TratamentoId; nome: string }[]>();
 
@@ -81,19 +78,5 @@ export function agruparTratamentosPorCategoriaESubcategoria(): Record<
   string,
   Record<string, Tratamento[]>
 > {  
-  return tratamentos.reduce((acc, tratamento) => {
-    const { categoria, subcategoria } = tratamento;
-
-    if (!acc[categoria]) {
-      acc[categoria] = {};
-    }
-
-    if (!acc[categoria][subcategoria]) {
-      acc[categoria][subcategoria] = [];
-    }
-
-    acc[categoria][subcategoria].push(tratamento);
-
-    return acc;
-  }, {} as Record<string, Record<string, Tratamento[]>>);
+  return groupTreatmentsByCategoryAndSubcategory();
 }

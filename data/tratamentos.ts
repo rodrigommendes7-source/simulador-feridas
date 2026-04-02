@@ -3,6 +3,7 @@ export type Tratamento = {
   categoria: string;
   subcategoria: string;
   nome: string;
+  aliases?: string[];
   funcoes: string[];
   indicacoes?: string[];
   contraindicacoes?: string[];

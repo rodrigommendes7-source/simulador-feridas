@@ -26,16 +26,12 @@
   "nomesTratamentos": {
     "colagenase": "Colagenase",
     "hidrogel": "Hidrogel",
-    "prata": "Prata",
-    "iodo": "Iodo (povidona-iodo)",
-    "hidrofibra": "Hidrofibra",
-    "carboximetilcelulose": "Carboximetilcelulose",
-    "nitrato_prata": "Nitrato de prata",
-    "emolientes_ags": "Emolientes (ácidos gordos essenciais)",
-    "mel": "Mel",
-    "betametasona": "Betametasona",
-    "alcool": "Aplicação de álcool",
-    "gaze_seca": "Gaze seca"
+    "silvercel": "Alginato com prata",
+    "iodopovidona-solucao": "Iodopovidona solução",
+    "aquacel-simples": "Hidrofibra / carboximetilcelulose",
+    "creme-gordo": "Creme gordo",
+    "l-mesitran": "Mel terapêutico",
+    "betametasona": "Betametasona"
   },
   "nomesAplicacoes": {
     "apos_limpeza": "Aplicar cobertura após limpeza adequada",
@@ -44,61 +40,7 @@
     "com_protecao_perilesional": "Proteger pele perilesional",
     "compressao_forte": "Fazer compressão forte sobre a lesão"
   },
-  "materiaisPorCategoria": [
-    {
-      "categoria": "Desbridamento",
-      "itens": [
-        { "id": "colagenase", "nome": "Colagenase" },
-        { "id": "hidrogel", "nome": "Hidrogel" }
-      ]
-    },
-    {
-      "categoria": "Antimicrobianos",
-      "itens": [
-        { "id": "prata", "nome": "Prata" },
-        { "id": "iodo", "nome": "Iodo (povidona-iodo)" }
-      ]
-    },
-    {
-      "categoria": "Gestão de exsudado",
-      "itens": [
-        { "id": "hidrofibra", "nome": "Hidrofibra" },
-        { "id": "carboximetilcelulose", "nome": "Carboximetilcelulose" }
-      ]
-    },
-    {
-      "categoria": "Hidratação",
-      "itens": [{ "id": "hidrogel", "nome": "Hidrogel" }]
-    },
-    {
-      "categoria": "Hipergranulação",
-      "itens": [{ "id": "nitrato_prata", "nome": "Nitrato de prata" }]
-    },
-    {
-      "categoria": "Pele peri-ferida",
-      "itens": [
-        {
-          "id": "emolientes_ags",
-          "nome": "Emolientes (ácidos gordos essenciais)"
-        }
-      ]
-    },
-    {
-      "categoria": "Cicatrização / bioativos",
-      "itens": [{ "id": "mel", "nome": "Mel" }]
-    },
-    {
-      "categoria": "Anti-inflamatório",
-      "itens": [{ "id": "betametasona", "nome": "Betametasona" }]
-    },
-    {
-      "categoria": "Outros materiais / abordagens",
-      "itens": [
-        { "id": "alcool", "nome": "Aplicação de álcool" },
-        { "id": "gaze_seca", "nome": "Gaze seca" }
-      ]
-    }
-  ],
+  "materiaisPorCategoria": [],
   "linksEvidencia": {
     "colagenase": {
       "titulo": "Collagenase for enzymatic debridement: systematic review",
@@ -108,27 +50,23 @@
       "titulo": "Hydrogels and wound healing: review",
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10815795/"
     },
-    "prata": {
+    "silvercel": {
       "titulo": "Silver-releasing dressings: systematic review",
       "url": "https://pubmed.ncbi.nlm.nih.gov/18705778/"
     },
-    "iodo": {
+    "iodopovidona-solucao": {
       "titulo": "Povidone iodine in wound healing: review",
       "url": "https://pubmed.ncbi.nlm.nih.gov/28648795/"
     },
-    "hidrofibra": {
-      "titulo": "Hydrofiber dressing applications: review",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/"
-    },
-    "carboximetilcelulose": {
+    "aquacel-simples": {
       "titulo": "Hydrofiber/CMC dressings in exudate management",
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/"
     },
-    "mel": {
+    "l-mesitran": {
       "titulo": "Honey in modern wound care: systematic review",
       "url": "https://pubmed.ncbi.nlm.nih.gov/23896128/"
     },
-    "emolientes_ags": {
+    "creme-gordo": {
       "titulo": "Essential fatty acids and skin breakdown prevention",
       "url": "https://pubmed.ncbi.nlm.nih.gov/9233238/"
     },
@@ -138,24 +76,6 @@
     }
   },
   "recomendacoesPorErro": {
-    "alcool": {
-      "correto": "Hidrofibra",
-      "titulo": "Hydrofiber dressing applications: review",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/",
-      "explicacao": "O álcool é citotóxico e desadequado no leito da ferida. Neste caso, seria mais apropriado um material dirigido ao controlo do exsudado, como a hidrofibra."
-    },
-    "gaze_seca": {
-      "correto": "Hidrofibra ou carboximetilcelulose",
-      "titulo": "Hydrofiber/CMC dressings in exudate management",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/",
-      "explicacao": "A gaze seca pode aderir ao leito e traumatizar tecido viável. Uma abordagem húmida e absorvente é mais adequada neste contexto."
-    },
-    "nitrato_prata": {
-      "correto": "Hidrofibra",
-      "titulo": "Hydrofiber dressing applications: review",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/",
-      "explicacao": "O nitrato de prata está mais associado ao controlo de hipergranulação, o que não é o foco principal deste caso."
-    },
     "betametasona": {
       "correto": "Proteção da pele perilesional e gestão do exsudado",
       "titulo": "Essential fatty acids and skin breakdown prevention",

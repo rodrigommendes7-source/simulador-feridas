@@ -81,6 +81,8 @@ export function carregarHistoricoSeguro(): HistoricoResolucao[] {
     pontuacao:
       typeof item?.pontuacao === "number" ? item.pontuacao : Number(item?.pontuacao) || 0,
     data: typeof item?.data === "string" ? item.data : new Date().toISOString(),
+    dificuldadeCaso:
+      typeof item?.dificuldadeCaso === "string" ? item.dificuldadeCaso : undefined,
     observacoes: garantirArray<string>(item?.observacoes),
     perguntas: garantirArray<string>(item?.perguntas),
     tratamentos: garantirArray<string>(item?.tratamentos),
@@ -95,5 +97,6 @@ export function carregarHistoricoSeguro(): HistoricoResolucao[] {
       item?.avaliacaoDetalhada ?? item?.secoes
     ),
     linksFeedback: garantirArray<FeedbackLink>(item?.linksFeedback ?? item?.artigos),
+    recomendacoesAprendizagem: garantirArray<string>(item?.recomendacoesAprendizagem),
   }));
 }

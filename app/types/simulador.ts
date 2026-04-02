@@ -38,6 +38,7 @@ export type HistoricoResolucao = {
   id: string;
   casoId: string;
   casoTitulo: string;
+  dificuldadeCaso?: string;
   pontuacao: number;
   data: string;
   observacoes: string[];
@@ -47,6 +48,7 @@ export type HistoricoResolucao = {
   feedback: string;
   avaliacaoDetalhada: AvaliacaoSecao[];
   linksFeedback: FeedbackLink[];
+  recomendacoesAprendizagem?: string[];
 };
 
 export const STORAGE_KEY = "historico_resolucoes_feridas";

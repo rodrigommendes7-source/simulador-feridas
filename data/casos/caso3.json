@@ -29,9 +29,8 @@
     "aquacel-ag": "Hidrofibra com prata",
     "silvercel": "Alginato com prata",
     "protetor-polimero-acrilico-spray": "Barreira cutânea",
-    "creme-gordo": "Ácidos gordos essenciais (proteção perilesional)",
-    "hidrogel": "Hidrogel",
-    "alcool-70": "Álcool 70%"
+    "creme-gordo": "Creme gordo",
+    "hidrogel": "Hidrogel"
   },
   "nomesAplicacoes": {
     "apos_limpeza": "Realizar limpeza adequada antes da aplicação",
@@ -64,13 +63,7 @@
       "correto": "Hidrofibra com prata ou alginato com prata",
       "titulo": "Hydrofiber/CMC dressings in exudate management",
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7059819/",
-      "explicacao": "Com exsudado abundante e maceração perilesional, hidrogel não é prioritário; é preferível controlo de exsudado com ação antimicrobiana."
-    },
-    "alcool-70": {
-      "correto": "Solução isotónica e cobertura antimicrobiana absorvente",
-      "titulo": "Hydrofiber dressing applications: review",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2817785/",
-      "explicacao": "Álcool 70% é citotóxico para o leito da ferida e não é uma escolha adequada neste contexto clínico."
+      "explicacao": "Com exsudado abundante e maceração perilesional, hidrogel não é prioritário; é preferível controlo do exsudado com ação antimicrobiana."
     }
   }
 }

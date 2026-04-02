@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { obterEvidenciaMaterial } from "@/app/lib/evidencia-materiais";
+import { obterEvidenciasMaterial } from "@/app/lib/evidencia-materiais";
 import type { TratamentoId } from "@/app/types/simulador";
-import { listLearningTopics, getTreatmentsForLearningTopic, groupTreatmentsByCategory, getCasesForLearningTopic } from "@/lib/learning";
+import {
+  getCasesForLearningTopic,
+  getTreatmentsForLearningTopic,
+  groupTreatmentsByCategory,
+  listLearningTopics,
+} from "@/lib/learning";
 
 export default function AprenderPage() {
   const topics = useMemo(() => listLearningTopics(), []);
@@ -106,7 +111,9 @@ export default function AprenderPage() {
 
             {relatedCases.length > 0 ? (
               <div className="mt-8 rounded-3xl border-2 border-[#334155] bg-[#0f172a] p-5">
-                <h3 className="text-xl font-black text-[#facc15]">Casos onde este tema é central</h3>
+                <h3 className="text-xl font-black text-[#facc15]">
+                  Casos onde este tema é central
+                </h3>
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   {relatedCases.map((relatedCase) => (
                     <Link
@@ -138,20 +145,32 @@ export default function AprenderPage() {
                     <p className="mb-2 font-black text-[#60a5fa]">{categoria}</p>
                     <ul className="space-y-2 text-sm text-[#e2e8f0]">
                       {items.map((treatment) => {
-                        const evidence = obterEvidenciaMaterial(treatment.id as TratamentoId);
+                        const evidence = obterEvidenciasMaterial(treatment.id as TratamentoId);
                         return (
-                          <li key={treatment.id}>
-                            • {treatment.nome}
-                            {evidence ? (
-                              <a
-                                href={evidence.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ml-2 text-xs text-[#93c5fd] underline"
-                              >
-                                artigo científico
-                              </a>
-                            ) : null}
+                          <li
+                            key={treatment.id}
+                            className="rounded-xl border border-[#334155] bg-[#0f172a] p-3"
+                          >
+                            <p className="font-semibold text-white">{treatment.nome}</p>
+                            {evidence.length > 0 ? (
+                              <div className="mt-2 space-y-2">
+                                {evidence.map((article) => (
+                                  <a
+                                    key={`${treatment.id}-${article.url}`}
+                                    href={article.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block text-xs text-[#93c5fd] underline"
+                                  >
+                                    {article.titulo}
+                                  </a>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="mt-2 text-xs text-[#94a3b8]">
+                                Sem artigo associado neste momento.
+                              </p>
+                            )}
                           </li>
                         );
                       })}

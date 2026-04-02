@@ -230,7 +230,7 @@ export function CasePlayer({ caseId }: { caseId: string }) {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-[#60a5fa]">
-                  ProgressÃ£o
+                  Progresso
                 </p>
                 <p className="mt-1 text-lg font-black text-white">{progress.currentStageLabel}</p>
               </div>

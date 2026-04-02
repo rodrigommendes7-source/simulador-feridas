@@ -2,6 +2,7 @@ import {
   calcularPontuacao,
   normalizarSecoesAvaliacao,
 } from "@/app/lib/simulador";
+import { obterEvidenciasMaterial } from "@/app/lib/evidencia-materiais";
 import type {
   AplicacaoId,
   AvaliacaoSecao,
@@ -130,7 +131,7 @@ export function buildFeedbackLinks(
 ): FeedbackLink[] {
   const { linksEvidencia, recomendacoesPorErro } = caseDefinition.config;
 
-  const selectedLinks: FeedbackLink[] = selectedTreatmentIds
+  const selectedLinksFromCase: FeedbackLink[] = selectedTreatmentIds
     .filter((item) => linksEvidencia[item])
     .map((item) => ({
       material: treatmentNames[item],
@@ -138,6 +139,15 @@ export function buildFeedbackLinks(
       url: linksEvidencia[item]!.url,
       explicacao: "Artigo de apoio relacionado com o material selecionado.",
     }));
+
+  const selectedLinksFromCatalog: FeedbackLink[] = selectedTreatmentIds.flatMap((item) =>
+    obterEvidenciasMaterial(item).map((article) => ({
+      material: treatmentNames[item],
+      titulo: article.titulo,
+      url: article.url,
+      explicacao: article.explicacao,
+    }))
+  );
 
   const recommendationLinks: FeedbackLink[] = selectedTreatmentIds
     .filter((item) => recomendacoesPorErro[item])
@@ -149,7 +159,7 @@ export function buildFeedbackLinks(
       explicacao: recomendacoesPorErro[item]!.explicacao,
     }));
 
-  return [...selectedLinks, ...recommendationLinks].filter(
+  return [...recommendationLinks, ...selectedLinksFromCase, ...selectedLinksFromCatalog].filter(
     (item, index, arr) =>
       arr.findIndex((current) => current.material === item.material && current.url === item.url) ===
       index

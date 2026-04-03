@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { validateClinicalDomain } from "@/lib/clinical-validation";
+import { validateClinicalDomain } from "@/lib/clinical";
 
 export default function DiagnosticoPage() {
   const report = validateClinicalDomain();

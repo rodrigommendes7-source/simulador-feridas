@@ -1,0 +1,145 @@
+import { caseTemplates } from "../../data/clinical/cases.ts";
+import { evidenceReferences } from "../../data/clinical/evidence.ts";
+import { learningTopics } from "../../data/clinical/learning-topics.ts";
+import { treatmentCatalog } from "../../data/clinical/treatments.ts";
+import type {
+  ApplicationId,
+  CaseSession,
+  CaseTemplate,
+  CaseVariant,
+  EvidenceReference,
+  LearningTopic,
+  TreatmentDefinition,
+} from "./types.ts";
+
+const treatmentById = new Map(treatmentCatalog.map((item) => [item.id, item]));
+const topicById = new Map(learningTopics.map((item) => [item.id, item]));
+const evidenceById = new Map(evidenceReferences.map((item) => [item.id, item]));
+const templateById = new Map(caseTemplates.map((item) => [item.id, item]));
+
+export function listCaseTemplates(): CaseTemplate[] {
+  return caseTemplates;
+}
+
+export function getCaseTemplate(templateId: string): CaseTemplate | undefined {
+  return templateById.get(templateId);
+}
+
+export function getCaseTitle(templateId: string) {
+  return getCaseTemplate(templateId)?.title ?? templateId;
+}
+
+export function getPublishedCaseIds(): string[] {
+  return caseTemplates.filter((item) => item.status === "disponivel").map((item) => item.id);
+}
+
+export function getTreatment(treatmentId: string): TreatmentDefinition | undefined {
+  return treatmentById.get(treatmentId);
+}
+
+export function listTreatments(): TreatmentDefinition[] {
+  return treatmentCatalog;
+}
+
+export function listLearningTopics(): LearningTopic[] {
+  return learningTopics;
+}
+
+export function getLearningTopic(topicId: string): LearningTopic | undefined {
+  return topicById.get(topicId);
+}
+
+export function getLearningTopicTitle(topicId: string) {
+  return getLearningTopic(topicId)?.title ?? topicId;
+}
+
+export function getEvidence(evidenceId: string): EvidenceReference | undefined {
+  return evidenceById.get(evidenceId);
+}
+
+export function getEvidenceForTreatment(treatmentId: string): EvidenceReference[] {
+  const treatment = getTreatment(treatmentId);
+  if (!treatment) return [];
+  return treatment.evidenceRefs
+    .map((evidenceId) => getEvidence(evidenceId))
+    .filter((item): item is EvidenceReference => Boolean(item));
+}
+
+export function getCaseVariant(templateId: string, variantId: string): CaseVariant | undefined {
+  return getCaseTemplate(templateId)?.variants.find((variant) => variant.id === variantId);
+}
+
+export function getCaseSession(templateId: string, variantId?: string): CaseSession | undefined {
+  const template = getCaseTemplate(templateId);
+  if (!template) return undefined;
+  const variant = variantId
+    ? template.variants.find((item) => item.id === variantId)
+    : template.variants[0];
+
+  if (!variant) return undefined;
+  return { template, variant };
+}
+
+export function getTreatmentLabel(treatmentId: string) {
+  return getTreatment(treatmentId)?.label ?? treatmentId;
+}
+
+export function getApplicationLabel(template: CaseTemplate, applicationId: ApplicationId) {
+  return (
+    template.applicationDefinitions.find((item) => item.id === applicationId)?.label ??
+    applicationId
+  );
+}
+
+export function buildVariantRotation(templateId: string, previousVariantCount: number) {
+  const template = getCaseTemplate(templateId);
+  if (!template || template.variants.length === 0) return undefined;
+  return template.variants[previousVariantCount % template.variants.length];
+}
+
+export function getTemplateLearningTopicIds(templateId: string) {
+  const template = getCaseTemplate(templateId);
+  if (!template) return [];
+
+  const topicIds = new Set<string>();
+
+  for (const definition of template.observationDefinitions) {
+    for (const topicId of definition.learningTopicIds) topicIds.add(topicId);
+  }
+
+  for (const prompt of template.dialoguePrompts) {
+    for (const topicId of prompt.learningTopicIds) topicIds.add(topicId);
+  }
+
+  for (const application of template.applicationDefinitions) {
+    for (const topicId of application.learningTopicIds) topicIds.add(topicId);
+  }
+
+  for (const variant of template.variants) {
+    for (const topicId of variant.learningTopicIds) topicIds.add(topicId);
+    for (const goal of variant.clinicalTargets) {
+      for (const topicId of goal.learningTopicIds) topicIds.add(topicId);
+    }
+    for (const rule of variant.evaluationRules) {
+      for (const topicId of rule.learningTopicIds) topicIds.add(topicId);
+    }
+  }
+
+  return Array.from(topicIds);
+}
+
+export function getRelatedCasesForTopic(topicId: string): CaseTemplate[] {
+  const topic = getLearningTopic(topicId);
+  if (!topic) return [];
+  return topic.caseIds
+    .map((caseId) => getCaseTemplate(caseId))
+    .filter((item): item is CaseTemplate => Boolean(item));
+}
+
+export function getTreatmentsForTopic(topicId: string): TreatmentDefinition[] {
+  const topic = getLearningTopic(topicId);
+  if (!topic) return [];
+  return topic.treatmentIds
+    .map((treatmentId) => getTreatment(treatmentId))
+    .filter((item): item is TreatmentDefinition => Boolean(item));
+}

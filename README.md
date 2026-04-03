@@ -1,32 +1,32 @@
-# 🩺 Simulador de Tratamento de Feridas
+# Simulador de Tratamento de Feridas
 
-Ferramenta pedagógica interativa para treino de raciocínio clínico na abordagem a feridas.
-
----
-
-## 📌 Sobre o Projeto
-
-O **Simulador de Tratamento de Feridas** é uma aplicação web desenvolvida no âmbito da Licenciatura em Enfermagem da Universidade dos Açores, com o objetivo de apoiar o desenvolvimento de competências clínicas na avaliação e tratamento de feridas.
-
-A plataforma permite ao utilizador simular a resolução de casos clínicos, tomar decisões fundamentadas e receber feedback estruturado, promovendo uma aprendizagem ativa e orientada.
-
-> ⚠️ Este simulador tem finalidade exclusivamente educativa e não substitui a avaliação clínica real nem a tomada de decisão em contexto assistencial.
+Ferramenta pedagógica interativa para treinar o raciocínio clínico na abordagem a feridas.
 
 ---
 
-## 🎯 Objetivos
+## Sobre o Projeto
+
+O **Simulador de Tratamento de Feridas** é uma aplicação web desenvolvida no âmbito da Licenciatura em Enfermagem da Universidade dos Açores, com o objetivo de apoiar o desenvolvimento de competências clínicas na avaliação e no tratamento de feridas.
+
+A plataforma permite ao utilizador simular a resolução de casos clínicos, tomar decisões fundamentadas e receber feedback estruturado, promovendo uma aprendizagem ativa, orientada e progressiva.
+
+> Este simulador tem finalidade exclusivamente educativa e não substitui a avaliação clínica real nem a tomada de decisão em contexto assistencial.
+
+---
+
+## Objetivos
 
 * Desenvolver o raciocínio clínico na abordagem a feridas
-* Treinar a observação e interpretação do leito da ferida
+* Treinar a observação e a interpretação do leito da ferida
 * Melhorar a seleção de tratamentos e materiais
 * Promover a tomada de decisão fundamentada
 * Reforçar conhecimentos teóricos através da prática
 
 ---
 
-## ⚙️ Funcionalidades Principais
+## Funcionalidades Principais
 
-### 🧠 Resolução de Casos Clínicos
+### Resolução de Casos Clínicos
 
 * Casos interativos com contexto clínico realista
 * Análise da ferida com base em imagem e descrição
@@ -35,10 +35,9 @@ A plataforma permite ao utilizador simular a resolução de casos clínicos, tom
 
 ---
 
-### 📊 Sistema de Avaliação
+### Sistema de Avaliação
 
 * Feedback estruturado por domínios:
-
   * Observação
   * Diálogo / abordagem
   * Tratamento
@@ -48,12 +47,11 @@ A plataforma permite ao utilizador simular a resolução de casos clínicos, tom
 
 ---
 
-### 📚 Área “Aprender”
+### Área "Aprender"
 
 * Conteúdos organizados por temas relevantes:
-
   * Desbridamento
-  * Gestão de exsudado
+  * Gestão do exsudado
   * Antimicrobianos
   * Proteção da pele peri-ferida
   * Identificação de tecidos
@@ -64,7 +62,7 @@ A plataforma permite ao utilizador simular a resolução de casos clínicos, tom
 
 ---
 
-### 📈 Histórico de Desempenho
+### Histórico de Desempenho
 
 * Registo das tentativas realizadas
 * Melhor pontuação por caso
@@ -73,7 +71,7 @@ A plataforma permite ao utilizador simular a resolução de casos clínicos, tom
 
 ---
 
-## 🧪 Casos Clínicos Disponíveis
+## Casos Clínicos Disponíveis
 
 * Lesão por pressão
 * Ferida cirúrgica com deiscência
@@ -84,15 +82,15 @@ Cada caso foca competências específicas, permitindo uma aprendizagem progressi
 
 ---
 
-## 🌐 Demo
+## Demo
 
-A aplicação está disponível online:
+A aplicação está disponível em:
 
-👉 https://simulador-feridas.vercel.app/
+https://simulador-feridas.vercel.app/
 
 ---
 
-## 👥 Público-Alvo
+## Público-Alvo
 
 * Estudantes de enfermagem
 * Profissionais em formação
@@ -100,7 +98,7 @@ A aplicação está disponível online:
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 * Next.js
 * React
@@ -109,19 +107,17 @@ A aplicação está disponível online:
 
 ---
 
-## 🚧 Estado do Projeto
+## Estado do Projeto
 
 O projeto encontra-se **funcional e em desenvolvimento contínuo**, com foco em:
 
-* melhoria da lógica de avaliação
-* reforço da coerência pedagógica
-* otimização da experiência do utilizador
-* expansão e refinamento dos conteúdos
+* Melhoria da lógica de avaliação
+* Reforço da coerência pedagógica
+* Otimização da experiência do utilizador
+* Expansão e refinamento dos conteúdos
 
 ---
 
-## 📌 Notas Finais
+## Notas Finais
 
 Este projeto representa uma abordagem prática ao ensino da enfermagem, combinando simulação, decisão clínica e feedback estruturado, com o objetivo de aproximar a aprendizagem teórica da realidade da prática clínica.
-
----

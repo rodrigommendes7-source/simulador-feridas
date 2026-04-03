@@ -1,22 +1,22 @@
 import { notFound } from "next/navigation";
 import { CasePlayer } from "@/components/case-player";
-import { getCaseById, getPublishedCaseIds } from "@/lib/cases";
+import { getCaseTemplate, getPublishedCaseIds } from "@/lib/clinical";
 
 export function generateStaticParams() {
   return getPublishedCaseIds().map((caseId) => ({ caseId }));
 }
 
-export default async function CasoPage({
+export default async function CasePage({
   params,
 }: {
   params: Promise<{ caseId: string }>;
 }) {
   const { caseId } = await params;
-  const caseDefinition = getCaseById(caseId);
+  const template = getCaseTemplate(caseId);
 
-  if (!caseDefinition || caseDefinition.status !== "disponivel") {
+  if (!template || template.status !== "disponivel") {
     notFound();
   }
 
-  return <CasePlayer caseId={caseId} />;
+  return <CasePlayer templateId={caseId} />;
 }

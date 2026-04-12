@@ -31,6 +31,61 @@ const applicationDefinitions: ApplicationOption[] = [
   { id: "fixacao_atraumatica", label: "Escolher fixação atraumática e controlo de pressão", learningTopicIds: ["tecidos-e-leito"] },
   { id: "compressao_forte", label: "Fazer compressão forte diretamente sobre a lesão", learningTopicIds: ["materiais-desadequados"] },
   { id: "direto_seco", label: "Aplicar material diretamente em seco", learningTopicIds: ["materiais-desadequados"] },
+  // ── Técnicas de tratamento adicionadas ──────────────────────────────────────
+  {
+    id: "penso_rapido",
+    label: "Penso rápido",
+    learningTopicIds: ["decisao-clinica"],
+    // Adequado para feridas superficiais; incorreto em feridas profundas ou infetadas
+    regras: {
+      condicoes_ideais: { profundidade: [1] },
+      condicoes_parciais: { profundidade: [2] },
+      contraindicacoes: [{ profundidade: [3, 4] }, { infeccao: [2, 3] }],
+    },
+  },
+  {
+    id: "penso_simples",
+    label: "Penso simples protetor",
+    learningTopicIds: ["decisao-clinica"],
+    // Técnica básica de proteção — aplicável a qualquer ferida sem infeção marcada
+    regras: {
+      condicoes_ideais: {},
+      contraindicacoes: [],
+    },
+  },
+  {
+    id: "ligadura",
+    label: "Ligadura",
+    learningTopicIds: ["decisao-clinica"],
+    // Útil em feridas venosas, traumáticas e diabéticas; contraindicado em arterial/perfusão comprometida
+    regras: {
+      condicoes_ideais: { etiologia: [2, 4, 5] },
+      condicoes_parciais: { etiologia: [1, 6] },
+      contraindicacoes: [{ etiologia: [3] }, { perfusao: [0] }],
+    },
+  },
+  {
+    id: "penso_impermeavel",
+    label: "Penso impermeável",
+    learningTopicIds: ["decisao-clinica"],
+    // Ideal em feridas superficiais sem infeção; incorreto em infeção marcada ou sistémica
+    regras: {
+      condicoes_ideais: { profundidade: [1], infeccao: [0] },
+      condicoes_parciais: { profundidade: [2], infeccao: [0] },
+      contraindicacoes: [{ infeccao: [2, 3] }],
+    },
+  },
+  {
+    id: "terapia_compressiva",
+    label: "Terapia compressiva",
+    learningTopicIds: ["decisao-clinica"],
+    // Correto em etiologia venosa; incorreto em arterial ou perfusão comprometida; parcial em diabética
+    regras: {
+      condicoes_ideais: { etiologia: [2] },
+      condicoes_parciais: { etiologia: [4] },
+      contraindicacoes: [{ etiologia: [3] }, { perfusao: [0] }],
+    },
+  },
 ];
 
 function goal(
@@ -71,6 +126,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente de 78 anos, mobilidade reduzida e dependência parcial para alívio de pressão.",
         patientBanner: "Lesão por pressão sacra com necessidade de leitura do leito, controlo do exsudado e proteção da pele adjacente.",
         woundState: { exudate: "moderado", infection: "ausente", tissue: "granulacao-fibrina", periwound: "fragil", odor: "ausente" },
+        woundVariables: { exsudado: 3, infeccao: 0, tecido: 3, odor: 0, humidade: 3, profundidade: 2, bordos: 2, pele_perilesional: 2, dor: 1, hemorragia: 0, etiologia: 1, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica disponível para observação direta do leito e bordos." },
           dimensoes: { detail: "4 cm x 3 cm, superficial a moderada." },
@@ -114,6 +170,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente de 78 anos, com dependência elevada e agravamento da humidade local.",
         patientBanner: "Nesta variante, a maceração peri-ferida exige mais foco na gestão da humidade.",
         woundState: { exudate: "abundante", infection: "ausente", tissue: "granulacao-fibrina", periwound: "macerada", odor: "ausente" },
+        woundVariables: { exsudado: 4, infeccao: 0, tecido: 3, odor: 0, humidade: 4, profundidade: 2, bordos: 2, pele_perilesional: 1, dor: 1, hemorragia: 0, etiologia: 1, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica disponível para observação direta do leito e bordos." },
           dimensoes: { detail: "4,5 cm x 3,5 cm, profundidade ligeira a moderada." },
@@ -158,6 +215,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente de 78 anos com humidade mais baixa, mas fibrina persistente no leito.",
         patientBanner: "Nesta variante, a leitura do tecido ganha mais peso do que o volume de exsudado.",
         woundState: { exudate: "baixo", infection: "ausente", tissue: "fibrina", periwound: "fragil", odor: "ausente" },
+        woundVariables: { exsudado: 2, infeccao: 0, tecido: 2, odor: 0, humidade: 2, profundidade: 2, bordos: 2, pele_perilesional: 2, dor: 1, hemorragia: 0, etiologia: 1, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica disponível para observação direta do leito e bordos." },
           dimensoes: { detail: "4 cm x 3 cm, superficial a moderada." },
@@ -222,6 +280,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente de 72 anos com deiscência cirúrgica na perna esquerda após cirurgia vascular.",
         patientBanner: "Deiscencia cirúrgica com necessidade de reconhecer sinais de infeção, tecido desvitalizado e humidade excessiva.",
         woundState: { exudate: "moderado", infection: "suspeita-local", tissue: "granulacao-fibrina", periwound: "fragil", odor: "ligeiro" },
+        woundVariables: { exsudado: 3, infeccao: 1, tecido: 3, odor: 1, humidade: 3, profundidade: 2, bordos: 2, pele_perilesional: 2, dor: 2, hemorragia: 0, etiologia: 6, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica com abertura parcial da sutura e tecido fibrinoso." },
           dimensoes: { detail: "10 cm de extensao com area de abertura parcial entre 2 e 3 cm." },
@@ -268,6 +327,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente de 72 anos com deiscência cirúrgica agravada, febre ligeira e odor clinicamente relevante.",
         patientBanner: "Nesta variante, os sinais de infeção são mais claros e o controlo microbiano ganha peso.",
         woundState: { exudate: "abundante", infection: "marcada", tissue: "desvitalizado", periwound: "macerada", odor: "presente" },
+        woundVariables: { exsudado: 4, infeccao: 2, tecido: 1, odor: 3, humidade: 4, profundidade: 3, bordos: 1, pele_perilesional: 1, dor: 2, hemorragia: 0, etiologia: 6, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica com abertura parcial da sutura e tecido desvitalizado." },
           dimensoes: { detail: "12 cm de extensao com multiplas areas abertas entre 2 e 4 cm." },
@@ -316,6 +376,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente de 72 anos com deiscência húmida, pele frágil e necessidade de foco na humidade.",
         patientBanner: "Nesta variante, o desafio maior e manter o foco entre tecido, humidade e proteção cutânea.",
         woundState: { exudate: "abundante", infection: "suspeita-local", tissue: "granulacao-fibrina", periwound: "macerada", odor: "ligeiro" },
+        woundVariables: { exsudado: 4, infeccao: 1, tecido: 3, odor: 1, humidade: 4, profundidade: 2, bordos: 2, pele_perilesional: 1, dor: 2, hemorragia: 0, etiologia: 6, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica com abertura parcial da sutura e fibrina superficial." },
           dimensoes: { detail: "12 cm de extensao com areas abertas entre 2 e 4 cm." },
@@ -382,6 +443,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente com pe diabético após amputação digital e evolução desfavoravel do coto.",
         patientBanner: "Ferida pos-amputação com infeção local, exsudado elevado e pele peri-ferida fragilizada.",
         woundState: { exudate: "abundante", infection: "marcada", tissue: "granulacao-fibrina", periwound: "macerada", odor: "ligeiro" },
+        woundVariables: { exsudado: 4, infeccao: 2, tecido: 3, odor: 1, humidade: 4, profundidade: 2, bordos: 2, pele_perilesional: 1, dor: 2, hemorragia: 0, etiologia: 4, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia do coto com leito misto e exsudado abundante." },
           dimensoes: { detail: "3,5 cm x 3 cm x 1 cm." },
@@ -432,6 +494,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente com pe diabético após amputação digital, odor marcado e leito com tecido desvitalizado relevante.",
         patientBanner: "Nesta variante, a leitura do odor e do tecido não viável reforca a necessidade de controlo microbiano com foco.",
         woundState: { exudate: "abundante", infection: "marcada", tissue: "desvitalizado", periwound: "macerada", odor: "presente" },
+        woundVariables: { exsudado: 4, infeccao: 2, tecido: 1, odor: 3, humidade: 4, profundidade: 2, bordos: 1, pele_perilesional: 1, dor: 2, hemorragia: 0, etiologia: 4, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia do coto com leito misto, tecido desvitalizado e exsudado abundante." },
           dimensoes: { detail: "3,5 cm x 3 cm x 1 cm." },
@@ -481,6 +544,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente com pe diabético após amputação digital, exsudado elevado e fibrina persistente no leito.",
         patientBanner: "Nesta variante, o controlo do exsudado e do leito mantem-se central, mesmo sem odor marcado.",
         woundState: { exudate: "abundante", infection: "marcada", tissue: "granulacao-fibrina", periwound: "macerada", odor: "ligeiro" },
+        woundVariables: { exsudado: 4, infeccao: 2, tecido: 3, odor: 1, humidade: 4, profundidade: 2, bordos: 2, pele_perilesional: 1, dor: 2, hemorragia: 0, etiologia: 4, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia do coto com leito misto e exsudado abundante." },
           dimensoes: { detail: "3,5 cm x 3 cm x 1 cm." },
@@ -550,6 +614,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente com úlcera maleolar dolorosa ao penso e necessidade de plano focado no leito.",
         patientBanner: "Úlcera do tornozelo com leitura fina do tecido, humidade e proteção periférica.",
         woundState: { exudate: "moderado", infection: "ausente", tissue: "granulacao-fibrina", periwound: "integra", odor: "ausente" },
+        woundVariables: { exsudado: 3, infeccao: 0, tecido: 3, odor: 0, humidade: 3, profundidade: 2, bordos: 2, pele_perilesional: 4, dor: 2, hemorragia: 0, etiologia: 2, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica da úlcera maleolar." },
           dimensoes: { detail: "Aproximadamente 5 cm x 3 cm." },
@@ -567,7 +632,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, embora com desconforto.",
         },
         availableTreatments: ["cloreto-sodio-09", "octenilin-solucao-lavagem", "aquacel-simples", "fibrosol", "allevyn", "urgotul", "colagenase", "hidrogel", "oxido-zinco", "creme-gordo", "protetor-polimero-acrilico-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte"],
+        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte", "terapia_compressiva"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A observação e a aplicação devem partir de um leito limpo.", { treatmentIds: ["cloreto-sodio-09"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia adequada prepara o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao-lavagem"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -577,6 +642,7 @@ const cases: CaseTemplate[] = [
           goal("application-periwound", "Proteger a pele peri-ferida", "protect-periwound", "adequado", "A técnica deve proteger a pele adjacente.", { applicationIds: ["com_protecao_perilesional"] }, ["protecao-perilesional"]),
           goal("application-debridement", "Evitar desbridamento agressivo sem indicação", "debridement", "adequado", "A abordagem do leito deve respeitar o tecido viável.", { applicationIds: ["sem_desbridamento_agressivo"] }, ["desbridamento", "tecidos-e-leito"]),
           goal("application-fixation", "Escolher fixação atraumática e controlo de pressão", "offload-pressure", "adequado", "A fixação deve respeitar o tecido e reduzir trauma adicional.", { applicationIds: ["fixacao_atraumatica"] }, ["tecidos-e-leito", "decisao-clinica"]),
+          goal("application-compression", "Aplicar terapia compressiva (etiologia venosa)", "offload-pressure", "adequado", "A compressão é um pilar do tratamento da úlcera venosa.", { applicationIds: ["terapia_compressiva"] }, ["decisao-clinica"]),
         ],
         evaluationRules: [
           { id: "hydrogel-ankle", target: "treatment", appliesToIds: ["hidrogel"], classification: "redundante", reason: "Quando o exsudado ja exige cobertura focada, tende a acrescentar pouco foco.", learningTopicIds: ["desbridamento", "gestao-exsudado"] },
@@ -595,6 +661,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente com úlcera maleolar dolorosa ao penso e humidade mais baixa.",
         patientBanner: "Nesta variante, a leitura do tecido e da dor ao penso pesa mais do que o controlo de humidade.",
         woundState: { exudate: "baixo", infection: "ausente", tissue: "fibrina", periwound: "fragil", odor: "ausente" },
+        woundVariables: { exsudado: 2, infeccao: 0, tecido: 2, odor: 0, humidade: 2, profundidade: 2, bordos: 2, pele_perilesional: 2, dor: 2, hemorragia: 0, etiologia: 2, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica da úlcera maleolar." },
           dimensoes: { detail: "Aproximadamente 5 cm x 3 cm." },
@@ -612,7 +679,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, embora com desconforto.",
         },
         availableTreatments: ["cloreto-sodio-09", "octenilin-solucao-lavagem", "aquacel-simples", "allevyn", "urgotul", "colagenase", "hidrogel", "creme-gordo", "protetor-polimero-acrilico-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte"],
+        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte", "terapia_compressiva"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A observação e a aplicação devem partir de um leito limpo.", { treatmentIds: ["cloreto-sodio-09"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia adequada prepara o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao-lavagem"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -640,6 +707,7 @@ const cases: CaseTemplate[] = [
         patientContext: "Utente com úlcera maleolar dolorosa ao penso e leito em granulação predominante.",
         patientBanner: "Nesta variante, o desafio e não sobretratar um leito mais limpo.",
         woundState: { exudate: "moderado", infection: "ausente", tissue: "granulacao", periwound: "integra", odor: "ausente" },
+        woundVariables: { exsudado: 3, infeccao: 0, tecido: 3, odor: 0, humidade: 3, profundidade: 2, bordos: 3, pele_perilesional: 4, dor: 2, hemorragia: 0, etiologia: 2, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Fotografia clínica da úlcera maleolar." },
           dimensoes: { detail: "Aproximadamente 5 cm x 3 cm." },
@@ -657,7 +725,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, embora com desconforto.",
         },
         availableTreatments: ["cloreto-sodio-09", "octenilin-solucao-lavagem", "aquacel-simples", "fibrosol", "allevyn", "urgotul", "colagenase", "oxido-zinco", "creme-gordo", "protetor-polimero-acrilico-spray", "hidrogel", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte"],
+        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte", "terapia_compressiva"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A observação e a aplicação devem partir de um leito limpo.", { treatmentIds: ["cloreto-sodio-09"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia adequada prepara o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao-lavagem"] }, ["decisao-clinica", "antimicrobianos"]),

@@ -1,3 +1,85 @@
+// ─── Variáveis clínicas numéricas ───────────────────────────────────────────
+
+/** Representação numérica do estado da ferida. Utilizada na avaliação por material. */
+export type WoundVariables = {
+  /** 1=ausente  2=ligeiro  3=moderado  4=abundante */
+  exsudado: 1 | 2 | 3 | 4;
+  /** 0=ausente  1=local  2=marcada  3=sistémica */
+  infeccao: 0 | 1 | 2 | 3;
+  /** 1=necrose  2=fibrina  3=granulação  4=epitelização */
+  tecido: 1 | 2 | 3 | 4;
+  /** 0=ausente  1=ligeiro  2=moderado  3=intenso */
+  odor: 0 | 1 | 2 | 3;
+  /** 1=seca  2=ligeira  3=moderada  4=maceração */
+  humidade: 1 | 2 | 3 | 4;
+  /** 1=superficial  2=moderada  3=profunda  4=cavidade */
+  profundidade: 1 | 2 | 3 | 4;
+  /** 1=indefinidos  2=irregulares  3=regulares  4=em epitelização */
+  bordos: 1 | 2 | 3 | 4;
+  /** 1=macerada  2=frágil  3=eritematosa  4=íntegra */
+  pele_perilesional: 1 | 2 | 3 | 4;
+  /** 0=ausente  1=ligeira  2=moderada  3=intensa */
+  dor: 0 | 1 | 2 | 3;
+  /** 0=ausente  1=ligeira  2=moderada  3=abundante */
+  hemorragia: 0 | 1 | 2 | 3;
+  /** 1=pressão  2=venosa  3=arterial  4=diabética  5=traumática  6=cirúrgica */
+  etiologia: 1 | 2 | 3 | 4 | 5 | 6;
+  /** 0=comprometida  1=adequada */
+  perfusao: 0 | 1;
+};
+
+/**
+ * Condição de avaliação: cada chave mapeia para lista de valores válidos.
+ * Uma condição com objecto vazio {} corresponde a "aplicável a qualquer ferida".
+ * A lógica é AND: todas as chaves presentes têm de corresponder.
+ */
+export type WoundVariableCondition = Partial<Record<keyof WoundVariables, number[]>>;
+
+/** Regras clínicas de um material ou técnica. */
+export type MaterialRules = {
+  /** Condições para classificação "correto" — deve satisfazer todas as chaves */
+  condicoes_ideais: WoundVariableCondition;
+  /** Condições para classificação "parcial" (opcional) */
+  condicoes_parciais?: WoundVariableCondition;
+  /** Lista de condições de contraindicação — basta uma corresponder para "incorreto" */
+  contraindicacoes: WoundVariableCondition[];
+  /** Condições para bónus adicional de 0,25 pts */
+  bonus?: WoundVariableCondition;
+};
+
+/** Classificação por material no novo sistema de avaliação */
+export type MaterialClassification = "correto" | "parcial" | "incorreto";
+
+/** Resultado da avaliação de um material individual */
+export type MaterialScore = {
+  materialId: string;
+  label: string;
+  nome_comercial?: string;
+  substancia_ativa?: string;
+  classification: MaterialClassification;
+  /** 1.0 = correto  |  0.5 = parcial  |  0 = incorreto  (+ 0.25 se hasBonus) */
+  score: number;
+  hasBonus: boolean;
+  justificacao: string;
+};
+
+/** Item de feedback por material */
+export type MaterialFeedbackItem = {
+  material: string;
+  justificacao: string;
+};
+
+/** Feedback estruturado gerado após avaliação de materiais */
+export type MaterialFeedback = {
+  corretos: MaterialFeedbackItem[];
+  parciais: MaterialFeedbackItem[];
+  incorretos: MaterialFeedbackItem[];
+  /** Materiais não selecionados que seriam ideais para esta ferida */
+  sugestoes: MaterialFeedbackItem[];
+};
+
+// ─── Tipos existentes ────────────────────────────────────────────────────────
+
 export type TreatmentFunction =
   | "cleanse"
   | "absorb"
@@ -47,7 +129,13 @@ export type ApplicationId =
   | "sem_desbridamento_agressivo"
   | "fixacao_atraumatica"
   | "compressao_forte"
-  | "direto_seco";
+  | "direto_seco"
+  // Técnicas de tratamento adicionadas
+  | "penso_rapido"
+  | "penso_simples"
+  | "ligadura"
+  | "penso_impermeavel"
+  | "terapia_compressiva";
 
 export type EvidenceReference = {
   id: string;
@@ -69,6 +157,14 @@ export type TreatmentDefinition = {
   evidenceRefs: string[];
   learningTopicIds: string[];
   uiTags: string[];
+  /** Nome comercial de referência (ex: "Aquacel®") */
+  nome_comercial?: string;
+  /** Substância ativa ou denominação comum (ex: "Carboximetilcelulose sódica") */
+  substancia_ativa?: string;
+  /** Categoria para o sistema de avaliação por material */
+  categoria_clinica?: "solutos" | "apositos" | "pomadas";
+  /** Regras clínicas para avaliação correto/parcial/incorreto */
+  regras?: MaterialRules;
 };
 
 export type CommonMistake = {
@@ -113,6 +209,8 @@ export type ApplicationOption = {
   id: ApplicationId;
   label: string;
   learningTopicIds: string[];
+  /** Regras clínicas para avaliação da técnica (correto/parcial/incorreto) */
+  regras?: MaterialRules;
 };
 
 export type GoalMatcher = {
@@ -159,6 +257,8 @@ export type CaseVariant = {
   patientContext: string;
   patientBanner: string;
   woundState: WoundState;
+  /** Variáveis clínicas numéricas — usadas no motor de avaliação por material */
+  woundVariables?: WoundVariables;
   observationDetails: Record<ObservationId, ObservationDetail>;
   dialogueResponses: Record<DialogueId, string>;
   availableTreatments: string[];

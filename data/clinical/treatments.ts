@@ -14,6 +14,14 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["water-cleansing"],
     learningTopicIds: ["decisao-clinica"],
     uiTags: ["limpeza", "base"],
+    nome_comercial: "Soro fisiológico",
+    substancia_ativa: "Cloreto de sódio 0,9%",
+    categoria_clinica: "solutos",
+    // Limpeza básica universal — sem contraindicações de ferida
+    regras: {
+      condicoes_ideais: {}, // objecto vazio = sempre correto
+      contraindicacoes: [],
+    },
   },
   {
     id: "octenilin-solucao-lavagem",
@@ -28,6 +36,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["octenidine-consensus"],
     learningTopicIds: ["antimicrobianos", "decisao-clinica"],
     uiTags: ["limpeza", "antissépsia", "controlo microbiano"],
+    nome_comercial: "Octenilin®",
+    substancia_ativa: "Octenidina + fenoxietanol",
+    categoria_clinica: "solutos",
+    // Ideal com qualquer suspeita de infeção; parcial sem infeção (uso apenas como limpeza)
+    regras: {
+      condicoes_ideais: { infeccao: [1, 2, 3] },
+      condicoes_parciais: { infeccao: [0] },
+      contraindicacoes: [],
+    },
   },
   {
     id: "iodopovidona-solucao",
@@ -42,6 +59,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["povidone-review"],
     learningTopicIds: ["antimicrobianos"],
     uiTags: ["iodo", "antissépsia", "controlo microbiano"],
+    nome_comercial: "Betadine®",
+    substancia_ativa: "Iodopovidona 10%",
+    categoria_clinica: "solutos",
+    // Ideal com infeção; parcial como antisséptico preventivo
+    regras: {
+      condicoes_ideais: { infeccao: [1, 2, 3] },
+      condicoes_parciais: { infeccao: [0] },
+      contraindicacoes: [],
+    },
   },
   {
     id: "colagenase",
@@ -56,6 +82,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["collagenase-review", "debridement-review"],
     learningTopicIds: ["desbridamento", "tecidos-e-leito"],
     uiTags: ["desbridamento", "enzimático"],
+    nome_comercial: "Iruxol Mono®",
+    substancia_ativa: "Colagenase",
+    categoria_clinica: "pomadas",
+    // Ideal para necrose ou fibrina; parcial com tecido misto; incorreto em epitelização
+    regras: {
+      condicoes_ideais: { tecido: [1, 2] },
+      condicoes_parciais: { tecido: [3] },
+      contraindicacoes: [{ tecido: [4] }],
+    },
   },
   {
     id: "hidrogel",
@@ -70,6 +105,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["debridement-review"],
     learningTopicIds: ["desbridamento", "gestao-exsudado"],
     uiTags: ["hidrata", "autolítico"],
+    nome_comercial: "Intrasite® / Hydrosorb®",
+    substancia_ativa: "Hidrogel amorfo",
+    categoria_clinica: "apositos",
+    // Ideal em ferida seca com fibrina/necrose; incorreto com exsudado abundante ou maceração
+    regras: {
+      condicoes_ideais: { tecido: [1, 2], exsudado: [1, 2] },
+      condicoes_parciais: { tecido: [1, 2], exsudado: [3] },
+      contraindicacoes: [{ exsudado: [4] }, { humidade: [4] }],
+    },
   },
   {
     id: "aquacel-simples",
@@ -84,6 +128,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["hydrofiber-review"],
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["absorvente", "hidrofibra"],
+    nome_comercial: "Aquacel® / Durafiber®",
+    substancia_ativa: "Carboximetilcelulose sódica",
+    categoria_clinica: "apositos",
+    // Ideal com exsudado moderado; parcial com ligeiro; incorreto em ferida seca
+    regras: {
+      condicoes_ideais: { exsudado: [3] },
+      condicoes_parciais: { exsudado: [2] },
+      contraindicacoes: [{ exsudado: [1] }],
+    },
   },
   {
     id: "fibrosol",
@@ -98,6 +151,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["hydrofiber-review"],
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["absorvente", "equivalente"],
+    nome_comercial: "Fibrosol®",
+    substancia_ativa: "Carboximetilcelulose sódica",
+    categoria_clinica: "apositos",
+    // Mesmas regras que aquacel-simples (equivalência de grupo)
+    regras: {
+      condicoes_ideais: { exsudado: [3] },
+      condicoes_parciais: { exsudado: [2] },
+      contraindicacoes: [{ exsudado: [1] }],
+    },
   },
   {
     id: "silvercel",
@@ -112,6 +174,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["alginate-review", "silver-consensus"],
     learningTopicIds: ["antimicrobianos", "gestao-exsudado"],
     uiTags: ["prata", "absorvente"],
+    nome_comercial: "Silvercel®",
+    substancia_ativa: "Alginato de cálcio com prata",
+    categoria_clinica: "apositos",
+    // Ideal com infeção + exsudado elevado; incorreto sem sinais de infeção
+    regras: {
+      condicoes_ideais: { infeccao: [1, 2, 3], exsudado: [3, 4] },
+      condicoes_parciais: { infeccao: [1, 2, 3], exsudado: [2] },
+      contraindicacoes: [{ infeccao: [0] }],
+    },
   },
   {
     id: "aquacel-ag",
@@ -126,6 +197,14 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["hydrofiber-review", "silver-consensus"],
     learningTopicIds: ["antimicrobianos", "gestao-exsudado"],
     uiTags: ["prata", "hidrofibra"],
+    nome_comercial: "Aquacel® Ag",
+    substancia_ativa: "CMC sódica com prata (prata iónica)",
+    categoria_clinica: "apositos",
+    // Ideal com infeção + exsudado moderado/abundante; incorreto sem infeção
+    regras: {
+      condicoes_ideais: { infeccao: [1, 2, 3], exsudado: [2, 3, 4] },
+      contraindicacoes: [{ infeccao: [0] }],
+    },
   },
   {
     id: "vliwasorb",
@@ -140,6 +219,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["foam-review"],
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["superabsorvente", "alto exsudado"],
+    nome_comercial: "Vliwasorb®",
+    substancia_ativa: "Poliacrilato superabsorvente",
+    categoria_clinica: "apositos",
+    // Ideal com exsudado abundante; parcial com moderado; incorreto em ferida seca
+    regras: {
+      condicoes_ideais: { exsudado: [4] },
+      condicoes_parciais: { exsudado: [3] },
+      contraindicacoes: [{ exsudado: [1] }],
+    },
   },
   {
     id: "allevyn",
@@ -154,6 +242,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["foam-review"],
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["espuma", "atraumático"],
+    nome_comercial: "Allevyn®",
+    substancia_ativa: "Espuma de poliuretano",
+    categoria_clinica: "apositos",
+    // Ideal com exsudado moderado; parcial com ligeiro ou abundante; incorreto em ferida seca
+    regras: {
+      condicoes_ideais: { exsudado: [3] },
+      condicoes_parciais: { exsudado: [2, 4] },
+      contraindicacoes: [{ exsudado: [1] }],
+    },
   },
   {
     id: "urgotul",
@@ -168,6 +265,16 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["foam-review"],
     learningTopicIds: ["tecidos-e-leito"],
     uiTags: ["contacto", "não aderente"],
+    nome_comercial: "Urgotul®",
+    substancia_ativa: "Penso lipocolóide não aderente",
+    categoria_clinica: "apositos",
+    // Ideal com dor ao penso (protege o leito na remoção); bónus se tecido em granulação
+    regras: {
+      condicoes_ideais: { dor: [1, 2, 3] },
+      condicoes_parciais: { dor: [0] },
+      contraindicacoes: [],
+      bonus: { tecido: [3] },
+    },
   },
   {
     id: "actisorb-plus-prata",
@@ -182,6 +289,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["odor-review", "silver-consensus"],
     learningTopicIds: ["antimicrobianos"],
     uiTags: ["odor", "prata"],
+    nome_comercial: "Actisorb® Silver 220",
+    substancia_ativa: "Carvão ativado com prata",
+    categoria_clinica: "apositos",
+    // Ideal com odor moderado/intenso + infeção; parcial com odor ligeiro; incorreto sem odor e sem infeção
+    regras: {
+      condicoes_ideais: { odor: [2, 3], infeccao: [1, 2, 3] },
+      condicoes_parciais: { odor: [1] },
+      contraindicacoes: [{ odor: [0], infeccao: [0] }],
+    },
   },
   {
     id: "oxido-zinco",
@@ -196,6 +312,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["skin-barrier-review"],
     learningTopicIds: ["protecao-perilesional"],
     uiTags: ["barreira", "peri-ferida"],
+    nome_comercial: "Óxido de zinco pomada",
+    substancia_ativa: "Óxido de zinco",
+    categoria_clinica: "pomadas",
+    // Ideal com maceração ou pele frágil; parcial com eritema
+    regras: {
+      condicoes_ideais: { pele_perilesional: [1, 2] },
+      condicoes_parciais: { pele_perilesional: [3] },
+      contraindicacoes: [],
+    },
   },
   {
     id: "protetor-polimero-acrilico-spray",
@@ -210,6 +335,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["skin-barrier-review"],
     learningTopicIds: ["protecao-perilesional"],
     uiTags: ["barreira", "spray"],
+    nome_comercial: "Cavilon® spray",
+    substancia_ativa: "Polímero acrílico barreira",
+    categoria_clinica: "apositos",
+    // Mesmas indicações que óxido de zinco — barreira perilesional
+    regras: {
+      condicoes_ideais: { pele_perilesional: [1, 2] },
+      condicoes_parciais: { pele_perilesional: [3] },
+      contraindicacoes: [],
+    },
   },
   {
     id: "creme-gordo",
@@ -224,6 +358,15 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: ["skin-barrier-review"],
     learningTopicIds: ["protecao-perilesional"],
     uiTags: ["hidratação", "pele frágil"],
+    nome_comercial: "Creme gordo / vaselina",
+    substancia_ativa: "Vaselina + lanolina",
+    categoria_clinica: "pomadas",
+    // Ideal com pele frágil ou eritematosa; parcial em pele íntegra; incorreto em maceração ativa
+    regras: {
+      condicoes_ideais: { pele_perilesional: [2, 3] },
+      condicoes_parciais: { pele_perilesional: [4] },
+      contraindicacoes: [{ pele_perilesional: [1] }],
+    },
   },
   {
     id: "betametasona",
@@ -238,5 +381,13 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     evidenceRefs: [],
     learningTopicIds: ["decisao-clinica"],
     uiTags: ["uso específico"],
+    nome_comercial: "Betnovate® / Diprosone®",
+    substancia_ativa: "Betametasona dipropionato",
+    categoria_clinica: "pomadas",
+    // Sempre incorreto no contexto de tratamento de feridas (exsudado 1-4 cobre todos os casos)
+    regras: {
+      condicoes_ideais: { exsudado: [] }, // nunca ideal — lista vazia nunca satisfaz includes()
+      contraindicacoes: [{ exsudado: [1, 2, 3, 4] }],
+    },
   },
 ];

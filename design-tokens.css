@@ -1,0 +1,561 @@
+/* =============================================================
+   SIMULADOR DE FERIDAS — Design Tokens
+   Importa este ficheiro no topo do teu CSS global:
+   @import './design-tokens.css';
+   ============================================================= */
+
+:root {
+
+  /* -----------------------------------------------------------
+     CORES — Fundos (escala de profundidade)
+  ----------------------------------------------------------- */
+  --color-base:      #0D1B2A; /* Fundo da página */
+  --color-surface:   #132338; /* Cards, painéis */
+  --color-elevated:  #1C3150; /* Hover, selected, inputs */
+  --color-border:    #2B4A6F; /* Divisores, bordas hover */
+  --color-border-subtle: #1C3150; /* Bordas padrão de cards */
+
+  /* -----------------------------------------------------------
+     CORES — Âmbar (destaque principal)
+  ----------------------------------------------------------- */
+  --color-accent:         #D4891A; /* Botão primário, ativo, progresso */
+  --color-accent-hover:   #F0A832; /* Hover do botão primário */
+  --color-accent-subtle:  rgba(212, 137, 26, 0.13); /* Fundo de badges âmbar */
+  --color-accent-border:  rgba(212, 137, 26, 0.27); /* Borda de badges âmbar */
+  --color-accent-dark:    #7A4A0A; /* Fundo escuro para tooltips */
+
+  /* -----------------------------------------------------------
+     CORES — Texto
+  ----------------------------------------------------------- */
+  --color-text-primary:   #F5F0E8; /* Títulos, corpo principal */
+  --color-text-secondary: #8FA8C0; /* Labels, descrições, meta */
+  --color-text-disabled:  #2B4A6F; /* Placeholders, estados vazios */
+
+  /* -----------------------------------------------------------
+     CORES — Semânticas (estado clínico)
+  ----------------------------------------------------------- */
+  --color-success:        #4CAF8A;
+  --color-success-subtle: rgba(76, 175, 138, 0.10);
+  --color-success-border: rgba(76, 175, 138, 0.20);
+
+  --color-warning:        #D4891A; /* mesmo que accent — nível intermédio */
+  --color-warning-subtle: rgba(212, 137, 26, 0.10);
+  --color-warning-border: rgba(212, 137, 26, 0.20);
+
+  --color-error:          #C0434A;
+  --color-error-subtle:   rgba(192, 67, 74, 0.10);
+  --color-error-border:   rgba(192, 67, 74, 0.20);
+
+  --color-info:           #60A5FA;
+  --color-info-subtle:    rgba(59, 130, 246, 0.10);
+  --color-info-border:    rgba(59, 130, 246, 0.20);
+
+  /* -----------------------------------------------------------
+     TIPOGRAFIA — Famílias
+  ----------------------------------------------------------- */
+  --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:  'JetBrains Mono', 'ui-monospace', monospace;
+
+  /* -----------------------------------------------------------
+     TIPOGRAFIA — Tamanhos
+  ----------------------------------------------------------- */
+  --text-h1:      22px; /* Título de página */
+  --text-h2:      17px; /* Título de secção */
+  --text-h3:      14px; /* Título de card */
+  --text-body:    13px; /* Corpo de texto */
+  --text-label:   11px; /* Labels, eyebrows, captions */
+  --text-badge:   10px; /* Badges, tags */
+  --text-mono:    12px; /* Valores numéricos, tokens */
+
+  /* -----------------------------------------------------------
+     TIPOGRAFIA — Pesos (apenas 2)
+  ----------------------------------------------------------- */
+  --weight-regular: 400;
+  --weight-medium:  500;
+
+  /* -----------------------------------------------------------
+     TIPOGRAFIA — Line heights
+  ----------------------------------------------------------- */
+  --leading-tight:  1.3; /* Headings */
+  --leading-normal: 1.6; /* Corpo */
+  --leading-loose:  1.7; /* Texto longo */
+
+  /* -----------------------------------------------------------
+     TIPOGRAFIA — Letter spacing
+  ----------------------------------------------------------- */
+  --tracking-label: 0.07em; /* Eyebrows e labels uppercase */
+  --tracking-mono:  0.03em; /* Valores mono */
+
+  /* -----------------------------------------------------------
+     ESPAÇAMENTO
+  ----------------------------------------------------------- */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+  --space-4xl: 40px;
+  --space-nav: 52px; /* Altura da barra de navegação */
+
+  /* -----------------------------------------------------------
+     BORDER RADIUS
+  ----------------------------------------------------------- */
+  --radius-xs:   3px;  /* Tags, badges */
+  --radius-sm:   6px;  /* Botões sm, nav links */
+  --radius-md:   8px;  /* Botões, inputs */
+  --radius-lg:   10px; /* Cards principais */
+  --radius-xl:   12px; /* Painéis, modais */
+  --radius-pill: 9999px; /* Pills, avatares */
+
+  /* -----------------------------------------------------------
+     BORDAS
+  ----------------------------------------------------------- */
+  --border-default:  0.5px solid var(--color-border-subtle); /* Cards padrão */
+  --border-hover:    0.5px solid var(--color-border);        /* Hover / inputs */
+  --border-accent:   0.5px solid var(--color-accent-border); /* Destaque sutil */
+  --border-accent-strong: 2px solid var(--color-accent);    /* Acento lateral (card ativo) */
+
+  /* -----------------------------------------------------------
+     SOMBRAS (mínimas — dark mode não precisa de muitas)
+  ----------------------------------------------------------- */
+  --shadow-focus: 0 0 0 2px rgba(212, 137, 26, 0.35); /* Focus ring nos inputs */
+
+  /* -----------------------------------------------------------
+     TRANSIÇÕES
+  ----------------------------------------------------------- */
+  --transition-fast:     150ms ease;                   /* Hover de botões e links */
+  --transition-normal:   200ms ease-out;               /* Aparecer/desaparecer */
+  --transition-progress: 400ms ease-out;               /* Barras de progresso */
+  --transition-press:    120ms ease;                   /* Clique de botão */
+}
+
+
+/* =============================================================
+   RESET MÍNIMO
+   ============================================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-base);
+}
+
+
+/* =============================================================
+   TIPOGRAFIA — Classes utilitárias
+   ============================================================= */
+
+.text-h1 {
+  font-size: var(--text-h1);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+.text-h2 {
+  font-size: var(--text-h2);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+.text-h3 {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-primary);
+}
+
+.text-body {
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.text-label {
+  font-size: var(--text-label);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.text-caption {
+  font-size: var(--text-label);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-secondary);
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  letter-spacing: var(--tracking-mono);
+  color: var(--color-accent);
+}
+
+.text-muted  { color: var(--color-text-secondary); }
+.text-accent { color: var(--color-accent); }
+.text-disabled { color: var(--color-text-disabled); }
+
+
+/* =============================================================
+   BOTÕES
+   ============================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  transition: background var(--transition-fast), opacity var(--transition-fast), transform var(--transition-press);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* Primário — âmbar */
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-base);
+}
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+
+/* Secundário — surface elevado */
+.btn-secondary {
+  background: var(--color-elevated);
+  color: var(--color-text-primary);
+  border: var(--border-hover);
+}
+.btn-secondary:hover {
+  background: var(--color-border);
+}
+
+/* Ghost — transparente */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: var(--border-hover);
+}
+.btn-ghost:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* Perigo */
+.btn-danger {
+  background: var(--color-error-subtle);
+  color: var(--color-error);
+  border: var(--border-default);
+  border-color: var(--color-error-border);
+}
+.btn-danger:hover {
+  background: rgba(192, 67, 74, 0.18);
+}
+
+/* Tamanhos */
+.btn-sm {
+  font-size: var(--text-label);
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+}
+.btn-lg {
+  font-size: var(--text-h3);
+  padding: 11px 22px;
+  border-radius: 9px;
+}
+
+
+/* =============================================================
+   BADGES DE NÍVEL
+   ============================================================= */
+
+.badge {
+  display: inline-block;
+  font-size: var(--text-badge);
+  font-weight: var(--weight-medium);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+}
+
+.badge-intro {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+  border: 0.5px solid var(--color-success-border);
+}
+
+.badge-inter {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning);
+  border: 0.5px solid var(--color-warning-border);
+}
+
+.badge-avance {
+  background: var(--color-error-subtle);
+  color: var(--color-error);
+  border: 0.5px solid var(--color-error-border);
+}
+
+.badge-info {
+  background: var(--color-info-subtle);
+  color: var(--color-info);
+  border: 0.5px solid var(--color-info-border);
+}
+
+
+/* =============================================================
+   TAGS DE ESTADO
+   ============================================================= */
+
+.tag {
+  display: inline-block;
+  font-size: var(--text-badge);
+  font-weight: var(--weight-medium);
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+}
+
+.tag-success { background: var(--color-success-subtle); color: var(--color-success); }
+.tag-warning { background: var(--color-warning-subtle); color: var(--color-accent-hover); }
+.tag-error   { background: var(--color-error-subtle);   color: var(--color-error); }
+.tag-neutral { background: var(--color-elevated);       color: var(--color-text-secondary); }
+
+
+/* =============================================================
+   CARDS
+   ============================================================= */
+
+.card {
+  background: var(--color-surface);
+  border: var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.card:hover {
+  border-color: var(--color-border);
+  background: var(--color-elevated);
+}
+
+/* Card com acento lateral (ativo / selecionado / recomendado) */
+.card-accent {
+  border-left: var(--border-accent-strong);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+/* Card clicável */
+.card-clickable {
+  cursor: pointer;
+}
+
+
+/* =============================================================
+   INPUTS
+   ============================================================= */
+
+.input {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: var(--border-hover);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--color-text-disabled);
+}
+
+.input:focus {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-focus);
+}
+
+.input-label {
+  display: block;
+  font-size: var(--text-label);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+
+/* =============================================================
+   BARRAS DE PROGRESSO
+   ============================================================= */
+
+.progress-track {
+  height: 4px;
+  background: var(--color-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--color-accent);
+  transition: width var(--transition-progress);
+}
+
+
+/* =============================================================
+   ALERTAS / FEEDBACK CLÍNICO
+   ============================================================= */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: 12px var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--text-label);
+  line-height: var(--leading-normal);
+}
+
+.alert-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.alert-success {
+  background: var(--color-success-subtle);
+  border: 0.5px solid var(--color-success-border);
+  color: var(--color-success);
+}
+
+.alert-warning {
+  background: var(--color-warning-subtle);
+  border: 0.5px solid var(--color-warning-border);
+  color: var(--color-accent-hover);
+}
+
+.alert-error {
+  background: var(--color-error-subtle);
+  border: 0.5px solid var(--color-error-border);
+  color: var(--color-error);
+}
+
+.alert-info {
+  background: var(--color-info-subtle);
+  border: 0.5px solid var(--color-info-border);
+  color: var(--color-info);
+}
+
+
+/* =============================================================
+   NAVEGAÇÃO
+   ============================================================= */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--space-nav);
+  padding: 0 var(--space-2xl);
+  background: var(--color-base);
+  border-bottom: var(--border-default);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-link {
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.nav-link.active {
+  background: var(--color-elevated);
+  color: var(--color-text-primary);
+  font-weight: var(--weight-medium);
+}
+
+
+/* =============================================================
+   DIVISORES
+   ============================================================= */
+
+.divider {
+  height: 0.5px;
+  background: var(--color-border-subtle);
+  border: none;
+}
+
+.divider-vertical {
+  width: 0.5px;
+  background: var(--color-border-subtle);
+  align-self: stretch;
+}
+
+
+/* =============================================================
+   UTILITÁRIOS DE LAYOUT
+   ============================================================= */
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--space-2xl);
+}
+
+.stack { display: flex; flex-direction: column; }
+.stack-xs  { gap: var(--space-xs); }
+.stack-sm  { gap: var(--space-sm); }
+.stack-md  { gap: var(--space-md); }
+.stack-lg  { gap: var(--space-lg); }
+.stack-xl  { gap: var(--space-xl); }
+.stack-2xl { gap: var(--space-2xl); }
+
+.cluster { display: flex; flex-wrap: wrap; }
+.cluster-sm  { gap: var(--space-sm); }
+.cluster-md  { gap: var(--space-md); }
+.cluster-lg  { gap: var(--space-lg); }

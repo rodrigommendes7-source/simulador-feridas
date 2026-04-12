@@ -16,6 +16,12 @@ import {
   saveAttemptRecord,
   getPreviousBestScoreForCase,
 } from "@/lib/clinical";
+import {
+  WOUND_VARIABLE_DISPLAY_LABELS,
+  WOUND_VARIABLES_EXTRA,
+  WOUND_VARIABLES_MAIN,
+  getWoundVariableLabel,
+} from "@/lib/clinical/material-evaluation";
 import { CaseDialoguePanel } from "@/components/case-player/case-dialogue-panel";
 import { CaseIntro } from "@/components/case-player/case-intro";
 import { CaseObservationPanel } from "@/components/case-player/case-observation-panel";
@@ -50,6 +56,8 @@ export function CasePlayer({ templateId }: { templateId: string }) {
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState<Step>("observacao");
   const [reviewMode, setReviewMode] = useState(false);
+  // Controla a expansão das variáveis clínicas secundárias no painel lateral
+  const [showExtraVars, setShowExtraVars] = useState(false);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [observationIds, setObservationIds] = useState<ObservationId[]>([]);
   const [dialogueIds, setDialogueIds] = useState<DialogueId[]>([]);
@@ -297,6 +305,61 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                 ))}
               </div>
             </div>
+
+            {/* Painel de variáveis clínicas numéricas */}
+            {session.variant.woundVariables ? (
+              <div className="mt-4 rounded-[24px] border border-white/10 bg-slate-900/80 p-4">
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-300">
+                  Variáveis clínicas
+                </p>
+                <div className="mt-3 space-y-2">
+                  {/* Variáveis principais — sempre visíveis */}
+                  {WOUND_VARIABLES_MAIN.map((key) => {
+                    const value = session.variant.woundVariables![key] as number;
+                    return (
+                      <div
+                        key={key}
+                        className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs"
+                      >
+                        <span className="font-bold text-slate-300">
+                          {WOUND_VARIABLE_DISPLAY_LABELS[key]}
+                        </span>
+                        <span className="font-black text-white capitalize">
+                          {getWoundVariableLabel(key, value)}
+                        </span>
+                      </div>
+                    );
+                  })}
+
+                  {/* Variáveis secundárias — expandíveis */}
+                  {showExtraVars &&
+                    WOUND_VARIABLES_EXTRA.map((key) => {
+                      const value = session.variant.woundVariables![key] as number;
+                      return (
+                        <div
+                          key={key}
+                          className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-xs"
+                        >
+                          <span className="text-slate-400">
+                            {WOUND_VARIABLE_DISPLAY_LABELS[key]}
+                          </span>
+                          <span className="font-semibold text-slate-200 capitalize">
+                            {getWoundVariableLabel(key, value)}
+                          </span>
+                        </div>
+                      );
+                    })}
+
+                  <button
+                    type="button"
+                    onClick={() => setShowExtraVars((prev) => !prev)}
+                    className="w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-xs font-bold text-sky-300 transition hover:border-sky-400"
+                  >
+                    {showExtraVars ? "Ocultar detalhes" : "Ver mais detalhes"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </aside>
 
           <div className="space-y-4">

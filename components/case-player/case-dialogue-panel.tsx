@@ -1,11 +1,23 @@
 import type { CaseSession, DialogueId, ReviewStatus } from "@/lib/clinical";
 
-function reviewButtonClass(status: ReviewStatus, selected: boolean) {
-  if (status === "correct") return "border-emerald-400/40 bg-emerald-500/15 text-emerald-50";
-  if (status === "incorrect") return "border-rose-400/40 bg-rose-500/15 text-rose-50";
-  if (status === "missed") return "border-sky-300/50 bg-sky-400/15 text-sky-50";
-  if (selected) return "border-sky-400 bg-sky-500/10 text-sky-100";
-  return "border-white/10 bg-slate-950/70 text-white hover:border-sky-400";
+function reviewButtonStyle(status: ReviewStatus, selected: boolean): React.CSSProperties {
+  const base: React.CSSProperties = {
+    width: "100%",
+    textAlign: "left",
+    justifyContent: "flex-start",
+    padding: "var(--space-sm) var(--space-md)",
+    borderRadius: "var(--radius-lg)",
+    fontSize: "var(--text-body)",
+    fontWeight: "var(--weight-medium)",
+    cursor: "pointer",
+    border: "0.5px solid",
+    transition: "opacity 0.15s",
+  };
+  if (status === "correct") return { ...base, background: "var(--color-success-subtle)", borderColor: "var(--color-success-border)", color: "var(--color-text-primary)" };
+  if (status === "incorrect") return { ...base, background: "var(--color-error-subtle)", borderColor: "var(--color-error-border)", color: "var(--color-text-primary)" };
+  if (status === "missed") return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)", color: "var(--color-text-primary)" };
+  if (selected) return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)", color: "var(--color-text-primary)" };
+  return { ...base, background: "var(--color-elevated)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" };
 }
 
 export function CaseDialoguePanel({
@@ -24,64 +36,138 @@ export function CaseDialoguePanel({
   onAsk: (id: DialogueId) => void;
 }) {
   return (
-    <div className="grid h-full gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-      <div className="flex flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/80 p-4">
-        <p className="shrink-0 text-sm font-black uppercase tracking-[0.2em] text-sky-300">
+    <div
+      style={{
+        display: "grid",
+        height: "100%",
+        gap: "var(--space-md)",
+        gridTemplateColumns: "0.9fr 1.1fr",
+      }}
+    >
+      {/* Coluna esquerda — perguntas */}
+      <div
+        className="card"
+        style={{
+          padding: "var(--space-lg)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        <p className="text-label" style={{ flexShrink: 0 }}>
           Perguntas clínicas
         </p>
-        <div className="mt-3 flex-1 space-y-2 overflow-y-auto">
+        <div
+          style={{
+            marginTop: "var(--space-md)",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-xs)",
+            overflowY: "auto",
+          }}
+        >
           {session.template.dialoguePrompts.map((prompt) => {
             const asked = dialogueIds.includes(prompt.id);
             const status = reviewStatusById?.[prompt.id] ?? null;
-
             return (
               <button
                 key={prompt.id}
                 type="button"
                 onClick={() => onAsk(prompt.id)}
-                className={`w-full rounded-2xl border px-4 py-2.5 text-left text-sm font-bold transition ${reviewButtonClass(
-                  status,
-                  asked
-                )}`}
+                style={reviewButtonStyle(status, asked)}
               >
                 {prompt.label}
               </button>
             );
           })}
         </div>
-        <div className="mt-3 shrink-0 rounded-2xl border border-white/10 bg-slate-950/70 p-3 text-xs text-slate-300">
+        <p
+          className="text-body"
+          style={{
+            flexShrink: 0,
+            marginTop: "var(--space-md)",
+            padding: "var(--space-sm) var(--space-md)",
+            background: "var(--color-elevated)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-md)",
+            color: "var(--color-text-secondary)",
+          }}
+        >
           {reviewMode
-            ? "As perguntas assinaladas a azul claro eram úteis e não foram selecionadas."
+            ? "As perguntas assinaladas a azul eram úteis e não foram selecionadas."
             : dialogueIds.length > 0
               ? `Já exploraste ${dialogueIds.length} pergunta(s) desta variante.`
               : "Ainda não iniciaste o diálogo clínico."}
-        </div>
+        </p>
       </div>
 
-      <div className="overflow-y-auto rounded-[28px] border border-white/10 bg-slate-950/60 p-4">
+      {/* Coluna direita — resposta */}
+      <div
+        className="card"
+        style={{ padding: "var(--space-lg)", overflowY: "auto" }}
+      >
         {activeDialogueId ? (
-          <div className="space-y-4">
-            <div className="rounded-3xl border border-sky-500/20 bg-sky-500/10 p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-200">Tu</p>
-              <p className="mt-3 text-lg font-semibold text-white">
-                {
-                  session.template.dialoguePrompts.find((prompt) => prompt.id === activeDialogueId)
-                    ?.question
-                }
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+            <div
+              style={{
+                background: "var(--color-info-subtle)",
+                border: "0.5px solid var(--color-info-border)",
+                borderRadius: "var(--radius-xl)",
+                padding: "var(--space-lg)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-info)" }}>Tu</p>
+              <p
+                style={{
+                  marginTop: "var(--space-sm)",
+                  fontSize: "var(--text-h3)",
+                  fontWeight: "var(--weight-medium)",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {session.template.dialoguePrompts.find((p) => p.id === activeDialogueId)?.question}
               </p>
             </div>
-            <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-200">
-                Utente
-              </p>
-              <p className="mt-3 text-lg font-semibold text-white">
+            <div
+              style={{
+                background: "var(--color-success-subtle)",
+                border: "0.5px solid var(--color-success-border)",
+                borderRadius: "var(--radius-xl)",
+                padding: "var(--space-lg)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-success)" }}>Utente</p>
+              <p
+                style={{
+                  marginTop: "var(--space-sm)",
+                  fontSize: "var(--text-h3)",
+                  fontWeight: "var(--weight-medium)",
+                  color: "var(--color-text-primary)",
+                }}
+              >
                 {session.variant.dialogueResponses[activeDialogueId]}
               </p>
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[280px] items-center justify-center rounded-3xl border border-dashed border-white/10 text-center text-lg font-semibold text-slate-400">
-            Seleciona uma pergunta para iniciar o diálogo clínico.
+          <div
+            style={{
+              display: "flex",
+              minHeight: "280px",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px dashed var(--color-border)",
+              borderRadius: "var(--radius-xl)",
+              textAlign: "center",
+            }}
+          >
+            <p
+              className="text-body"
+              style={{ color: "var(--color-text-disabled)", maxWidth: "20rem" }}
+            >
+              Seleciona uma pergunta para iniciar o diálogo clínico.
+            </p>
           </div>
         )}
       </div>

@@ -56,18 +56,18 @@ function isContraindicated(
 // ─── Rótulos legíveis para variáveis numéricas ───────────────────────────────
 
 const WOUND_VARIABLE_LABELS: Record<keyof WoundVariables, Record<number, string>> = {
-  exsudado:          { 1: "ausente", 2: "ligeiro", 3: "moderado", 4: "abundante" },
-  infeccao:          { 0: "ausente", 1: "local", 2: "marcada", 3: "sistémica" },
-  tecido:            { 1: "necrose", 2: "fibrina", 3: "granulação", 4: "epitelização" },
-  odor:              { 0: "ausente", 1: "ligeiro", 2: "moderado", 3: "intenso" },
-  humidade:          { 1: "seca", 2: "ligeira", 3: "moderada", 4: "maceração" },
-  profundidade:      { 1: "superficial", 2: "moderada", 3: "profunda", 4: "cavidade" },
-  bordos:            { 1: "indefinidos", 2: "irregulares", 3: "regulares", 4: "em epitelização" },
-  pele_perilesional: { 1: "macerada", 2: "frágil", 3: "eritematosa", 4: "íntegra" },
-  dor:               { 0: "ausente", 1: "ligeira", 2: "moderada", 3: "intensa" },
-  hemorragia:        { 0: "ausente", 1: "ligeira", 2: "moderada", 3: "abundante" },
-  etiologia:         { 1: "pressão", 2: "venosa", 3: "arterial", 4: "diabética", 5: "traumática", 6: "cirúrgica" },
-  perfusao:          { 0: "comprometida", 1: "adequada" },
+  exsudado:          { 1: "Sem exsudado", 2: "Leve", 3: "Moderado", 4: "Abundante" },
+  infeccao:          { 0: "Ausente", 1: "Sinais locais", 2: "Infeção local", 3: "Infeção sistémica" },
+  tecido:            { 1: "Necrose seca", 2: "Fibrina dominante", 3: "Granulação ativa", 4: "Epitelização" },
+  odor:              { 0: "Ausente", 1: "Leve", 2: "Moderado", 3: "Intenso" },
+  humidade:          { 1: "Seca", 2: "Leve", 3: "Moderada", 4: "Maceração" },
+  profundidade:      { 1: "Superficial", 2: "Espessura parcial", 3: "Espessura total", 4: "Estruturas expostas" },
+  bordos:            { 1: "Indefinidos", 2: "Irregulares", 3: "Regulares", 4: "Em epitelização" },
+  pele_perilesional: { 1: "Macerada", 2: "Frágil", 3: "Eritematosa", 4: "Íntegra" },
+  dor:               { 0: "Ausente", 1: "Leve (1–3)", 2: "Moderada (4–6)", 3: "Intensa (7–10)" },
+  hemorragia:        { 0: "Ausente", 1: "Leve", 2: "Moderada", 3: "Abundante" },
+  etiologia:         { 1: "Pressão", 2: "Venosa", 3: "Arterial", 4: "Diabética", 5: "Traumática", 6: "Cirúrgica" },
+  perfusao:          { 0: "Comprometida", 1: "Adequada" },
 };
 
 /** Rótulos apresentáveis para as variáveis principais da ferida */
@@ -281,6 +281,25 @@ export function evaluateApplicationForWound(
     hasBonus: false,
     justificacao: buildJustificacao(nome, "parcial", woundVars),
   };
+}
+
+/**
+ * Verifica se um material respeita os seus requisitos clínicos simplificados
+ * (min/max por variável). Materiais sem clinicalRequirements são sempre aceites.
+ */
+export function isMaterialClinicallyAppropriate(
+  treatmentId: string,
+  woundVariables: WoundVariables
+): boolean {
+  const treatment = getTreatment(treatmentId);
+  if (!treatment?.clinicalRequirements?.length) return true;
+
+  return treatment.clinicalRequirements.every((req) => {
+    const value = (woundVariables[req.variable as keyof WoundVariables] as number) ?? 0;
+    if (req.min !== undefined && value < req.min) return false;
+    if (req.max !== undefined && value > req.max) return false;
+    return true;
+  });
 }
 
 /**

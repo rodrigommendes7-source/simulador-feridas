@@ -4,12 +4,22 @@ import { useDeferredValue, useMemo, useState } from "react";
 import type { ApplicationId, CaseSession, ReviewStatus } from "@/lib/clinical";
 import { getTreatment, listTreatments } from "@/lib/clinical";
 
-function reviewCardClass(status: ReviewStatus, selected: boolean) {
-  if (status === "correct") return "border-emerald-400/40 bg-emerald-500/15 text-emerald-50";
-  if (status === "incorrect") return "border-rose-400/40 bg-rose-500/15 text-rose-50";
-  if (status === "missed") return "border-sky-300/50 bg-sky-400/15 text-sky-50";
-  if (selected) return "border-sky-400 bg-sky-500/10 text-sky-100";
-  return "border-white/10 bg-slate-950/70 text-white hover:border-sky-400";
+function reviewCardStyle(status: ReviewStatus, selected: boolean): React.CSSProperties {
+  const base: React.CSSProperties = {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "var(--space-sm)",
+    borderRadius: "var(--radius-lg)",
+    padding: "var(--space-md)",
+    border: "0.5px solid",
+    cursor: "pointer",
+    transition: "opacity 0.15s",
+  };
+  if (status === "correct") return { ...base, background: "var(--color-success-subtle)", borderColor: "var(--color-success-border)" };
+  if (status === "incorrect") return { ...base, background: "var(--color-error-subtle)", borderColor: "var(--color-error-border)" };
+  if (status === "missed") return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)" };
+  if (selected) return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)" };
+  return { ...base, background: "var(--color-elevated)", borderColor: "var(--color-border)" };
 }
 
 export function CaseTreatmentPlanner({
@@ -37,7 +47,6 @@ export function CaseTreatmentPlanner({
 }) {
   const deferredFilter = useDeferredValue(filter);
 
-  // Toggle global: "nome_comercial" ou "substancia_ativa"
   const [labelMode, setLabelMode] = useState<"nome_comercial" | "substancia_ativa">(
     "substancia_ativa"
   );
@@ -64,7 +73,6 @@ export function CaseTreatmentPlanner({
       acc[treatment.category].push(treatment);
       return acc;
     }, {});
-    // Ordena pelas 4 categorias fixas; categorias desconhecidas vão para o fim
     return Object.fromEntries(
       CATEGORY_ORDER
         .filter((cat) => cat in grouped)
@@ -73,77 +81,163 @@ export function CaseTreatmentPlanner({
     );
   }, [deferredFilter]);
 
-  /** Retorna o rótulo do material conforme o modo seleccionado */
   function getTreatmentDisplayLabel(treatment: ReturnType<typeof getTreatment>) {
     if (!treatment) return "";
-    if (labelMode === "substancia_ativa") {
-      return treatment.substancia_ativa ?? treatment.label;
-    }
+    if (labelMode === "substancia_ativa") return treatment.substancia_ativa ?? treatment.label;
     return treatment.nome_comercial ?? treatment.label;
   }
 
   return (
-    <div className="grid h-full gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-      <div className="flex flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/60 p-4">
-        <div className="shrink-0 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-sky-300">
-              Plano terapêutico
-            </p>
-            <p className="mt-1 text-sm text-slate-400">
-              Filtra por função clínica, categoria ou nome do material.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Toggle Nome comercial / Substância ativa */}
-            <div className="flex items-center rounded-2xl border border-white/10 bg-slate-900 p-1 text-xs font-black">
-              <button
-                type="button"
-                onClick={() => setLabelMode("nome_comercial")}
-                className={`rounded-xl px-3 py-1.5 transition ${
-                  labelMode === "nome_comercial"
-                    ? "bg-sky-500 text-white"
-                    : "text-slate-400 hover:text-white"
-                }`}
+    <div
+      style={{
+        display: "grid",
+        height: "100%",
+        gap: "var(--space-md)",
+        gridTemplateColumns: "1.15fr 0.85fr",
+      }}
+    >
+      {/* Coluna esquerda — catálogo */}
+      <div
+        className="card"
+        style={{
+          padding: "var(--space-lg)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Cabeçalho */}
+        <div
+          style={{
+            flexShrink: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-sm)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "var(--space-sm)",
+            }}
+          >
+            <div>
+              <p className="text-label">Plano terapêutico</p>
+              <p
+                className="text-body"
+                style={{ marginTop: "2px", color: "var(--color-text-disabled)" }}
               >
-                Nome comercial
-              </button>
-              <button
-                type="button"
-                onClick={() => setLabelMode("substancia_ativa")}
-                className={`rounded-xl px-3 py-1.5 transition ${
-                  labelMode === "substancia_ativa"
-                    ? "bg-sky-500 text-white"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Substância ativa
-              </button>
+                Filtra por função clínica, categoria ou nome.
+              </p>
             </div>
-            <input
-              value={filter}
-              onChange={(event) => onFilterChange(event.target.value)}
-              placeholder="Ex.: prata, absorvente, barreira"
-              className="rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400"
-            />
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-xs)" }}>
+              {/* Toggle */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  background: "var(--color-elevated)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "2px",
+                  fontSize: "var(--text-label)",
+                  fontWeight: "var(--weight-medium)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setLabelMode("nome_comercial")}
+                  style={{
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-xs) var(--space-sm)",
+                    background: labelMode === "nome_comercial" ? "var(--color-accent)" : "transparent",
+                    color: labelMode === "nome_comercial" ? "var(--color-base)" : "var(--color-text-secondary)",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  Nome comercial
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLabelMode("substancia_ativa")}
+                  style={{
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-xs) var(--space-sm)",
+                    background: labelMode === "substancia_ativa" ? "var(--color-accent)" : "transparent",
+                    color: labelMode === "substancia_ativa" ? "var(--color-base)" : "var(--color-text-secondary)",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  Substância ativa
+                </button>
+              </div>
+              <input
+                className="input"
+                value={filter}
+                onChange={(event) => onFilterChange(event.target.value)}
+                placeholder="Ex.: prata, absorvente…"
+              />
+            </div>
           </div>
+
+          {reviewMode ? (
+            <p
+              className="text-body"
+              style={{
+                padding: "var(--space-sm) var(--space-md)",
+                background: "var(--color-elevated)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-md)",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Verde: correto · Vermelho: desnecessário · Azul claro: em falta.
+            </p>
+          ) : null}
         </div>
 
-        {reviewMode ? (
-          <div className="mt-3 shrink-0 rounded-2xl border border-white/10 bg-slate-900/70 p-3 text-xs leading-5 text-slate-200">
-            Verde marca materiais ou técnicas corretos, vermelho mostra o que não devia ter sido
-            escolhido e azul claro mostra o que faltou selecionar.
-          </div>
-        ) : null}
-
-        <div className="mt-3 flex-1 space-y-3 overflow-y-auto">
+        {/* Categorias com scroll */}
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            marginTop: "var(--space-md)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-sm)",
+          }}
+        >
           {Object.entries(groupedTreatments).map(([category, items]) => (
-            <section
+            <div
               key={category}
-              className="rounded-3xl border border-white/10 bg-slate-900/80 p-4"
+              style={{
+                background: "var(--color-elevated)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-xl)",
+                padding: "var(--space-md)",
+              }}
             >
-              <p className="text-sm font-black text-sky-200">{category}</p>
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <p
+                className="text-label"
+                style={{ color: "var(--color-accent)" }}
+              >
+                {category}
+              </p>
+              <div
+                style={{
+                  marginTop: "var(--space-sm)",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gap: "var(--space-sm)",
+                }}
+              >
                 {items.map((treatment) => {
                   const selected = treatmentIds.includes(treatment.id);
                   const status = treatmentStatusById?.[treatment.id] ?? null;
@@ -152,27 +246,46 @@ export function CaseTreatmentPlanner({
                   return (
                     <label
                       key={treatment.id}
-                      className={`flex items-start gap-3 rounded-2xl border p-4 transition ${reviewCardClass(
-                        status,
-                        selected
-                      )}`}
+                      style={reviewCardStyle(status, selected)}
                     >
                       <input
                         type="checkbox"
                         checked={selected}
                         onChange={() => onToggleTreatment(treatment.id)}
                         disabled={reviewMode}
-                        className="mt-1 h-4 w-4"
+                        style={{ marginTop: "2px", flexShrink: 0, width: "14px", height: "14px" }}
                       />
-                      <span className="min-w-0">
-                        <span className="block font-bold">{displayLabel}</span>
-                        {/* Mostrar o nome alternativo em segundo plano */}
-                        <span className="mt-0.5 block text-xs opacity-60">
+                      <span style={{ minWidth: 0 }}>
+                        <span
+                          style={{
+                            display: "block",
+                            fontWeight: "var(--weight-medium)",
+                            color: "var(--color-text-primary)",
+                            fontSize: "var(--text-body)",
+                          }}
+                        >
+                          {displayLabel}
+                        </span>
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "2px",
+                            fontSize: "var(--text-label)",
+                            color: "var(--color-text-disabled)",
+                          }}
+                        >
                           {labelMode === "nome_comercial"
                             ? (treatment.substancia_ativa ?? treatment.label)
                             : (treatment.nome_comercial ?? treatment.label)}
                         </span>
-                        <span className="mt-1 block text-xs text-slate-300">
+                        <span
+                          style={{
+                            display: "block",
+                            marginTop: "2px",
+                            fontSize: "var(--text-label)",
+                            color: "var(--color-text-secondary)",
+                          }}
+                        >
                           {treatment.uiTags.join(" · ")}
                         </span>
                       </span>
@@ -180,17 +293,26 @@ export function CaseTreatmentPlanner({
                   );
                 })}
               </div>
-            </section>
+            </div>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 overflow-y-auto">
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-4">
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-300">
+      {/* Coluna direita — seleção e técnica */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)", overflowY: "auto" }}>
+        {/* Materiais escolhidos */}
+        <div className="card" style={{ padding: "var(--space-lg)" }}>
+          <p className="text-label" style={{ color: "var(--color-warning)" }}>
             Materiais escolhidos
           </p>
-          <div className="mt-4 space-y-2 text-sm text-slate-200">
+          <div
+            style={{
+              marginTop: "var(--space-md)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-xs)",
+            }}
+          >
             {treatmentIds.length > 0 ? (
               treatmentIds.map((treatmentId) => {
                 const treatment = getTreatment(treatmentId);
@@ -200,11 +322,29 @@ export function CaseTreatmentPlanner({
                 return (
                   <div
                     key={treatmentId}
-                    className={`rounded-xl border px-3 py-2 ${reviewCardClass(status, true)}`}
+                    style={{
+                      ...reviewCardStyle(status, true),
+                      display: "block",
+                      padding: "var(--space-xs) var(--space-sm)",
+                    }}
                   >
-                    <span className="font-semibold">{displayLabel}</span>
+                    <span
+                      style={{
+                        fontWeight: "var(--weight-medium)",
+                        color: "var(--color-text-primary)",
+                        fontSize: "var(--text-body)",
+                      }}
+                    >
+                      {displayLabel}
+                    </span>
                     {treatment && (
-                      <span className="ml-2 text-xs opacity-60">
+                      <span
+                        style={{
+                          marginLeft: "var(--space-xs)",
+                          fontSize: "var(--text-label)",
+                          color: "var(--color-text-disabled)",
+                        }}
+                      >
                         {labelMode === "nome_comercial"
                           ? (treatment.substancia_ativa ?? "")
                           : (treatment.nome_comercial ?? "")}
@@ -214,16 +354,26 @@ export function CaseTreatmentPlanner({
                 );
               })
             ) : (
-              <p className="text-slate-400">Ainda não selecionaste materiais.</p>
+              <p className="text-body" style={{ color: "var(--color-text-disabled)" }}>
+                Ainda não selecionaste materiais.
+              </p>
             )}
           </div>
         </div>
 
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-4">
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-sky-300">
+        {/* Técnica de aplicação */}
+        <div className="card" style={{ padding: "var(--space-lg)" }}>
+          <p className="text-label" style={{ color: "var(--color-info)" }}>
             Técnica de aplicação
           </p>
-          <div className="mt-4 space-y-3">
+          <div
+            style={{
+              marginTop: "var(--space-md)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-sm)",
+            }}
+          >
             {session.variant.applicationOptions.map((applicationId) => {
               const definition = session.template.applicationDefinitions.find(
                 (item) => item.id === applicationId
@@ -232,21 +382,23 @@ export function CaseTreatmentPlanner({
               const status = applicationStatusById?.[applicationId] ?? null;
 
               return (
-                <label
-                  key={applicationId}
-                  className={`flex items-start gap-3 rounded-2xl border p-4 transition ${reviewCardClass(
-                    status,
-                    selected
-                  )}`}
-                >
+                <label key={applicationId} style={reviewCardStyle(status, selected)}>
                   <input
                     type="checkbox"
                     checked={selected}
                     onChange={() => onToggleApplication(applicationId)}
                     disabled={reviewMode}
-                    className="mt-1 h-4 w-4"
+                    style={{ marginTop: "2px", flexShrink: 0, width: "14px", height: "14px" }}
                   />
-                  <span className="text-sm font-semibold">{definition?.label}</span>
+                  <span
+                    style={{
+                      fontSize: "var(--text-body)",
+                      fontWeight: "var(--weight-medium)",
+                      color: "var(--color-text-primary)",
+                    }}
+                  >
+                    {definition?.label}
+                  </span>
                 </label>
               );
             })}

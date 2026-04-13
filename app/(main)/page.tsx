@@ -15,6 +15,13 @@ import {
   loadAttemptHistory,
 } from "@/lib/clinical";
 
+const CASE_DESCRIPTIONS: Record<string, string> = {
+  "1": "Treino de observação do leito, exsudado e proteção peri-ferida numa lesão por pressão.",
+  "2": "Reconhecer infeção local e necessidade de controlo do exsudado numa deiscência cirúrgica.",
+  "3": "Caso avançado com infeção local, exsudado elevado e leitura de risco clínico.",
+  "4": "Leitura do leito, dor ao penso e seleção de cobertura proporcional ao exsudado.",
+};
+
 function difficultyLabel(value: string) {
   if (value === "introdutorio") return "Introdutório";
   if (value === "intermedio") return "Intermédio";
@@ -82,7 +89,7 @@ export default function HomePage() {
               href={nextTopic ? `/aprender?topic=${nextTopic.topicId}&source=home` : "/aprender"}
               className="btn btn-secondary btn-lg"
             >
-              Rever tema prioritário
+              {nextTopic ? "Rever tema prioritário" : "Ver biblioteca clínica"}
             </Link>
           </div>
         </div>
@@ -113,7 +120,7 @@ export default function HomePage() {
                   color: "var(--color-accent)",
                 }}
               >
-                {value}
+                {(value as number) === 0 ? "—" : value}
               </p>
             </div>
           ))}
@@ -251,7 +258,7 @@ export default function HomePage() {
                       {difficultyLabel(item.difficulty)}
                     </span>
                   </div>
-                  <p className="text-body mt-2">{item.reason}</p>
+                  <p className="text-body mt-2">{CASE_DESCRIPTIONS[item.templateId] ?? item.reason}</p>
                 </Link>
               ))}
             </div>
@@ -280,17 +287,17 @@ export default function HomePage() {
             {[
               {
                 key: "Repetir",
-                title: studyPlan.retryCase?.title ?? "Ainda sem prioridade definida",
+                title: studyPlan.retryCase?.title ?? "Completa o primeiro caso para gerar prioridades.",
                 body: studyPlan.retryCase
                   ? `Caso com média de ${studyPlan.retryCase.average}/100.`
-                  : "As prioridades de repetição aparecem depois das primeiras tentativas.",
+                  : "",
               },
               {
                 key: "Rever",
-                title: studyPlan.reviewTopic?.title ?? "Tema ainda por identificar",
+                title: studyPlan.reviewTopic?.title ?? "Completa o primeiro caso para gerar prioridades.",
                 body: studyPlan.reviewTopic
                   ? `Domínio atual: ${studyPlan.reviewTopic.masteryScore}/100.`
-                  : "Os temas a reforçar surgem quando houver histórico local.",
+                  : "",
               },
               {
                 key: "Tentar",

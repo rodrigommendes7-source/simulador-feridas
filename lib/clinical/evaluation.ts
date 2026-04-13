@@ -5,11 +5,13 @@ import {
   getTreatment,
   getTreatmentLabel,
 } from "./catalog.ts";
+import { isMaterialClinicallyAppropriate, getWoundVariableLabel, WOUND_VARIABLE_DISPLAY_LABELS } from "./material-evaluation.ts";
 import type {
   AttemptReview,
   ApplicationId,
   AttemptInput,
   CaseEvaluation,
+  ClinicalPenalty,
   CaseSession,
   EvaluationClassification,
   EvaluationSection,
@@ -17,6 +19,7 @@ import type {
   ReviewStatus,
   TreatmentDefinition,
   TreatmentFunction,
+  WoundVariables,
 } from "./types.ts";
 
 const classificationWeights: Record<EvaluationClassification, number> = {
@@ -543,7 +546,49 @@ export function evaluateCaseAttempt(
     ),
   ];
 
-  const totalScore = Math.round(sections.reduce((acc, section) => acc + section.score, 0));
+  const baseScore = Math.round(sections.reduce((acc, section) => acc + section.score, 0));
+
+  // Penalizações clínicas: -5 pontos por material que viola clinicalRequirements
+  const woundVars = session.variant.woundVariables as WoundVariables | undefined;
+  const clinicalPenalties: ClinicalPenalty[] = [];
+
+  if (woundVars) {
+    for (const treatmentId of attempt.treatmentIds) {
+      if (!isMaterialClinicallyAppropriate(treatmentId, woundVars)) {
+        const treatment = getTreatment(treatmentId);
+        if (!treatment?.clinicalRequirements) continue;
+
+        // Descreve qual variável causou a violação
+        const violationDesc = treatment.clinicalRequirements
+          .map((req) => {
+            const value = (woundVars[req.variable as keyof WoundVariables] as number) ?? 0;
+            if (req.min !== undefined && value < req.min) {
+              const varLabel = WOUND_VARIABLE_DISPLAY_LABELS[req.variable as keyof WoundVariables] ?? req.variable;
+              const valLabel = getWoundVariableLabel(req.variable as keyof WoundVariables, value);
+              return `${varLabel.toLowerCase()} ${valLabel.toLowerCase()} (requer ≥ ${req.min})`;
+            }
+            if (req.max !== undefined && value > req.max) {
+              const varLabel = WOUND_VARIABLE_DISPLAY_LABELS[req.variable as keyof WoundVariables] ?? req.variable;
+              const valLabel = getWoundVariableLabel(req.variable as keyof WoundVariables, value);
+              return `${varLabel.toLowerCase()} ${valLabel.toLowerCase()} (contraind. acima de ${req.max})`;
+            }
+            return null;
+          })
+          .filter(Boolean)
+          .join("; ");
+
+        clinicalPenalties.push({
+          treatmentId,
+          treatmentLabel: treatment.substancia_ativa ?? treatment.label,
+          reason: `Inadequado para esta ferida: ${violationDesc}.`,
+          points: 5,
+        });
+      }
+    }
+  }
+
+  const totalPenalty = clinicalPenalties.reduce((acc, p) => acc + p.points, 0);
+  const totalScore = Math.max(0, baseScore - totalPenalty);
 
   const essential = summarizeByClassification(sections, "essencial");
   const correct = summarizeByClassification(sections, "adequado");
@@ -573,6 +618,7 @@ export function evaluateCaseAttempt(
     },
     recommendedPlan: buildRecommendedPlanDifferences(session, attempt),
     learningRecommendations,
+    clinicalPenalties,
   };
 }
 

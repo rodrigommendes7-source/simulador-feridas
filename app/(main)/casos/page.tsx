@@ -10,6 +10,13 @@ import {
   loadAttemptHistory,
 } from "@/lib/clinical";
 
+const CASE_INTRO_PHRASES: Record<string, string> = {
+  "1": "Começa aqui — caso introdutório com foco em observação e proteção.",
+  "2": "Aprofunda o reconhecimento de infeção e desbridamento.",
+  "3": "Caso mais exigente — requer leitura de risco e decisão antimicrobiana.",
+  "4": "Treino de proporcionalidade terapêutica e conforto ao penso.",
+};
+
 function difficultyLabel(value: string) {
   if (value === "introdutorio") return "Introdutório";
   if (value === "intermedio") return "Intermédio";
@@ -32,8 +39,9 @@ export default function CasesPage() {
     });
   }, []);
 
-  const recommendedCaseIds = useMemo(
-    () => new Set(getRecommendedNextCases(history).map((item) => item.templateId)),
+  // Mostra o badge "Recomendado" apenas num único caso (o próximo mais adequado)
+  const singleRecommendedId = useMemo(
+    () => history.length === 0 ? "1" : (getRecommendedNextCases(history)[0]?.templateId ?? null),
     [history]
   );
 
@@ -66,7 +74,7 @@ export default function CasesPage() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {cases.map((item) => {
           const progress = getCaseProgress(history, item.id);
-          const recommended = recommendedCaseIds.has(item.id);
+          const recommended = singleRecommendedId === item.id;
 
           return (
             <Link
@@ -149,7 +157,7 @@ export default function CasesPage() {
                       Ainda não tentado
                     </p>
                     <p className="text-body mt-2">
-                      Bom caso para iniciar ou diversificar o treino individual.
+                      {CASE_INTRO_PHRASES[item.id] ?? "Bom caso para iniciar ou diversificar o treino individual."}
                     </p>
                   </>
                 )}

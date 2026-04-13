@@ -8,32 +8,58 @@ export function CaseIntro({
   onStart: () => void;
 }) {
   return (
-    <div className="mx-auto max-w-3xl rounded-[32px] border border-white/10 bg-slate-950/60 p-8 text-center shadow-2xl shadow-slate-950/40">
-      <p className="text-xs font-bold uppercase tracking-[0.3em] text-sky-300">
+    <div
+      className="card"
+      style={{
+        textAlign: "center",
+        padding: "var(--space-3xl)",
+        maxWidth: "48rem",
+        margin: "var(--space-3xl) auto",
+      }}
+    >
+      <p className="text-label" style={{ color: "var(--color-accent)" }}>
         Caso clínico
       </p>
-      <h1 className="mt-4 text-4xl font-black text-white md:text-5xl">
+      <h1
+        style={{
+          marginTop: "var(--space-sm)",
+          fontSize: "var(--text-h1)",
+          fontWeight: "var(--weight-medium)",
+          color: "var(--color-text-primary)",
+        }}
+      >
         {session.template.shortTitle} · {session.template.title}
       </h1>
-      <p className="mt-6 text-base leading-7 text-slate-300 md:text-lg">
+      <p
+        className="text-body"
+        style={{ marginTop: "var(--space-md)", maxWidth: "40rem", margin: "var(--space-md) auto 0" }}
+      >
         {session.template.introSummary}
       </p>
-      <div className="mt-8 rounded-3xl border border-white/10 bg-slate-900/80 p-5 text-left">
-        <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-300">
+
+      <div className="card" style={{ textAlign: "left", marginTop: "var(--space-lg)" }}>
+        <p className="text-label" style={{ color: "var(--color-warning)" }}>
           Contexto clínico
         </p>
-        <p className="mt-3 text-sm leading-7 text-slate-200">{session.variant.patientContext}</p>
+        <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
+          {session.variant.patientContext}
+        </p>
       </div>
-      <div className="mt-5 rounded-3xl border border-white/10 bg-slate-900/70 p-5 text-left">
-        <p className="text-xs font-bold uppercase tracking-[0.24em] text-sky-300">
+
+      <div className="card" style={{ textAlign: "left", marginTop: "var(--space-md)" }}>
+        <p className="text-label" style={{ color: "var(--color-info)" }}>
           Objetivo
         </p>
-        <p className="mt-3 text-sm leading-7 text-slate-200">{session.template.objective}</p>
+        <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
+          {session.template.objective}
+        </p>
       </div>
+
       <button
         type="button"
         onClick={onStart}
-        className="mt-8 rounded-2xl bg-amber-300 px-7 py-4 text-base font-black text-slate-950 transition hover:bg-amber-200"
+        className="btn btn-primary"
+        style={{ marginTop: "var(--space-2xl)" }}
       >
         Iniciar caso
       </button>

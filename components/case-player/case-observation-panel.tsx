@@ -1,12 +1,35 @@
 import Image from "next/image";
 import type { CaseSession, ObservationId, ReviewStatus } from "@/lib/clinical";
 
-function reviewCardClass(status: ReviewStatus, selected: boolean) {
-  if (status === "correct") return "border-emerald-400/40 bg-emerald-500/15 text-emerald-50";
-  if (status === "incorrect") return "border-rose-400/40 bg-rose-500/15 text-rose-50";
-  if (status === "missed") return "border-sky-300/50 bg-sky-400/15 text-sky-50";
-  if (selected) return "border-sky-400 bg-sky-500/10 text-sky-100";
-  return "border-white/10 bg-slate-950/70 text-white hover:border-sky-400";
+function reviewButtonStyle(status: ReviewStatus, selected: boolean): React.CSSProperties {
+  const base: React.CSSProperties = {
+    width: "100%",
+    textAlign: "left",
+    justifyContent: "flex-start",
+    padding: "var(--space-sm) var(--space-md)",
+    borderRadius: "var(--radius-lg)",
+    fontSize: "var(--text-body)",
+    fontWeight: "var(--weight-medium)",
+    cursor: "pointer",
+    border: "0.5px solid",
+    transition: "opacity 0.15s",
+  };
+  if (status === "correct") return { ...base, background: "var(--color-success-subtle)", borderColor: "var(--color-success-border)", color: "var(--color-text-primary)" };
+  if (status === "incorrect") return { ...base, background: "var(--color-error-subtle)", borderColor: "var(--color-error-border)", color: "var(--color-text-primary)" };
+  if (status === "missed") return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)", color: "var(--color-text-primary)" };
+  if (selected) return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)", color: "var(--color-text-primary)" };
+  return { ...base, background: "var(--color-elevated)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" };
+}
+
+function reviewDetailStyle(status: ReviewStatus | null): React.CSSProperties {
+  const base: React.CSSProperties = {
+    borderRadius: "var(--radius-lg)",
+    padding: "var(--space-md)",
+    border: "0.5px solid",
+  };
+  if (status === "correct") return { ...base, background: "var(--color-success-subtle)", borderColor: "var(--color-success-border)" };
+  if (status === "incorrect") return { ...base, background: "var(--color-error-subtle)", borderColor: "var(--color-error-border)" };
+  return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)" };
 }
 
 export function CaseObservationPanel({
@@ -23,6 +46,7 @@ export function CaseObservationPanel({
   onReveal: (id: ObservationId) => void;
 }) {
   const imageSeen = reviewMode || observationIds.includes("imagem");
+
   const visibleObservationIds = new Set(
     session.template.observationDefinitions
       .filter(
@@ -43,94 +67,143 @@ export function CaseObservationPanel({
     .filter((item) => item.detail);
 
   return (
-    <div className="grid h-full gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-      <div className="flex flex-col overflow-y-auto rounded-[28px] border border-white/10 bg-slate-950/60 p-4">
-        <div className="flex min-h-[240px] flex-1 items-center justify-center overflow-hidden rounded-[24px] border border-white/10 bg-black/50 p-4">
+    <div
+      style={{
+        display: "grid",
+        height: "100%",
+        gap: "var(--space-md)",
+        gridTemplateColumns: "1.2fr 0.8fr",
+      }}
+    >
+      {/* Coluna esquerda — imagem */}
+      <div
+        className="card"
+        style={{ padding: "var(--space-lg)", display: "flex", flexDirection: "column" }}
+      >
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "var(--color-base)",
+            borderRadius: "var(--radius-lg)",
+            border: "var(--border-default)",
+            overflow: "hidden",
+            minHeight: "320px",
+          }}
+        >
           {imageSeen ? (
             <Image
               src={session.template.imageSrc}
               alt={session.template.imageAlt}
               width={1600}
               height={1200}
-              className="h-full w-full rounded-[18px] object-contain"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                borderRadius: "var(--radius-lg)",
+              }}
             />
           ) : (
             <button
               type="button"
               onClick={() => onReveal("imagem")}
-              className="max-w-md text-balance text-lg font-semibold text-slate-300"
+              style={{
+                maxWidth: "24rem",
+                textAlign: "center",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "var(--text-body)",
+                fontWeight: "var(--weight-medium)",
+                color: "var(--color-text-secondary)",
+                padding: "var(--space-xl)",
+              }}
             >
-              Seleciona <span className="text-sky-300 underline">Ver imagem da ferida</span> para
-              abrir a fotografia clínica.
+              Seleciona{" "}
+              <span style={{ color: "var(--color-info)", textDecoration: "underline" }}>
+                Ver imagem da ferida
+              </span>{" "}
+              para abrir a fotografia clínica.
             </button>
           )}
         </div>
 
         {reviewMode ? (
-          <div className="mt-4 rounded-[24px] border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-200">
-            <p className="font-black text-white">Legenda da revisão</p>
-            <p className="mt-2 leading-6">
-              Verde: selecionaste uma observação correta. Vermelho: escolheste algo desnecessário ou
-              errado. Azul claro: faltou selecionar uma observação importante.
+          <div
+            className="card"
+            style={{ marginTop: "var(--space-md)", padding: "var(--space-md)" }}
+          >
+            <p
+              style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
+            >
+              Legenda da revisão
+            </p>
+            <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+              Verde: observação correta. Vermelho: escolha desnecessária ou errada. Azul claro:
+              faltou selecionar.
             </p>
           </div>
         ) : null}
-
-        <div className="mt-4 space-y-3">
-          {revealedObservations.length > 0 ? (
-            revealedObservations.map(({ definition, detail, status }) => (
-              <div
-                key={definition.id}
-                className={`rounded-[24px] border p-4 text-center ${
-                  status === "correct"
-                    ? "border-emerald-400/30 bg-emerald-500/10"
-                    : status === "incorrect"
-                      ? "border-rose-400/30 bg-rose-500/10"
-                      : status === "missed"
-                        ? "border-sky-300/40 bg-sky-400/10"
-                        : "border-sky-500/20 bg-sky-500/10"
-                }`}
-              >
-                <p className="text-sm font-black uppercase tracking-[0.18em] text-sky-100">
-                  {definition.label}
-                </p>
-                <p className="mt-3 text-sm leading-7 text-slate-100">{detail.detail}</p>
-              </div>
-            ))
-          ) : (
-            <div className="rounded-[24px] border border-white/10 bg-slate-900/60 p-4 text-center text-sm text-slate-300">
-              Seleciona uma observação para ver o detalhe aqui, por baixo da imagem.
-            </div>
-          )}
-        </div>
       </div>
 
-      <div className="flex flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/80 p-4">
-        <p className="shrink-0 text-sm font-black uppercase tracking-[0.2em] text-sky-300">
-          Observação guiada
-        </p>
-        <div className="mt-3 flex-1 space-y-2 overflow-y-auto">
-          {session.template.observationDefinitions
-            .filter((definition) => definition.id !== "imagem")
-            .map((definition) => {
-              const revealed = observationIds.includes(definition.id);
-              const status = reviewStatusById?.[definition.id] ?? null;
+      {/* Coluna direita — botões + detalhes revelados por baixo */}
+      <div
+        className="card"
+        style={{
+          padding: "var(--space-lg)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-md)",
+          overflowY: "auto",
+        }}
+      >
+        <p className="text-label">Observação guiada</p>
 
+        {/* Botões de observação */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+          {session.template.observationDefinitions
+            .filter((def) => def.id !== "imagem")
+            .map((def) => {
+              const revealed = observationIds.includes(def.id);
+              const status = reviewStatusById?.[def.id] ?? null;
               return (
                 <button
-                  key={definition.id}
+                  key={def.id}
                   type="button"
-                  onClick={() => onReveal(definition.id)}
-                  className={`w-full rounded-2xl border px-4 py-2.5 text-left text-sm font-bold transition ${reviewCardClass(
-                    status,
-                    revealed
-                  )}`}
+                  onClick={() => onReveal(def.id)}
+                  style={reviewButtonStyle(status, revealed)}
                 >
-                  {definition.prompt}
+                  {def.prompt}
                 </button>
               );
             })}
         </div>
+
+        {/* Detalhes revelados — por baixo dos botões */}
+        {revealedObservations.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+            {revealedObservations.map(({ definition, detail, status }) => (
+              <div key={definition.id} style={reviewDetailStyle(status)}>
+                <p className="text-label" style={{ color: "var(--color-info)" }}>
+                  {definition.label}
+                </p>
+                <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                  {detail.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p
+            className="text-body"
+            style={{ color: "var(--color-text-disabled)" }}
+          >
+            Seleciona uma observação para ver o detalhe aqui.
+          </p>
+        )}
       </div>
     </div>
   );

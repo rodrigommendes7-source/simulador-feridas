@@ -144,6 +144,17 @@ export type EvidenceReference = {
   summary: string;
 };
 
+/**
+ * Requisito clínico simplificado para penalização de materiais inadequados.
+ * O campo `variable` deve corresponder a uma chave de WoundVariables.
+ * `min` e `max` usam os mesmos valores numéricos de WoundVariables.
+ */
+export type ClinicalRequirement = {
+  variable: string;
+  min?: number;
+  max?: number;
+};
+
 export type TreatmentDefinition = {
   id: string;
   label: string;
@@ -165,6 +176,8 @@ export type TreatmentDefinition = {
   categoria_clinica?: "apositos" | "liquidos" | "pomadas" | "outros";
   /** Regras clínicas para avaliação correto/parcial/incorreto */
   regras?: MaterialRules;
+  /** Requisitos clínicos simplificados — cada violação penaliza -5 pontos no total */
+  clinicalRequirements?: ClinicalRequirement[];
 };
 
 export type CommonMistake = {
@@ -349,6 +362,13 @@ export type LearningRecommendation = {
   priority: "alta" | "media";
 };
 
+export type ClinicalPenalty = {
+  treatmentId: string;
+  treatmentLabel: string;
+  reason: string;
+  points: number;
+};
+
 export type CaseEvaluation = {
   score: number;
   sections: EvaluationSection[];
@@ -362,6 +382,8 @@ export type CaseEvaluation = {
   };
   recommendedPlan: RecommendedPlanComparison;
   learningRecommendations: LearningRecommendation[];
+  /** Penalizações clínicas aplicadas por materiais inadequados às variáveis da ferida */
+  clinicalPenalties: ClinicalPenalty[];
 };
 
 export type AttemptRecord = {

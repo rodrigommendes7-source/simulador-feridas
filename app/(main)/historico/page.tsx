@@ -26,6 +26,10 @@ function formatDate(value: string) {
   return new Date(value).toLocaleString("pt-PT");
 }
 
+function metricValue(value: number) {
+  return value === 0 ? "—" : value;
+}
+
 export default function HistoryPage() {
   const [history, setHistory] = useState<AttemptRecord[]>([]);
 
@@ -48,13 +52,22 @@ export default function HistoryPage() {
     setHistory([]);
   }
 
+  const hasHistory = history.length > 0;
+
   return (
-    <main className="space-y-6">
-      <section className="flex flex-wrap items-start justify-between gap-4 rounded-[32px] border border-white/10 bg-slate-950/60 p-6">
+    <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)" }}>
+
+      {/* ── Cabeçalho ─────────────────────────────────────────────────────── */}
+      <section
+        className="card"
+        style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-lg)" }}
+      >
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-sky-300">Histórico</p>
-          <h1 className="mt-3 text-4xl font-black text-white">Progressão do utilizador</h1>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
+          <p className="text-label">Histórico</p>
+          <h1 style={{ marginTop: "var(--space-sm)", fontSize: "var(--text-h1)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+            Progressão do utilizador
+          </h1>
+          <p className="text-body" style={{ marginTop: "var(--space-sm)", maxWidth: "48rem" }}>
             Vista detalhada do percurso local-first com comparação de tentativas, temas a reforçar
             e um plano de estudo derivado do teu próprio histórico.
           </p>
@@ -62,229 +75,308 @@ export default function HistoryPage() {
         <button
           type="button"
           onClick={handleClear}
-          className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm font-black text-rose-100"
+          disabled={!hasHistory}
+          style={{
+            background: "var(--color-error-subtle)",
+            border: "0.5px solid var(--color-error-border)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-sm) var(--space-md)",
+            fontSize: "var(--text-body)",
+            fontWeight: "var(--weight-medium)",
+            color: "var(--color-error)",
+            cursor: hasHistory ? "pointer" : "not-allowed",
+            opacity: hasHistory ? 1 : 0.4,
+          }}
         >
           Limpar histórico
         </button>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[
-          ["Tentativas", history.length],
-          ["Melhor pontuação", bestScore],
-          ["Média global", averageScore],
-          ["Casos com dados", retryPriority.length],
-        ].map(([label, value]) => (
-          <div key={label as string} className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">{label}</p>
-            <p className="mt-3 text-4xl font-black text-white">{value}</p>
-          </div>
-        ))}
-      </section>
+      {hasHistory ? (
+        <>
+          {/* ── 4 Métricas ──────────────────────────────────────────────────── */}
+          <section className="grid md:grid-cols-2 xl:grid-cols-4" style={{ gap: "var(--space-md)" }}>
+            {([
+              ["Tentativas", history.length],
+              ["Melhor pontuação", bestScore],
+              ["Média global", averageScore],
+              ["Casos com dados", retryPriority.length],
+            ] as [string, number][]).map(([label, value]) => (
+              <div className="card" key={label}>
+                <p className="text-label">{label}</p>
+                <p
+                  style={{
+                    fontSize: "var(--text-h1)",
+                    fontWeight: "var(--weight-medium)",
+                    color: "var(--color-text-primary)",
+                    marginTop: "var(--space-sm)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  {metricValue(value)}
+                </p>
+              </div>
+            ))}
+          </section>
 
-      <section className="grid gap-4 xl:grid-cols-3">
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-          <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-300">
-            Repetir a seguir
-          </p>
-          <p className="mt-3 font-black text-white">
-            {studyPlan.retryCase?.title ?? "Ainda sem prioridade definida"}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            {studyPlan.retryCase
-              ? `Média atual: ${studyPlan.retryCase.average}/100 em ${studyPlan.retryCase.attempts} tentativa(s).`
-              : "Conclui alguns casos para gerar uma prioridade de repetição."}
-          </p>
-          {studyPlan.retryCase ? (
-            <Link
-              href={`/casos/${studyPlan.retryCase.templateId}`}
-              className="mt-4 inline-flex text-sm font-black text-sky-200 underline"
+          {/* ── Plano de estudo ─────────────────────────────────────────────── */}
+          <section className="grid xl:grid-cols-3" style={{ gap: "var(--space-md)" }}>
+            <div className="card">
+              <p className="text-label" style={{ color: "var(--color-warning)" }}>Repetir a seguir</p>
+              <p style={{ marginTop: "var(--space-sm)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                {studyPlan.retryCase?.title ?? "Ainda sem prioridade definida"}
+              </p>
+              <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                {studyPlan.retryCase
+                  ? `Média atual: ${studyPlan.retryCase.average}/100 em ${studyPlan.retryCase.attempts} tentativa(s).`
+                  : "Conclui alguns casos para gerar uma prioridade de repetição."}
+              </p>
+              {studyPlan.retryCase ? (
+                <Link
+                  href={`/casos/${studyPlan.retryCase.templateId}`}
+                  style={{ display: "inline-flex", marginTop: "var(--space-md)", color: "var(--color-info)", textDecoration: "underline", fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}
+                >
+                  Reabrir caso
+                </Link>
+              ) : null}
+            </div>
+
+            <div className="card">
+              <p className="text-label" style={{ color: "var(--color-info)" }}>Rever tema</p>
+              <p style={{ marginTop: "var(--space-sm)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                {studyPlan.reviewTopic?.title ?? "Tema ainda por identificar"}
+              </p>
+              <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                {studyPlan.reviewTopic
+                  ? `Domínio atual: ${studyPlan.reviewTopic.masteryScore}/100.`
+                  : "O tema prioritário aparece depois das primeiras tentativas."}
+              </p>
+              {studyPlan.reviewTopic ? (
+                <Link
+                  href={`/aprender?topic=${studyPlan.reviewTopic.topicId}&source=history`}
+                  style={{ display: "inline-flex", marginTop: "var(--space-md)", color: "var(--color-info)", textDecoration: "underline", fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}
+                >
+                  Abrir tema
+                </Link>
+              ) : null}
+            </div>
+
+            <div className="card">
+              <p className="text-label" style={{ color: "var(--color-success)" }}>Tentar depois</p>
+              <p style={{ marginTop: "var(--space-sm)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                {studyPlan.followUpCase?.title ?? "Sem sugestão ainda"}
+              </p>
+              <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                {studyPlan.followUpCase?.reason ?? "A próxima tentativa recomendada vai aparecer aqui."}
+              </p>
+              {studyPlan.followUpCase ? (
+                <Link
+                  href={`/casos/${studyPlan.followUpCase.templateId}`}
+                  style={{ display: "inline-flex", marginTop: "var(--space-md)", color: "var(--color-info)", textDecoration: "underline", fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}
+                >
+                  Abrir caso sugerido
+                </Link>
+              ) : null}
+            </div>
+          </section>
+
+          {/* ── Casos a repetir + Domínios + Temas ──────────────────────────── */}
+          <section className="grid xl:grid-cols-[1.1fr_0.9fr]" style={{ gap: "var(--space-md)" }}>
+            <div className="card">
+              <p className="text-label" style={{ color: "var(--color-warning)" }}>Casos a repetir prioritariamente</p>
+              <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+                {retryPriority.length > 0 ? (
+                  retryPriority.map((item) => (
+                    <div
+                      key={item.templateId}
+                      style={{
+                        background: "var(--color-elevated)",
+                        border: "var(--border-default)",
+                        borderRadius: "var(--radius-lg)",
+                        padding: "var(--space-md)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-md)" }}>
+                        <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{item.title}</p>
+                        <span
+                          style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-mono)", color: "var(--color-text-secondary)" }}
+                        >
+                          {item.average}/100
+                        </span>
+                      </div>
+                      <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                        {item.attempts} tentativa(s) registada(s)
+                      </p>
+                      <Link
+                        href={`/casos/${item.templateId}`}
+                        style={{ display: "inline-flex", marginTop: "var(--space-sm)", color: "var(--color-info)", textDecoration: "underline", fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}
+                      >
+                        Reabrir caso
+                      </Link>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-body">Ainda não existem tentativas guardadas.</p>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+              <div className="card">
+                <p className="text-label" style={{ color: "var(--color-info)" }}>Domínios mais frágeis</p>
+                <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+                  {weakestSections.length > 0 ? (
+                    weakestSections.map((section) => (
+                      <div
+                        key={section.sectionId}
+                        style={{
+                          background: "var(--color-elevated)",
+                          border: "var(--border-default)",
+                          borderRadius: "var(--radius-md)",
+                          padding: "var(--space-xs) var(--space-sm)",
+                        }}
+                      >
+                        <p className="text-body">
+                          {SECTION_LABELS[section.sectionId] ?? section.sectionId}: {section.average}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-body">Sem dados ainda.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="card">
+                <p className="text-label" style={{ color: "var(--color-warning)" }}>Temas mais recomendados</p>
+                <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+                  {recommendedTopics.length > 0 ? (
+                    recommendedTopics.map((topic) => (
+                      <Link
+                        key={topic.topicId}
+                        href={`/aprender?topic=${topic.topicId}&source=history`}
+                        style={{
+                          display: "block",
+                          background: "var(--color-elevated)",
+                          border: "var(--border-default)",
+                          borderRadius: "var(--radius-md)",
+                          padding: "var(--space-xs) var(--space-sm)",
+                          color: "var(--color-text-primary)",
+                          textDecoration: "none",
+                          fontSize: "var(--text-body)",
+                        }}
+                      >
+                        {topic.title} · {topic.count} vez(es)
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="text-body">Sem recomendações ainda.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── Domínio por tema ────────────────────────────────────────────── */}
+          <section className="card">
+            <p className="text-label" style={{ color: "var(--color-info)" }}>Domínio por tema</p>
+            <div
+              className="grid md:grid-cols-2 xl:grid-cols-3"
+              style={{ marginTop: "var(--space-md)", gap: "var(--space-sm)" }}
             >
-              Reabrir caso
-            </Link>
-          ) : null}
-        </div>
-
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-          <p className="text-sm font-black uppercase tracking-[0.18em] text-sky-300">
-            Rever tema
-          </p>
-          <p className="mt-3 font-black text-white">
-            {studyPlan.reviewTopic?.title ?? "Tema ainda por identificar"}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            {studyPlan.reviewTopic
-              ? `Domínio atual: ${studyPlan.reviewTopic.masteryScore}/100.`
-              : "O tema prioritário aparece depois das primeiras tentativas."}
-          </p>
-          {studyPlan.reviewTopic ? (
-            <Link
-              href={`/aprender?topic=${studyPlan.reviewTopic.topicId}&source=history`}
-              className="mt-4 inline-flex text-sm font-black text-sky-200 underline"
-            >
-              Abrir tema
-            </Link>
-          ) : null}
-        </div>
-
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-          <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-300">
-            Tentar depois
-          </p>
-          <p className="mt-3 font-black text-white">
-            {studyPlan.followUpCase?.title ?? "Sem sugestão ainda"}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            {studyPlan.followUpCase?.reason ?? "A próxima tentativa recomendada vai aparecer aqui."}
-          </p>
-          {studyPlan.followUpCase ? (
-            <Link
-              href={`/casos/${studyPlan.followUpCase.templateId}`}
-              className="mt-4 inline-flex text-sm font-black text-sky-200 underline"
-            >
-              Abrir caso sugerido
-            </Link>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-          <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-300">
-            Casos a repetir prioritariamente
-          </p>
-          <div className="mt-4 space-y-3">
-            {retryPriority.length > 0 ? (
-              retryPriority.map((item) => (
-                <div key={item.templateId} className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-black text-white">{item.title}</p>
-                    <span className="text-xs uppercase tracking-wide text-slate-400">
-                      {item.average}/100
+              {topicMastery.map((topic) => (
+                <Link
+                  key={topic.topicId}
+                  href={`/aprender?topic=${topic.topicId}&source=mastery`}
+                  className="card card-clickable"
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-md)" }}>
+                    <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{topic.title}</p>
+                    <span
+                      style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-mono)", color: "var(--color-accent)" }}
+                    >
+                      {topic.masteryScore}/100
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-slate-300">
-                    {item.attempts} tentativa(s) registada(s)
+                  <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                    {topic.recommendationCount} recomendação(ões) · {topic.weakSignalCount} sinal(is) de fragilidade.
                   </p>
-                  <Link
-                    href={`/casos/${item.templateId}`}
-                    className="mt-3 inline-flex text-sm font-black text-sky-200 underline"
-                  >
-                    Reabrir caso
-                  </Link>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-slate-400">Ainda não existem tentativas guardadas.</p>
-            )}
-          </div>
-        </div>
+                </Link>
+              ))}
+            </div>
+          </section>
 
-        <div className="space-y-4">
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-sky-300">
-              Domínios mais frágeis
-            </p>
-            <div className="mt-4 space-y-2">
-              {weakestSections.length > 0 ? (
-                weakestSections.map((section) => (
-                  <div key={section.sectionId} className="rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
-                    {SECTION_LABELS[section.sectionId] ?? section.sectionId}: {section.average}
+          {/* ── Tentativas registadas ────────────────────────────────────────── */}
+          <section className="card">
+            <p className="text-label" style={{ color: "var(--color-info)" }}>Tentativas registadas</p>
+            <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+              {history.map((entry) => (
+                <div
+                  key={entry.id}
+                  style={{
+                    background: "var(--color-elevated)",
+                    border: "var(--border-default)",
+                    borderRadius: "var(--radius-lg)",
+                    padding: "var(--space-md)",
+                  }}
+                >
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "var(--space-md)" }}>
+                    <div>
+                      <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{entry.caseTitle}</p>
+                      <p className="text-caption" style={{ marginTop: "2px", textTransform: "uppercase", letterSpacing: "var(--tracking-label)" }}>
+                        {entry.variantTitle}
+                      </p>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <p
+                        style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
+                      >
+                        {entry.score}/100
+                      </p>
+                      <p className="text-caption" style={{ marginTop: "2px" }}>{formatDate(entry.timestamp)}</p>
+                    </div>
                   </div>
-                ))
-              ) : (
-                <p className="text-sm text-slate-400">Sem dados ainda.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-300">
-              Temas mais recomendados
-            </p>
-            <div className="mt-4 space-y-2">
-              {recommendedTopics.length > 0 ? (
-                recommendedTopics.map((topic) => (
-                  <Link
-                    key={topic.topicId}
-                    href={`/aprender?topic=${topic.topicId}&source=history`}
-                    className="block rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 transition hover:border-sky-400"
-                  >
-                    {topic.title} · {topic.count} vez(es)
-                  </Link>
-                ))
-              ) : (
-                <p className="text-sm text-slate-400">Sem recomendações ainda.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-        <p className="text-sm font-black uppercase tracking-[0.18em] text-sky-300">
-          Domínio por tema
-        </p>
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {topicMastery.length > 0 ? (
-            topicMastery.map((topic) => (
-              <Link
-                key={topic.topicId}
-                href={`/aprender?topic=${topic.topicId}&source=mastery`}
-                className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 transition hover:border-sky-400"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-black text-white">{topic.title}</p>
-                  <span className="text-sm font-black text-sky-200">{topic.masteryScore}/100</span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  {topic.recommendationCount} recomendação(ões) · {topic.weakSignalCount} sinal(is) de fragilidade.
-                </p>
-              </Link>
-            ))
-          ) : (
-            <div className="rounded-2xl border border-dashed border-white/10 bg-slate-950/70 p-6 text-sm text-slate-400">
-              Conclui um caso para desbloquear o mapa de domínio por tema.
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-        <p className="text-sm font-black uppercase tracking-[0.18em] text-sky-300">
-          Tentativas registadas
-        </p>
-        <div className="mt-4 space-y-3">
-          {history.length > 0 ? (
-            history.map((entry) => (
-              <div key={entry.id} className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="font-black text-white">{entry.caseTitle}</p>
-                    <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">
-                      {entry.variantTitle}
+                  {entry.previousBestScoreForCase !== null ? (
+                    <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
+                      Melhor registo anterior neste caso: {entry.previousBestScoreForCase}/100.
                     </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xl font-black text-white">{entry.score}/100</p>
-                    <p className="text-xs text-slate-400">{formatDate(entry.timestamp)}</p>
-                  </div>
+                  ) : null}
+                  <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>{entry.summary}</p>
                 </div>
-                {entry.previousBestScoreForCase !== null ? (
-                  <p className="mt-3 text-sm leading-6 text-slate-300">
-                    Melhor registo anterior neste caso: {entry.previousBestScoreForCase}/100.
-                  </p>
-                ) : null}
-                <p className="mt-3 text-sm leading-6 text-slate-300">{entry.summary}</p>
-              </div>
-            ))
-          ) : (
-            <div className="rounded-2xl border border-dashed border-white/10 bg-slate-950/70 p-6 text-sm text-slate-400">
-              Ainda não existem resoluções guardadas. Conclui um caso para o veres aqui.
+              ))}
             </div>
-          )}
+          </section>
+        </>
+      ) : (
+        /* ── Estado vazio ─────────────────────────────────────────────────── */
+        <div
+          className="card"
+          style={{ textAlign: "center", padding: "var(--space-4xl)" }}
+        >
+          <p
+            style={{
+              fontSize: "var(--text-h2)",
+              fontWeight: "var(--weight-medium)",
+              color: "var(--color-text-primary)",
+            }}
+          >
+            Ainda sem histórico registado
+          </p>
+          <p
+            className="text-body"
+            style={{ marginTop: "var(--space-md)", maxWidth: "480px", margin: "var(--space-md) auto 0" }}
+          >
+            Completa o primeiro caso para veres a tua progressão, pontos fracos e plano de estudo personalizado.
+          </p>
+          <Link
+            href="/casos/1"
+            className="btn btn-primary"
+            style={{ marginTop: "var(--space-xl)", display: "inline-flex" }}
+          >
+            Iniciar primeiro caso
+          </Link>
         </div>
-      </section>
+      )}
     </main>
   );
 }

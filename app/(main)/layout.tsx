@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/casos", label: "Resolver casos" },
@@ -11,23 +14,37 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
   return (
     <div className="min-h-screen">
       <header className="nav">
-        <div>
-          <Link href="/" className="text-h3" style={{ display: "block" }}>
-            Simulador de Feridas
-          </Link>
-          <p className="text-caption" style={{ marginTop: "2px" }}>
-            Aprendizagem clínica orientada pelo progresso
-          </p>
-        </div>
+        <Link href="/" className="text-h3" style={{ display: "block" }}>
+          Simulador de Feridas
+        </Link>
         <nav style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-xs)" }}>
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="nav-link">
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="nav-link"
+                style={
+                  isActive
+                    ? {
+                        color: "var(--color-accent)",
+                        fontWeight: "var(--weight-medium)",
+                        background: "var(--color-elevated)",
+                      }
+                    : undefined
+                }
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
       </header>
 

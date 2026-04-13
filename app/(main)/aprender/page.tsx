@@ -12,10 +12,22 @@ function capitalizeSentence(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function difficultyLabel(value: string) {
+function topicDifficultyLabel(value: string) {
   if (value === "base") return "Base";
   if (value === "intermedio") return "Intermédio";
   return "Avançado";
+}
+
+function caseDifficultyLabel(value: string) {
+  if (value === "introdutorio") return "Introdutório";
+  if (value === "intermedio") return "Intermédio";
+  return "Avançado";
+}
+
+function caseDifficultyBadgeClass(value: string) {
+  if (value === "introdutorio") return "badge badge-intro";
+  if (value === "intermedio") return "badge badge-inter";
+  return "badge badge-avance";
 }
 
 export default async function LearningPage({
@@ -42,19 +54,48 @@ export default async function LearningPage({
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   return (
-    <main className="grid gap-6 lg:grid-cols-[280px_1fr]">
-      <aside className="rounded-[32px] border border-white/10 bg-slate-950/60 p-4">
-        <p className="text-xs font-bold uppercase tracking-[0.28em] text-sky-300">Aprender</p>
-        <div className="mt-4 space-y-3">
+    <main className="grid lg:grid-cols-[280px_1fr]" style={{ gap: "var(--space-2xl)" }}>
+
+      {/* ── Sidebar de temas ─────────────────────────────────────────────── */}
+      <aside
+        style={{
+          background: "var(--color-surface)",
+          border: "var(--border-default)",
+          borderRadius: "var(--radius-xl)",
+          padding: "var(--space-lg)",
+          alignSelf: "start",
+        }}
+      >
+        <p className="text-label">Aprender</p>
+        <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
           {topics.map((topic) => (
             <Link
               key={topic.id}
               href={`/aprender?topic=${topic.id}`}
-              className={`block rounded-2xl border px-4 py-3 text-sm font-bold transition ${
+              style={
                 topic.id === activeTopic.id
-                  ? "border-amber-300 bg-amber-300 text-slate-950"
-                  : "border-white/10 bg-slate-900/80 text-white hover:border-sky-400"
-              }`}
+                  ? {
+                      display: "block",
+                      background: "var(--color-accent)",
+                      color: "var(--color-base)",
+                      border: "var(--border-default)",
+                      borderRadius: "var(--radius-lg)",
+                      padding: "var(--space-sm) var(--space-md)",
+                      fontWeight: "var(--weight-medium)",
+                      fontSize: "var(--text-body)",
+                      textDecoration: "none",
+                    }
+                  : {
+                      display: "block",
+                      background: "var(--color-elevated)",
+                      color: "var(--color-text-secondary)",
+                      border: "var(--border-default)",
+                      borderRadius: "var(--radius-lg)",
+                      padding: "var(--space-sm) var(--space-md)",
+                      fontSize: "var(--text-body)",
+                      textDecoration: "none",
+                    }
+              }
             >
               {topic.title}
             </Link>
@@ -62,29 +103,64 @@ export default async function LearningPage({
         </div>
       </aside>
 
-      <section className="space-y-5">
-        <div className="rounded-[32px] border border-white/10 bg-slate-950/60 p-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="text-xs font-bold uppercase tracking-[0.28em] text-amber-300">
-              Biblioteca clínica
-            </p>
-            <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-slate-200">
-              {difficultyLabel(activeTopic.pedagogicalDifficulty)}
+      {/* ── Conteúdo do tema ─────────────────────────────────────────────── */}
+      <section style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)" }}>
+
+        {/* Cabeçalho do tema */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-xl)",
+            padding: "var(--space-2xl)",
+          }}
+        >
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-sm)" }}>
+            <p className="text-label" style={{ color: "var(--color-accent)" }}>Biblioteca clínica</p>
+            <span
+              style={{
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-pill)",
+                padding: "2px var(--space-sm)",
+                fontSize: "var(--text-label)",
+                fontWeight: "var(--weight-medium)",
+                color: "var(--color-text-secondary)",
+                textTransform: "uppercase",
+                letterSpacing: "var(--tracking-label)",
+              }}
+            >
+              {topicDifficultyLabel(activeTopic.pedagogicalDifficulty)}
             </span>
           </div>
-          <h1 className="mt-3 text-4xl font-black text-white">{activeTopic.title}</h1>
-          <p className="mt-4 max-w-4xl text-base leading-7 text-slate-300">
+          <h1
+            style={{
+              marginTop: "var(--space-sm)",
+              fontSize: "var(--text-h1)",
+              fontWeight: "var(--weight-medium)",
+              color: "var(--color-text-primary)",
+            }}
+          >
+            {activeTopic.title}
+          </h1>
+          <p className="text-body" style={{ marginTop: "var(--space-md)", maxWidth: "64rem" }}>
             {capitalizeSentence(activeTopic.definition)}
           </p>
 
           {reasonParam ? (
-            <div className="mt-5 rounded-2xl border border-sky-500/20 bg-sky-500/10 p-4 text-sm leading-6 text-sky-50">
-              <p className="font-black uppercase tracking-wide text-sky-200">
+            <div className="alert alert-info" style={{ marginTop: "var(--space-lg)" }}>
+              <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
                 Porque este tema te foi recomendado
               </p>
-              <p className="mt-2">{reasonParam}</p>
+              <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>{reasonParam}</p>
               {sourceParam ? (
-                <p className="mt-2 text-xs uppercase tracking-wide text-sky-100/80">
+                <p
+                  className="text-caption"
+                  style={{
+                    marginTop: "var(--space-xs)",
+                    textTransform: "uppercase",
+                    letterSpacing: "var(--tracking-label)",
+                  }}
+                >
                   Origem: {sourceParam}
                 </p>
               ) : null}
@@ -92,54 +168,107 @@ export default async function LearningPage({
           ) : null}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-sky-300">
-              Quando considerar
-            </p>
-            <div className="mt-4 space-y-2 text-sm text-slate-200">
+        {/* Quando considerar / Quando evitar */}
+        <div className="grid md:grid-cols-2" style={{ gap: "var(--space-md)" }}>
+          <div
+            style={{
+              background: "var(--color-surface)",
+              border: "var(--border-default)",
+              borderRadius: "var(--radius-xl)",
+              padding: "var(--space-xl)",
+            }}
+          >
+            <p className="text-label" style={{ color: "var(--color-info)" }}>Quando considerar</p>
+            <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
               {activeTopic.indications.map((item) => (
-                <div key={item} className="rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2">
-                  {capitalizeSentence(item)}
+                <div
+                  key={item}
+                  style={{
+                    background: "var(--color-elevated)",
+                    border: "var(--border-default)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-xs) var(--space-sm)",
+                  }}
+                >
+                  <p className="text-body">{capitalizeSentence(item)}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-rose-300">
-              Quando evitar
-            </p>
-            <div className="mt-4 space-y-2 text-sm text-slate-200">
+          <div
+            style={{
+              background: "var(--color-surface)",
+              border: "var(--border-default)",
+              borderRadius: "var(--radius-xl)",
+              padding: "var(--space-xl)",
+            }}
+          >
+            <p className="text-label" style={{ color: "var(--color-error)" }}>Quando evitar</p>
+            <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
               {activeTopic.contraindications.map((item) => (
-                <div key={item} className="rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2">
-                  {capitalizeSentence(item)}
+                <div
+                  key={item}
+                  style={{
+                    background: "var(--color-elevated)",
+                    border: "var(--border-default)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-xs) var(--space-sm)",
+                  }}
+                >
+                  <p className="text-body">{capitalizeSentence(item)}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-300">
-              Sinais de alerta
-            </p>
-            <div className="mt-4 space-y-2 text-sm text-slate-200">
+        {/* Sinais + Erros / Materiais + Casos + Temas */}
+        <div className="grid xl:grid-cols-[0.9fr_1.1fr]" style={{ gap: "var(--space-md)" }}>
+
+          {/* Sinais de alerta + Erros frequentes */}
+          <div
+            style={{
+              background: "var(--color-surface)",
+              border: "var(--border-default)",
+              borderRadius: "var(--radius-xl)",
+              padding: "var(--space-xl)",
+            }}
+          >
+            <p className="text-label" style={{ color: "var(--color-warning)" }}>Sinais de alerta</p>
+            <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
               {activeTopic.warningSigns.map((item) => (
-                <div key={item} className="rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2">
-                  {capitalizeSentence(item)}
+                <div
+                  key={item}
+                  style={{
+                    background: "var(--color-elevated)",
+                    border: "var(--border-default)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-xs) var(--space-sm)",
+                  }}
+                >
+                  <p className="text-body">{capitalizeSentence(item)}</p>
                 </div>
               ))}
             </div>
 
-            <p className="mt-6 text-sm font-black uppercase tracking-[0.18em] text-rose-300">
+            <p className="text-label" style={{ color: "var(--color-error)", marginTop: "var(--space-xl)" }}>
               Erros frequentes
             </p>
-            <div className="mt-4 space-y-3">
+            <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
               {activeTopic.commonMistakes.map((mistake) => (
-                <div key={mistake.id} className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-                  <p className="font-black text-white">{capitalizeSentence(mistake.title)}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                <div
+                  key={mistake.id}
+                  style={{
+                    background: "var(--color-elevated)",
+                    border: "var(--border-default)",
+                    borderRadius: "var(--radius-lg)",
+                    padding: "var(--space-md)",
+                  }}
+                >
+                  <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                    {capitalizeSentence(mistake.title)}
+                  </p>
+                  <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
                     {capitalizeSentence(mistake.explanation)}
                   </p>
                 </div>
@@ -147,63 +276,129 @@ export default async function LearningPage({
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-sky-300">
-                Materiais relacionados
-              </p>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {/* Materiais + Casos + Temas relacionados */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+
+            {/* Materiais relacionados */}
+            <div
+              style={{
+                background: "var(--color-surface)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-xl)",
+                padding: "var(--space-xl)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-info)" }}>Materiais relacionados</p>
+              <div
+                className="grid md:grid-cols-2"
+                style={{ marginTop: "var(--space-md)", gap: "var(--space-sm)" }}
+              >
                 {relatedTreatments.map((treatment) => (
-                  <div key={treatment.id} className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-                    <p className="font-black text-white">{treatment.label}</p>
-                    <p className="mt-2 text-xs uppercase tracking-wide text-sky-300">
-                      {treatment.uiTags.map(capitalizeSentence).join(" · ")}
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-slate-300">
-                      Indicações: {treatment.indications.map(capitalizeSentence).join(", ")}.
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-400">
-                      Contraindicações:{" "}
-                      {treatment.contraindications.length > 0
-                        ? treatment.contraindications.map(capitalizeSentence).join(", ")
-                        : "Sem registo."}
-                    </p>
-                    <div className="mt-3 space-y-2">
-                      {treatment.evidenceRefs.map((evidenceId) => {
-                        const evidence = getEvidence(evidenceId);
-                        if (!evidence) return null;
-                        return (
-                          <a
-                            key={evidenceId}
-                            href={evidence.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="block text-xs text-sky-200 underline"
-                          >
-                            {evidence.title}
-                          </a>
-                        );
-                      })}
+                  <div
+                    key={treatment.id}
+                    className="card"
+                    style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
+                  >
+                    {/* Linha 1: nome + tags */}
+                    <div>
+                      <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                        {treatment.label}
+                      </p>
+                      {treatment.uiTags.length > 0 && (
+                        <p className="text-caption" style={{ marginTop: "2px" }}>
+                          {treatment.uiTags.map(capitalizeSentence).join(" · ")}
+                        </p>
+                      )}
                     </div>
+                    {/* Linha 2: indicações + contraindicações */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                      <p className="text-body" style={{ fontSize: "var(--text-label)" }}>
+                        {treatment.indications.slice(0, 2).map(capitalizeSentence).join(". ")}.
+                      </p>
+                      {treatment.contraindications.length > 0 && (
+                        <p
+                          className="text-body"
+                          style={{ fontSize: "var(--text-label)", color: "var(--color-text-disabled)" }}
+                        >
+                          Evitar: {treatment.contraindications.slice(0, 2).map(capitalizeSentence).join(", ")}.
+                        </p>
+                      )}
+                    </div>
+                    {/* Links de evidência */}
+                    {treatment.evidenceRefs.length > 0 && (
+                      <div
+                        style={{
+                          borderTop: "var(--border-default)",
+                          paddingTop: "var(--space-xs)",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "2px",
+                        }}
+                      >
+                        {treatment.evidenceRefs.map((evidenceId) => {
+                          const evidence = getEvidence(evidenceId);
+                          if (!evidence) return null;
+                          return (
+                            <a
+                              key={evidenceId}
+                              href={evidence.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{
+                                fontSize: "var(--text-label)",
+                                color: "var(--color-info)",
+                                textDecoration: "underline",
+                                opacity: 0.7,
+                              }}
+                            >
+                              {evidence.title}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-300">
+            {/* Casos em que este tema é central */}
+            <div
+              style={{
+                background: "var(--color-surface)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-xl)",
+                padding: "var(--space-xl)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-warning)" }}>
                 Casos em que este tema é central
               </p>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <div
+                className="grid md:grid-cols-2"
+                style={{ marginTop: "var(--space-md)", gap: "var(--space-sm)" }}
+              >
                 {relatedCases.map((caseItem) => (
                   <Link
                     key={caseItem.id}
                     href={`/casos/${caseItem.id}`}
-                    className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 transition hover:border-sky-400"
+                    className="card card-clickable"
                   >
-                    <p className="font-black text-white">{caseItem.shortTitle}</p>
-                    <p className="mt-2 text-sm text-slate-300">{capitalizeSentence(caseItem.title)}</p>
-                    <p className="mt-3 text-xs uppercase tracking-wide text-amber-200">
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-xs)" }}>
+                      <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                        {caseItem.shortTitle}
+                      </p>
+                      <span className={caseDifficultyBadgeClass(caseItem.difficulty)}>
+                        {caseDifficultyLabel(caseItem.difficulty)}
+                      </span>
+                    </div>
+                    <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                      {capitalizeSentence(caseItem.title)}
+                    </p>
+                    <p
+                      className="text-label"
+                      style={{ marginTop: "var(--space-sm)", color: "var(--color-warning)" }}
+                    >
                       Este caso obriga a aplicar {activeTopic.title.toLowerCase()} em contexto.
                     </p>
                   </Link>
@@ -211,20 +406,31 @@ export default async function LearningPage({
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5">
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-sky-300">
-                Temas relacionados
-              </p>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {/* Temas relacionados */}
+            <div
+              style={{
+                background: "var(--color-surface)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-xl)",
+                padding: "var(--space-xl)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-info)" }}>Temas relacionados</p>
+              <div
+                className="grid md:grid-cols-2"
+                style={{ marginTop: "var(--space-md)", gap: "var(--space-sm)" }}
+              >
                 {relatedTopics.map((topic) => (
                   <Link
                     key={topic.id}
                     href={`/aprender?topic=${topic.id}`}
-                    className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 transition hover:border-sky-400"
+                    className="card card-clickable"
                   >
-                    <p className="font-black text-white">{topic.title}</p>
-                    <p className="mt-2 text-sm text-slate-300">
-                      Dificuldade {difficultyLabel(topic.pedagogicalDifficulty).toLowerCase()}.
+                    <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                      {topic.title}
+                    </p>
+                    <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                      Dificuldade {topicDifficultyLabel(topic.pedagogicalDifficulty).toLowerCase()}.
                     </p>
                   </Link>
                 ))}

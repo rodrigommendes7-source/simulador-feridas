@@ -174,6 +174,10 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_ideais: { infeccao: [1, 2, 3], exsudado: [2, 3, 4] },
       contraindicacoes: [{ infeccao: [0] }],
     },
+    clinicalRequirements: [
+      { variable: "infeccao", min: 1 }, // requer sinais de infeção
+      { variable: "exsudado", min: 2 }, // requer exsudado leve ou mais
+    ],
   },
 
   {
@@ -292,6 +296,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { exsudado: [3] },
       contraindicacoes: [{ exsudado: [1] }],
     },
+    clinicalRequirements: [
+      { variable: "exsudado", min: 4 }, // só adequado com exsudado abundante
+    ],
   },
 
   {
@@ -316,6 +323,10 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { infeccao: [1, 2, 3], tecido: [3] },
       contraindicacoes: [{ infeccao: [0], tecido: [4] }],
     },
+    clinicalRequirements: [
+      { variable: "infeccao", min: 1 }, // requer presença de infeção (local ou mais)
+      { variable: "exsudado", max: 3 }, // contraind. com exsudado muito abundante sem controlo
+    ],
   },
 
   {
@@ -340,6 +351,10 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { infeccao: [1, 2, 3], exsudado: [2] },
       contraindicacoes: [{ infeccao: [0] }],
     },
+    clinicalRequirements: [
+      { variable: "exsudado", min: 3 }, // requer exsudado moderado ou abundante
+      { variable: "infeccao", min: 1 }, // requer presença de infeção
+    ],
   },
 
   {
@@ -703,6 +718,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { pele_perilesional: [3] },
       contraindicacoes: [],
     },
+    clinicalRequirements: [
+      { variable: "pele_perilesional", max: 3 }, // só relevante com pele perilesional comprometida
+    ],
   },
 
   {
@@ -779,6 +797,10 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { pele_perilesional: [4] },
       contraindicacoes: [{ pele_perilesional: [1] }],
     },
+    clinicalRequirements: [
+      { variable: "exsudado", max: 2 },         // contraind. com exsudado moderado/abundante
+      { variable: "pele_perilesional", max: 3 }, // só com pele perilesional comprometida
+    ],
   },
 
   {
@@ -826,6 +848,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_ideais: { exsudado: [] }, // nunca ideal
       contraindicacoes: [{ exsudado: [1, 2, 3, 4] }],
     },
+    clinicalRequirements: [
+      { variable: "infeccao", max: 0 }, // contraind. com qualquer nível de infeção
+    ],
   },
 
   {
@@ -874,6 +899,10 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { infeccao: [1] },
       contraindicacoes: [{ infeccao: [0] }],
     },
+    clinicalRequirements: [
+      { variable: "infeccao", min: 1 }, // requer sinais de infeção
+      { variable: "exsudado", max: 3 }, // contraind. com exsudado muito abundante
+    ],
   },
 
   {
@@ -999,6 +1028,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { tecido: [1, 2], exsudado: [3] },
       contraindicacoes: [{ exsudado: [4] }, { humidade: [4] }],
     },
+    clinicalRequirements: [
+      { variable: "exsudado", max: 2 }, // contraind. com exsudado moderado ou abundante
+    ],
   },
 
   {

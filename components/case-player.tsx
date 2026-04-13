@@ -264,41 +264,114 @@ export function CasePlayer({ templateId }: { templateId: string }) {
       ) : (
         <>
           {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-          <aside className="w-56 shrink-0 space-y-3 overflow-y-auto border-r border-white/10 p-3">
-
+          <aside
+            style={{
+              width: "14rem",
+              flexShrink: 0,
+              overflowY: "auto",
+              borderRight: "var(--border-default)",
+              padding: "var(--space-sm)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-sm)",
+            }}
+          >
             {/* Identidade do caso */}
-            <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-300">Caso ativo</p>
-              <h1 className="mt-2 text-lg font-black text-white">{session.template.shortTitle}</h1>
-              <p className="mt-1 text-xs leading-5 text-slate-300">{session.template.title}</p>
-              <div className="mt-2 flex flex-wrap gap-1 text-[10px] font-bold uppercase tracking-wide">
-                <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-sky-100">
-                  {session.template.difficulty}
-                </span>
-                <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-200">
-                  {session.template.estimatedMinutes} min
-                </span>
+            <div
+              style={{
+                background: "var(--color-surface)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-md)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-accent)" }}>
+                Caso ativo
+              </p>
+              <h1
+                style={{
+                  marginTop: "var(--space-xs)",
+                  fontSize: "var(--text-h3)",
+                  fontWeight: "var(--weight-medium)",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {session.template.shortTitle}
+              </h1>
+              <p
+                className="text-body"
+                style={{ marginTop: "2px", color: "var(--color-text-secondary)" }}
+              >
+                {session.template.title}
+              </p>
+              <div
+                style={{
+                  marginTop: "var(--space-xs)",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "var(--space-xs)",
+                }}
+              >
+                <span className="badge badge-info">{session.template.difficulty}</span>
+                <span className="badge badge-info">{session.template.estimatedMinutes} min</span>
               </div>
             </div>
 
             {/* Navegação */}
-            <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300">Navegação</p>
-              <div className="mt-2 space-y-1.5">
-                {[
+            <div
+              style={{
+                background: "var(--color-surface)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-md)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-warning)" }}>
+                Navegação
+              </p>
+              <div
+                style={{
+                  marginTop: "var(--space-sm)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--space-xs)",
+                }}
+              >
+                {([
                   ["observacao", "Observação"],
                   ["dialogo", "Diálogo"],
                   ["tratamento", "Tratamento"],
-                ].map(([id, label]) => (
+                ] as [Step, string][]).map(([id, label]) => (
                   <button
                     key={id}
                     type="button"
-                    onClick={() => setStep(id as Step)}
-                    className={`w-full rounded-xl border px-3 py-2 text-left text-xs font-black transition ${
+                    onClick={() => setStep(id)}
+                    style={
                       step === id
-                        ? "border-sky-400 bg-sky-500/10 text-sky-100"
-                        : "border-white/10 bg-slate-950/70 text-slate-200 hover:border-sky-400"
-                    }`}
+                        ? {
+                            width: "100%",
+                            textAlign: "left",
+                            padding: "var(--space-xs) var(--space-sm)",
+                            borderRadius: "var(--radius-md)",
+                            border: "0.5px solid var(--color-accent)",
+                            background: "var(--color-elevated)",
+                            color: "var(--color-accent)",
+                            fontWeight: "var(--weight-medium)",
+                            fontSize: "var(--text-body)",
+                            cursor: "pointer",
+                          }
+                        : {
+                            width: "100%",
+                            textAlign: "left",
+                            padding: "var(--space-xs) var(--space-sm)",
+                            borderRadius: "var(--radius-md)",
+                            border: "var(--border-default)",
+                            background: "transparent",
+                            color: "var(--color-text-secondary)",
+                            fontSize: "var(--text-body)",
+                            cursor: "pointer",
+                          }
+                    }
                   >
                     {label}
                   </button>
@@ -307,20 +380,65 @@ export function CasePlayer({ templateId }: { templateId: string }) {
             </div>
 
             {/* Progresso */}
-            <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-300">Progresso</p>
-              <div className="mt-2 space-y-1.5">
+            <div
+              style={{
+                background: "var(--color-surface)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-md)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-info)" }}>
+                Progresso
+              </p>
+              <div
+                style={{
+                  marginTop: "var(--space-sm)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--space-xs)",
+                }}
+              >
                 {progressChecklist.map((item) => (
                   <div
                     key={item.label}
-                    className={`rounded-xl border px-3 py-2 ${
+                    style={
                       item.done
-                        ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-50"
-                        : "border-white/10 bg-slate-950/70 text-slate-400"
-                    }`}
+                        ? {
+                            borderRadius: "var(--radius-md)",
+                            border: "0.5px solid var(--color-success-border)",
+                            background: "var(--color-success-subtle)",
+                            padding: "var(--space-xs) var(--space-sm)",
+                          }
+                        : {
+                            borderRadius: "var(--radius-md)",
+                            border: "var(--border-default)",
+                            background: "var(--color-elevated)",
+                            padding: "var(--space-xs) var(--space-sm)",
+                          }
+                    }
                   >
-                    <p className="text-xs font-black">{item.label}</p>
-                    <p className="mt-0.5 text-[10px] leading-4 opacity-70">{item.detail}</p>
+                    <p
+                      style={{
+                        fontSize: "var(--text-label)",
+                        fontWeight: "var(--weight-medium)",
+                        color: "var(--color-text-primary)",
+                        textTransform: "uppercase",
+                        letterSpacing: "var(--tracking-label)",
+                      }}
+                    >
+                      {item.label}
+                    </p>
+                    <p
+                      style={{
+                        marginTop: "1px",
+                        fontSize: "var(--text-label)",
+                        color: "var(--color-text-secondary)",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {item.detail}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -335,31 +453,73 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                   ? observationIds.includes(rule.id as ObservationId)
                   : dialogueIds.includes(rule.id as DialogueId);
               };
-              // Variáveis extra apenas em modo revisão; sem botão de toggle na sidebar
               const visibleMain  = WOUND_VARIABLES_MAIN.filter(isUnlocked);
               const visibleExtra = reviewMode ? WOUND_VARIABLES_EXTRA.filter(isUnlocked) : [];
               const anyVisible   = visibleMain.length > 0 || visibleExtra.length > 0;
 
               return (
-                <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300">Variáveis clínicas</p>
+                <div
+                  style={{
+                    background: "var(--color-surface)",
+                    border: "var(--border-default)",
+                    borderRadius: "var(--radius-lg)",
+                    padding: "var(--space-md)",
+                  }}
+                >
+                  <p className="text-label" style={{ color: "var(--color-warning)" }}>
+                    Variáveis clínicas
+                  </p>
                   {anyVisible ? (
-                    <div className="mt-2 space-y-1.5">
+                    <div
+                      style={{
+                        marginTop: "var(--space-sm)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "var(--space-xs)",
+                      }}
+                    >
                       {[...visibleMain, ...visibleExtra].map((key) => {
                         const value = session.variant.woundVariables![key] as number;
                         return (
                           <div
                             key={key}
-                            className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-950/60 px-2 py-1.5 text-[10px]"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              gap: "var(--space-sm)",
+                              borderRadius: "var(--radius-md)",
+                              border: "var(--border-default)",
+                              background: "var(--color-elevated)",
+                              padding: "2px var(--space-sm)",
+                            }}
                           >
-                            <span className="font-bold text-slate-300">{WOUND_VARIABLE_DISPLAY_LABELS[key]}</span>
-                            <span className="font-black text-white capitalize">{getWoundVariableLabel(key, value)}</span>
+                            <span
+                              style={{
+                                fontSize: "var(--text-label)",
+                                color: "var(--color-text-secondary)",
+                              }}
+                            >
+                              {WOUND_VARIABLE_DISPLAY_LABELS[key]}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "var(--text-label)",
+                                fontWeight: "var(--weight-medium)",
+                                color: "var(--color-text-primary)",
+                              }}
+                            >
+                              {getWoundVariableLabel(key, value)}
+                            </span>
                           </div>
                         );
                       })}
                     </div>
                   ) : (
-                    <p className="mt-2 text-[10px] leading-4 text-slate-400">
+                    <p
+                      className="text-body"
+                      style={{ marginTop: "var(--space-xs)", color: "var(--color-text-disabled)" }}
+                    >
                       Aparece à medida que observas e perguntas.
                     </p>
                   )}
@@ -369,24 +529,54 @@ export function CasePlayer({ templateId }: { templateId: string }) {
           </aside>
 
           {/* ── Área principal ──────────────────────────────────────────────── */}
-          <div className="flex flex-1 flex-col gap-3 overflow-hidden p-4">
-
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-sm)",
+              overflow: "hidden",
+              padding: "var(--space-md)",
+            }}
+          >
             {/* Banner contextual */}
-            <div className="shrink-0 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-300">Contexto atual</p>
-              <p className="mt-1.5 text-sm leading-5 text-slate-200">{session.variant.patientBanner}</p>
+            <div
+              style={{
+                flexShrink: 0,
+                background: "var(--color-surface)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-sm) var(--space-md)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-info)" }}>
+                Contexto atual
+              </p>
+              <p className="text-body" style={{ marginTop: "2px" }}>
+                {session.variant.patientBanner}
+              </p>
             </div>
 
             {/* Guidance bar */}
-            <div className="shrink-0 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300">
+            <div
+              style={{
+                flexShrink: 0,
+                background: "var(--color-elevated)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-sm) var(--space-md)",
+              }}
+            >
+              <p className="text-label" style={{ color: "var(--color-warning)" }}>
                 {reviewMode ? "Modo de revisão" : "O que ainda falta fechar"}
               </p>
-              <p className="mt-1.5 text-xs leading-5 text-slate-200">{stageGuidance}</p>
+              <p className="text-body" style={{ marginTop: "2px" }}>
+                {stageGuidance}
+              </p>
             </div>
 
-            {/* Painel do passo atual — cresce, scroll interno */}
-            <div className="min-h-0 flex-1 overflow-hidden">
+            {/* Painel do passo atual */}
+            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
               {step === "observacao" ? (
                 <CaseObservationPanel
                   session={session}
@@ -421,20 +611,32 @@ export function CasePlayer({ templateId }: { templateId: string }) {
             </div>
 
             {/* Barra de ações */}
-            <div className="shrink-0 flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
-              <p className="text-xs text-slate-300">
+            <div
+              style={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "var(--space-md)",
+                background: "var(--color-surface)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-sm) var(--space-md)",
+              }}
+            >
+              <p className="text-body" style={{ color: "var(--color-text-secondary)" }}>
                 {reviewMode
                   ? "Podes navegar pelas etapas para comparar a tua resolução com a resposta máxima desta variante."
                   : readyToSubmit
                     ? "Já reuniste informação suficiente para receber a avaliação final."
                     : "Conclui a observação, o diálogo, o plano e a técnica para desbloquear o resultado final."}
               </p>
-              <div className="flex shrink-0 gap-3">
+              <div style={{ display: "flex", flexShrink: 0, gap: "var(--space-sm)" }}>
                 {reviewMode ? (
                   <button
                     type="button"
                     onClick={() => setStep("resultado")}
-                    className="rounded-2xl border border-white/10 bg-slate-900 px-4 py-2 text-xs font-black text-white"
+                    className="btn btn-ghost"
                   >
                     Voltar ao resultado
                   </button>
@@ -444,11 +646,17 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                     type="button"
                     onClick={finishCase}
                     disabled={!readyToSubmit}
-                    className={`rounded-2xl px-4 py-2 text-xs font-black transition ${
-                      readyToSubmit
-                        ? "bg-sky-500 text-white hover:bg-sky-400"
-                        : "cursor-not-allowed bg-slate-700 text-slate-300"
-                    }`}
+                    className={readyToSubmit ? "btn btn-primary" : "btn"}
+                    style={
+                      !readyToSubmit
+                        ? {
+                            cursor: "not-allowed",
+                            opacity: 0.4,
+                            background: "var(--color-elevated)",
+                            color: "var(--color-text-secondary)",
+                          }
+                        : undefined
+                    }
                   >
                     Finalizar caso
                   </button>

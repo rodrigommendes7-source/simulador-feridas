@@ -287,14 +287,14 @@ export default function HomePage() {
             {[
               {
                 key: "Repetir",
-                title: studyPlan.retryCase?.title ?? "Completa o primeiro caso para gerar prioridades.",
+                title: studyPlan.retryCase?.title ?? "Completa o primeiro caso para gerar prioridades de repetição.",
                 body: studyPlan.retryCase
                   ? `Caso com média de ${studyPlan.retryCase.average}/100.`
                   : "",
               },
               {
                 key: "Rever",
-                title: studyPlan.reviewTopic?.title ?? "Completa o primeiro caso para gerar prioridades.",
+                title: studyPlan.reviewTopic?.title ?? "Os temas a reforçar surgem após as primeiras tentativas.",
                 body: studyPlan.reviewTopic
                   ? `Domínio atual: ${studyPlan.reviewTopic.masteryScore}/100.`
                   : "",

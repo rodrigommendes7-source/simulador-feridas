@@ -399,7 +399,7 @@ export default async function LearningPage({
                       className="text-label"
                       style={{ marginTop: "var(--space-sm)", color: "var(--color-warning)" }}
                     >
-                      Este caso obriga a aplicar {activeTopic.title.toLowerCase()} em contexto.
+                      Treina {activeTopic.title.toLowerCase()} neste contexto clínico.
                     </p>
                   </Link>
                 ))}

@@ -43,9 +43,9 @@ export function CaseObservationPanel({
     .filter((item) => item.detail);
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-      <div className="rounded-[28px] border border-white/10 bg-slate-950/60 p-4">
-        <div className="flex min-h-[380px] items-center justify-center overflow-hidden rounded-[24px] border border-white/10 bg-black/50 p-4">
+    <div className="grid h-full gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+      <div className="flex flex-col overflow-y-auto rounded-[28px] border border-white/10 bg-slate-950/60 p-4">
+        <div className="flex min-h-[240px] flex-1 items-center justify-center overflow-hidden rounded-[24px] border border-white/10 bg-black/50 p-4">
           {imageSeen ? (
             <Image
               src={session.template.imageSrc}
@@ -105,11 +105,11 @@ export function CaseObservationPanel({
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-4">
-        <p className="text-sm font-black uppercase tracking-[0.2em] text-sky-300">
+      <div className="flex flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/80 p-4">
+        <p className="shrink-0 text-sm font-black uppercase tracking-[0.2em] text-sky-300">
           Observação guiada
         </p>
-        <div className="mt-4 space-y-3">
+        <div className="mt-3 flex-1 space-y-2 overflow-y-auto">
           {session.template.observationDefinitions
             .filter((definition) => definition.id !== "imagem")
             .map((definition) => {
@@ -121,7 +121,7 @@ export function CaseObservationPanel({
                   key={definition.id}
                   type="button"
                   onClick={() => onReveal(definition.id)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-left text-sm font-bold transition ${reviewCardClass(
+                  className={`w-full rounded-2xl border px-4 py-2.5 text-left text-sm font-bold transition ${reviewCardClass(
                     status,
                     revealed
                   )}`}

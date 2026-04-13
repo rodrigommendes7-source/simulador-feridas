@@ -39,7 +39,7 @@ export function CaseTreatmentPlanner({
 
   // Toggle global: "nome_comercial" ou "substancia_ativa"
   const [labelMode, setLabelMode] = useState<"nome_comercial" | "substancia_ativa">(
-    "nome_comercial"
+    "substancia_ativa"
   );
 
   const groupedTreatments = useMemo(() => {
@@ -58,11 +58,19 @@ export function CaseTreatmentPlanner({
       return haystack.includes(deferredFilter.trim().toLowerCase());
     });
 
-    return visible.reduce<Record<string, typeof visible>>((acc, treatment) => {
+    const CATEGORY_ORDER = ["Apósito", "Líquidos", "Pomadas", "Outros"];
+    const grouped = visible.reduce<Record<string, typeof visible>>((acc, treatment) => {
       if (!acc[treatment.category]) acc[treatment.category] = [];
       acc[treatment.category].push(treatment);
       return acc;
     }, {});
+    // Ordena pelas 4 categorias fixas; categorias desconhecidas vão para o fim
+    return Object.fromEntries(
+      CATEGORY_ORDER
+        .filter((cat) => cat in grouped)
+        .concat(Object.keys(grouped).filter((cat) => !CATEGORY_ORDER.includes(cat)))
+        .map((cat) => [cat, grouped[cat]])
+    );
   }, [deferredFilter]);
 
   /** Retorna o rótulo do material conforme o modo seleccionado */
@@ -75,9 +83,9 @@ export function CaseTreatmentPlanner({
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-      <div className="rounded-[28px] border border-white/10 bg-slate-950/60 p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="grid h-full gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+      <div className="flex flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/60 p-4">
+        <div className="shrink-0 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.2em] text-sky-300">
               Plano terapêutico
@@ -122,13 +130,13 @@ export function CaseTreatmentPlanner({
         </div>
 
         {reviewMode ? (
-          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-sm leading-6 text-slate-200">
+          <div className="mt-3 shrink-0 rounded-2xl border border-white/10 bg-slate-900/70 p-3 text-xs leading-5 text-slate-200">
             Verde marca materiais ou técnicas corretos, vermelho mostra o que não devia ter sido
             escolhido e azul claro mostra o que faltou selecionar.
           </div>
         ) : null}
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 flex-1 space-y-3 overflow-y-auto">
           {Object.entries(groupedTreatments).map(([category, items]) => (
             <section
               key={category}
@@ -177,7 +185,7 @@ export function CaseTreatmentPlanner({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-col gap-3 overflow-y-auto">
         <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-4">
           <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-300">
             Materiais escolhidos

@@ -16,6 +16,12 @@ function difficultyLabel(value: string) {
   return "Avançado";
 }
 
+function difficultyBadgeClass(value: string) {
+  if (value === "introdutorio") return "badge badge-intro";
+  if (value === "intermedio") return "badge badge-inter";
+  return "badge badge-avance";
+}
+
 export default function CasesPage() {
   const cases = listCaseTemplates().filter((item) => item.status === "disponivel");
   const [history, setHistory] = useState<AttemptRecord[]>([]);
@@ -32,18 +38,31 @@ export default function CasesPage() {
   );
 
   return (
-    <main className="space-y-6">
-      <section className="rounded-[32px] border border-white/10 bg-slate-950/60 p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.28em] text-sky-300">
-          Resolver casos
-        </p>
-        <h1 className="mt-3 text-4xl font-black text-white">Casos clínicos</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
+    <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)" }}>
+
+      {/* ── Cabeçalho ─────────────────────────────────────────────────────── */}
+      <section
+        style={{
+          background: "var(--color-surface)",
+          border: "var(--border-default)",
+          borderRadius: "var(--radius-xl)",
+          padding: "var(--space-2xl)",
+        }}
+      >
+        <p className="text-label">Resolver casos</p>
+        <h1
+          className="mt-3 text-4xl"
+          style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
+        >
+          Casos clínicos
+        </h1>
+        <p className="text-body mt-3 max-w-3xl">
           Cada caso foi organizado como um percurso clínico único para treinar a leitura do leito,
           a priorização terapêutica e a coerência entre tratamentos, técnica e feedback.
         </p>
       </section>
 
+      {/* ── Grelha de casos ───────────────────────────────────────────────── */}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {cases.map((item) => {
           const progress = getCaseProgress(history, item.id);
@@ -53,50 +72,83 @@ export default function CasesPage() {
             <Link
               key={item.id}
               href={`/casos/${item.id}`}
-              className="rounded-[28px] border border-white/10 bg-slate-900/80 p-5 transition hover:border-sky-400"
+              className="card card-clickable"
+              style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}
             >
-              <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-sky-100">
-                  {item.shortTitle}
-                </span>
-                <span className="text-xs uppercase tracking-wide text-slate-400">
-                  {item.estimatedMinutes} min
-                </span>
+              {/* Topo: shortTitle + duração */}
+              <div className="flex items-center justify-between" style={{ gap: "var(--space-sm)" }}>
+                <span className="badge badge-info">{item.shortTitle}</span>
+                <span className="text-caption">{item.estimatedMinutes} min</span>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wide">
-                <span className="rounded-full border border-white/10 px-3 py-1 text-slate-200">
+              {/* Etiquetas de dificuldade e recomendação */}
+              <div className="flex flex-wrap" style={{ gap: "var(--space-xs)" }}>
+                <span className={difficultyBadgeClass(item.difficulty)}>
                   {difficultyLabel(item.difficulty)}
                 </span>
-                {recommended ? (
-                  <span className="rounded-full bg-amber-300 px-3 py-1 text-slate-950">
-                    Recomendado
-                  </span>
-                ) : null}
+                {recommended && (
+                  <span className="badge badge-inter">Recomendado</span>
+                )}
               </div>
 
-              <h2 className="mt-4 text-2xl font-black text-white">{item.title}</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-300">{item.description}</p>
-
-              <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-xs leading-6 text-slate-300">
-                <p className="font-black uppercase tracking-wide text-sky-300">Competências</p>
-                <p className="mt-2">{item.competencies}</p>
+              {/* Título e descrição */}
+              <div>
+                <h2
+                  className="text-2xl"
+                  style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
+                >
+                  {item.title}
+                </h2>
+                <p className="text-body mt-2">{item.description}</p>
               </div>
 
-              <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-sm text-slate-300">
+              {/* Competências */}
+              <div
+                style={{
+                  background: "var(--color-elevated)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "var(--space-md)",
+                }}
+              >
+                <p className="text-label" style={{ marginBottom: "var(--space-xs)" }}>
+                  Competências
+                </p>
+                <p className="text-body">{item.competencies}</p>
+              </div>
+
+              {/* Progresso */}
+              <div
+                style={{
+                  background: "var(--color-elevated)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "var(--space-md)",
+                  marginTop: "auto",
+                }}
+              >
                 {progress.hasCompleted ? (
                   <>
-                    <p className="font-black text-white">
+                    <p
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--text-mono)",
+                        fontWeight: "var(--weight-medium)",
+                        color: "var(--color-accent)",
+                      }}
+                    >
                       Melhor {progress.bestScore}/100 · Média {progress.averageScore}/100
                     </p>
-                    <p className="mt-2 leading-6">
+                    <p className="text-body mt-2">
                       {progress.attempts} tentativa(s) registada(s).
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="font-black text-white">Ainda não tentado</p>
-                    <p className="mt-2 leading-6">
+                    <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)", fontSize: "var(--text-h3)" }}>
+                      Ainda não tentado
+                    </p>
+                    <p className="text-body mt-2">
                       Bom caso para iniciar ou diversificar o treino individual.
                     </p>
                   </>

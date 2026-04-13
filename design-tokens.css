@@ -59,13 +59,13 @@
   /* -----------------------------------------------------------
      TIPOGRAFIA — Tamanhos
   ----------------------------------------------------------- */
-  --text-h1:      22px; /* Título de página */
-  --text-h2:      17px; /* Título de secção */
-  --text-h3:      14px; /* Título de card */
-  --text-body:    13px; /* Corpo de texto */
-  --text-label:   11px; /* Labels, eyebrows, captions */
-  --text-badge:   10px; /* Badges, tags */
-  --text-mono:    12px; /* Valores numéricos, tokens */
+  --text-h1:      28px; /* Título de página */
+  --text-h2:      21px; /* Título de secção */
+  --text-h3:      16px; /* Título de card */
+  --text-body:    15px; /* Corpo de texto */
+  --text-label:   12px; /* Labels, eyebrows, captions */
+  --text-badge:   11px; /* Badges, tags */
+  --text-mono:    14px; /* Valores numéricos, tokens */
 
   /* -----------------------------------------------------------
      TIPOGRAFIA — Pesos (apenas 2)

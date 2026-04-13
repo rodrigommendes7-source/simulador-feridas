@@ -21,6 +21,12 @@ function difficultyLabel(value: string) {
   return "Avançado";
 }
 
+function difficultyBadgeClass(value: string) {
+  if (value === "introdutorio") return "badge badge-intro";
+  if (value === "intermedio") return "badge badge-inter";
+  return "badge badge-avance";
+}
+
 export default function HomePage() {
   const [history, setHistory] = useState<AttemptRecord[]>([]);
   const cases = listCaseTemplates().filter((item) => item.status === "disponivel");
@@ -40,67 +46,110 @@ export default function HomePage() {
   const nextTopic = studyPlan.reviewTopic ?? weakestTopic;
 
   return (
-    <main className="space-y-8">
-      <section className="grid gap-6 rounded-[36px] border border-white/10 bg-slate-950/60 p-8 lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
+    <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-3xl)" }}>
+
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section
+        className="grid lg:grid-cols-[1.1fr_0.9fr]"
+        style={{
+          gap: "var(--space-2xl)",
+          background: "var(--color-surface)",
+          border: "var(--border-default)",
+          borderRadius: "var(--radius-xl)",
+          padding: "var(--space-3xl)",
+        }}
+      >
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-amber-300">
-            Painel de aprendizagem
-          </p>
-          <h1 className="mt-4 max-w-4xl text-5xl font-black leading-tight text-white md:text-6xl">
+          <p className="text-label">Painel de aprendizagem</p>
+          <h1
+            className="mt-4 max-w-4xl text-4xl leading-tight md:text-5xl"
+            style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
+          >
             Aprende por repetição, foco e comparação entre tentativas.
           </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
+          <p className="text-body mt-6 max-w-3xl" style={{ lineHeight: "var(--leading-loose)" }}>
             O simulador passa a destacar o que rever, que caso repetir e qual o melhor próximo
             passo para consolidar o raciocínio clínico no tratamento de feridas.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap" style={{ gap: "var(--space-md)" }}>
             <Link
               href={continueTarget ? `/casos/${continueTarget.nextCaseId}` : "/casos"}
-              className="rounded-2xl bg-sky-500 px-6 py-3 text-sm font-black text-white"
+              className="btn btn-primary btn-lg"
             >
               {continueTarget ? "Continuar aprendizagem" : "Começar pelo primeiro caso"}
             </Link>
             <Link
               href={nextTopic ? `/aprender?topic=${nextTopic.topicId}&source=home` : "/aprender"}
-              className="rounded-2xl border border-white/10 bg-slate-900 px-6 py-3 text-sm font-black text-white"
+              className="btn btn-secondary btn-lg"
             >
               Rever tema prioritário
             </Link>
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        {/* Estatísticas */}
+        <div className="grid md:grid-cols-2" style={{ gap: "var(--space-md)", alignContent: "start" }}>
           {[
             ["Casos concluídos", getCasesCompletedCount(history)],
             ["Melhor pontuação", getBestScore(history)],
             ["Pontuação recente", getRecentBestScore(history)],
             ["Temas em reforço", topicMastery.length],
           ].map(([label, value]) => (
-            <div key={label as string} className="rounded-3xl border border-white/10 bg-slate-900/80 p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">{label}</p>
-              <p className="mt-2 text-3xl font-black text-white">{value}</p>
+            <div
+              key={label as string}
+              style={{
+                background: "var(--color-elevated)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-lg)",
+              }}
+            >
+              <p className="text-label">{label}</p>
+              <p
+                className="mt-2 text-3xl"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: "var(--weight-medium)",
+                  color: "var(--color-accent)",
+                }}
+              >
+                {value}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-3">
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">
-            Continuar aprendizagem
-          </p>
+      {/* ── Continuar / Temas / Casos recomendados ────────────────────────── */}
+      <section className="grid xl:grid-cols-3" style={{ gap: "var(--space-md)" }}>
+
+        {/* Continuar aprendizagem */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-xl)",
+            padding: "var(--space-2xl)",
+          }}
+        >
+          <p className="text-label">Continuar aprendizagem</p>
           {continueTarget ? (
             <>
-              <h2 className="mt-3 text-2xl font-black text-white">{continueTarget.nextCaseTitle}</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-300">
+              <h2
+                className="mt-3 text-2xl"
+                style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
+              >
+                {continueTarget.nextCaseTitle}
+              </h2>
+              <p className="text-body mt-3">
                 Última tentativa: {continueTarget.lastCaseTitle}.
               </p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
+              <p className="text-body mt-2">
                 Tema a rever antes da próxima ronda:{" "}
                 {continueTarget.reviewTopicId ? (
                   <Link
                     href={`/aprender?topic=${continueTarget.reviewTopicId}&source=history`}
-                    className="font-black text-sky-200 underline"
+                    style={{ color: "var(--color-accent)", fontWeight: "var(--weight-medium)", textDecoration: "underline" }}
                   >
                     {nextTopic?.title ?? continueTarget.reviewTopicId}
                   </Link>
@@ -108,149 +157,194 @@ export default function HomePage() {
                   "decisão clínica"
                 )}
               </p>
-              <Link
-                href={`/casos/${continueTarget.nextCaseId}`}
-                className="mt-4 inline-flex rounded-xl bg-sky-500 px-4 py-2 text-sm font-black text-white"
-              >
+              <Link href={`/casos/${continueTarget.nextCaseId}`} className="btn btn-primary mt-4">
                 Abrir próximo caso
               </Link>
             </>
           ) : (
             <>
-              <h2 className="mt-3 text-2xl font-black text-white">Primeiro percurso clínico</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-300">
+              <h2
+                className="mt-3 text-2xl"
+                style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
+              >
+                Primeiro percurso clínico
+              </h2>
+              <p className="text-body mt-3">
                 Ainda não existem tentativas guardadas. Começa pelos casos introdutórios e usa o
                 feedback para construir uma rotina de observação e decisão.
               </p>
-              <Link
-                href={`/casos/${cases[0]?.id ?? "1"}`}
-                className="mt-4 inline-flex rounded-xl bg-sky-500 px-4 py-2 text-sm font-black text-white"
-              >
+              <Link href={`/casos/${cases[0]?.id ?? "1"}`} className="btn btn-primary mt-4">
                 Iniciar primeiro caso
               </Link>
             </>
           )}
         </div>
 
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
-            Temas a reforçar
-          </p>
+        {/* Temas a reforçar */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-xl)",
+            padding: "var(--space-2xl)",
+          }}
+        >
+          <p className="text-label">Temas a reforçar</p>
           {topicMastery.length > 0 ? (
-            <div className="mt-4 space-y-3">
+            <div className="mt-4" style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
               {topicMastery.slice(0, 3).map((topic) => (
                 <Link
                   key={topic.topicId}
                   href={`/aprender?topic=${topic.topicId}&source=mastery`}
-                  className="block rounded-2xl border border-white/10 bg-slate-950/70 p-4 transition hover:border-sky-400"
+                  className="card card-clickable block"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-black text-white">{topic.title}</p>
-                    <span className="text-sm font-black text-amber-200">{topic.masteryScore}/100</span>
+                  <div className="flex items-center justify-between" style={{ gap: "var(--space-md)" }}>
+                    <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                      {topic.title}
+                    </p>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--text-mono)",
+                        color: "var(--color-accent)",
+                      }}
+                    >
+                      {topic.masteryScore}/100
+                    </span>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                  <p className="text-body mt-2">
                     Recomendado {topic.recommendationCount} vez(es), com {topic.weakSignalCount} sinal(is) de fragilidade.
                   </p>
                 </Link>
               ))}
             </div>
           ) : (
-            <p className="mt-4 text-sm leading-6 text-slate-300">
+            <p className="text-body mt-4">
               O reforço por tema vai aparecer aqui depois das primeiras tentativas.
             </p>
           )}
         </div>
 
-        <div className="rounded-[28px] border border-white/10 bg-slate-900/80 p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
-            Casos recomendados
-          </p>
+        {/* Casos recomendados */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-xl)",
+            padding: "var(--space-2xl)",
+          }}
+        >
+          <p className="text-label">Casos recomendados</p>
           {recommendedCases.length > 0 ? (
-            <div className="mt-4 space-y-3">
+            <div className="mt-4" style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
               {recommendedCases.slice(0, 3).map((item) => (
                 <Link
                   key={item.templateId}
                   href={`/casos/${item.templateId}`}
-                  className="block rounded-2xl border border-white/10 bg-slate-950/70 p-4 transition hover:border-sky-400"
+                  className="card card-clickable block"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-black text-white">{item.title}</p>
-                    <span className="text-xs uppercase tracking-wide text-slate-400">
+                  <div className="flex items-center justify-between" style={{ gap: "var(--space-md)" }}>
+                    <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                      {item.title}
+                    </p>
+                    <span className={difficultyBadgeClass(item.difficulty)}>
                       {difficultyLabel(item.difficulty)}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">{item.reason}</p>
+                  <p className="text-body mt-2">{item.reason}</p>
                 </Link>
               ))}
             </div>
           ) : (
-            <p className="mt-4 text-sm leading-6 text-slate-300">
+            <p className="text-body mt-4">
               Depois de alguns casos, este bloco passa a sugerir as melhores próximas tentativas.
             </p>
           )}
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-[32px] border border-white/10 bg-slate-950/60 p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-sky-300">
-            Plano de estudo pessoal
-          </p>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Repetir</p>
-              <p className="mt-2 font-black text-white">
-                {studyPlan.retryCase?.title ?? "Ainda sem prioridade definida"}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                {studyPlan.retryCase
+      {/* ── Plano de estudo + Biblioteca ──────────────────────────────────── */}
+      <section className="grid lg:grid-cols-[1.1fr_0.9fr]" style={{ gap: "var(--space-md)" }}>
+
+        {/* Plano de estudo pessoal */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-xl)",
+            padding: "var(--space-2xl)",
+          }}
+        >
+          <p className="text-label">Plano de estudo pessoal</p>
+          <div className="mt-5 grid md:grid-cols-3" style={{ gap: "var(--space-md)" }}>
+            {[
+              {
+                key: "Repetir",
+                title: studyPlan.retryCase?.title ?? "Ainda sem prioridade definida",
+                body: studyPlan.retryCase
                   ? `Caso com média de ${studyPlan.retryCase.average}/100.`
-                  : "As prioridades de repetição aparecem depois das primeiras tentativas."}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Rever</p>
-              <p className="mt-2 font-black text-white">
-                {studyPlan.reviewTopic?.title ?? "Tema ainda por identificar"}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                {studyPlan.reviewTopic
+                  : "As prioridades de repetição aparecem depois das primeiras tentativas.",
+              },
+              {
+                key: "Rever",
+                title: studyPlan.reviewTopic?.title ?? "Tema ainda por identificar",
+                body: studyPlan.reviewTopic
                   ? `Domínio atual: ${studyPlan.reviewTopic.masteryScore}/100.`
-                  : "Os temas a reforçar surgem quando houver histórico local."}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Tentar</p>
-              <p className="mt-2 font-black text-white">
-                {studyPlan.followUpCase?.title ?? "Sem sugestão ainda"}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                {studyPlan.followUpCase?.reason ?? "A próxima tentativa recomendada vai aparecer aqui."}
-              </p>
-            </div>
+                  : "Os temas a reforçar surgem quando houver histórico local.",
+              },
+              {
+                key: "Tentar",
+                title: studyPlan.followUpCase?.title ?? "Sem sugestão ainda",
+                body: studyPlan.followUpCase?.reason ?? "A próxima tentativa recomendada vai aparecer aqui.",
+              },
+            ].map(({ key, title, body }) => (
+              <div
+                key={key}
+                style={{
+                  background: "var(--color-elevated)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "var(--space-lg)",
+                }}
+              >
+                <p className="text-caption" style={{ textTransform: "uppercase", letterSpacing: "var(--tracking-label)" }}>
+                  {key}
+                </p>
+                <p className="text-h3 mt-2">{title}</p>
+                <p className="text-body mt-2">{body}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="rounded-[32px] border border-white/10 bg-slate-950/60 p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-amber-300">
-            Biblioteca clínica
-          </p>
-          <h2 className="mt-3 text-3xl font-black text-white">Aprender com intenção</h2>
-          <p className="mt-3 text-sm leading-7 text-slate-300">
+        {/* Biblioteca clínica */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-xl)",
+            padding: "var(--space-2xl)",
+          }}
+        >
+          <p className="text-label">Biblioteca clínica</p>
+          <h2
+            className="mt-3 text-3xl"
+            style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
+          >
+            Aprender com intenção
+          </h2>
+          <p className="text-body mt-3">
             Cada tema passa a funcionar como apoio direto a uma decisão do caso: quando considerar,
             quando evitar, erros frequentes, materiais relacionados e casos em que esse tema pesa mais.
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap" style={{ gap: "var(--space-md)" }}>
             <Link
               href={nextTopic ? `/aprender?topic=${nextTopic.topicId}&source=home` : "/aprender"}
-              className="rounded-2xl bg-amber-300 px-5 py-3 text-sm font-black text-slate-950"
+              className="btn btn-primary"
             >
               Abrir tema prioritário
             </Link>
-            <Link
-              href="/historico"
-              className="rounded-2xl border border-white/10 bg-slate-900 px-5 py-3 text-sm font-black text-white"
-            >
+            <Link href="/historico" className="btn btn-secondary">
               Ver histórico detalhado
             </Link>
           </div>

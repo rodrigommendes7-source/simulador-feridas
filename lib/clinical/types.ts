@@ -54,7 +54,7 @@ export type MaterialClassification = "correto" | "parcial" | "incorreto";
 export type MaterialScore = {
   materialId: string;
   label: string;
-  nome_comercial?: string;
+  nome_comercial?: string | null;
   substancia_ativa?: string;
   classification: MaterialClassification;
   /** 1.0 = correto  |  0.5 = parcial  |  0 = incorreto  (+ 0.25 se hasBonus) */
@@ -157,12 +157,12 @@ export type TreatmentDefinition = {
   evidenceRefs: string[];
   learningTopicIds: string[];
   uiTags: string[];
-  /** Nome comercial de referência (ex: "Aquacel®") */
-  nome_comercial?: string;
+  /** Nome comercial de referência (ex: "Aquacel®"); null quando não existe nome comercial relevante */
+  nome_comercial?: string | null;
   /** Substância ativa ou denominação comum (ex: "Carboximetilcelulose sódica") */
   substancia_ativa?: string;
   /** Categoria para o sistema de avaliação por material */
-  categoria_clinica?: "solutos" | "apositos" | "pomadas";
+  categoria_clinica?: "apositos" | "liquidos" | "pomadas" | "outros";
   /** Regras clínicas para avaliação correto/parcial/incorreto */
   regras?: MaterialRules;
 };

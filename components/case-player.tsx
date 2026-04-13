@@ -22,6 +22,23 @@ import {
   WOUND_VARIABLES_MAIN,
   getWoundVariableLabel,
 } from "@/lib/clinical/material-evaluation";
+import type { WoundVariables } from "@/lib/clinical";
+
+// Mapeia cada variável clínica à observação ou pergunta de diálogo que a desvenda
+const VARIABLE_UNLOCK_MAP: Record<keyof WoundVariables, { type: "observation" | "dialogue"; id: string }> = {
+  exsudado:          { type: "observation", id: "exsudado" },
+  infeccao:          { type: "observation", id: "tecidos" },
+  tecido:            { type: "observation", id: "tecidos" },
+  odor:              { type: "observation", id: "cheiro" },
+  humidade:          { type: "observation", id: "exsudado" },
+  profundidade:      { type: "observation", id: "dimensoes" },
+  bordos:            { type: "observation", id: "imagem" },
+  pele_perilesional: { type: "observation", id: "pele_perilesional" },
+  dor:               { type: "dialogue",    id: "dor" },
+  hemorragia:        { type: "observation", id: "imagem" },
+  etiologia:         { type: "dialogue",    id: "duracao" },
+  perfusao:          { type: "dialogue",    id: "mobilidade" },
+};
 import { CaseDialoguePanel } from "@/components/case-player/case-dialogue-panel";
 import { CaseIntro } from "@/components/case-player/case-intro";
 import { CaseObservationPanel } from "@/components/case-player/case-observation-panel";
@@ -229,41 +246,45 @@ export function CasePlayer({ templateId }: { templateId: string }) {
   ];
 
   return (
-    <main className="space-y-6">
+    <main className="-mx-6 -my-8 flex h-[calc(100vh-52px)] overflow-hidden">
       {!started ? (
-        <CaseIntro session={session} onStart={startCase} />
+        <div className="h-full w-full overflow-y-auto">
+          <CaseIntro session={session} onStart={startCase} />
+        </div>
       ) : step === "resultado" ? (
-        <CaseResultSummary
-          session={session}
-          evaluation={evaluation}
-          previousBestScore={previousBestScore}
-          onReview={openReview}
-          onReset={resetCase}
-        />
+        <div className="h-full w-full overflow-y-auto">
+          <CaseResultSummary
+            session={session}
+            evaluation={evaluation}
+            previousBestScore={previousBestScore}
+            onReview={openReview}
+            onReset={resetCase}
+          />
+        </div>
       ) : (
-        <section className="grid gap-4 xl:grid-cols-[280px_1fr]">
-          <aside className="rounded-[32px] border border-white/10 bg-slate-950/60 p-4">
-            <div className="rounded-[24px] border border-white/10 bg-slate-900/80 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-sky-300">
-                Caso ativo
-              </p>
-              <h1 className="mt-3 text-3xl font-black text-white">{session.template.shortTitle}</h1>
-              <p className="mt-3 text-sm leading-6 text-slate-300">{session.template.title}</p>
-              <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wide">
-                <span className="rounded-full bg-sky-500/20 px-3 py-1 text-sky-100">
+        <>
+          {/* ── Sidebar ─────────────────────────────────────────────────────── */}
+          <aside className="w-56 shrink-0 space-y-3 overflow-y-auto border-r border-white/10 p-3">
+
+            {/* Identidade do caso */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-300">Caso ativo</p>
+              <h1 className="mt-2 text-lg font-black text-white">{session.template.shortTitle}</h1>
+              <p className="mt-1 text-xs leading-5 text-slate-300">{session.template.title}</p>
+              <div className="mt-2 flex flex-wrap gap-1 text-[10px] font-bold uppercase tracking-wide">
+                <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-sky-100">
                   {session.template.difficulty}
                 </span>
-                <span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-200">
                   {session.template.estimatedMinutes} min
                 </span>
               </div>
             </div>
 
-            <div className="mt-4 rounded-[24px] border border-white/10 bg-slate-900/80 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-300">
-                Navegação
-              </p>
-              <div className="mt-4 space-y-2">
+            {/* Navegação */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300">Navegação</p>
+              <div className="mt-2 space-y-1.5">
                 {[
                   ["observacao", "Observação"],
                   ["dialogo", "Diálogo"],
@@ -273,7 +294,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                     key={id}
                     type="button"
                     onClick={() => setStep(id as Step)}
-                    className={`w-full rounded-2xl border px-4 py-3 text-left text-sm font-black transition ${
+                    className={`w-full rounded-xl border px-3 py-2 text-left text-xs font-black transition ${
                       step === id
                         ? "border-sky-400 bg-sky-500/10 text-sky-100"
                         : "border-white/10 bg-slate-950/70 text-slate-200 hover:border-sky-400"
@@ -285,144 +306,135 @@ export function CasePlayer({ templateId }: { templateId: string }) {
               </div>
             </div>
 
-            <div className="mt-4 rounded-[24px] border border-white/10 bg-slate-900/80 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-sky-300">
-                Progresso
-              </p>
-              <div className="mt-4 space-y-3">
+            {/* Progresso */}
+            <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-300">Progresso</p>
+              <div className="mt-2 space-y-1.5">
                 {progressChecklist.map((item) => (
                   <div
                     key={item.label}
-                    className={`rounded-2xl border p-3 ${
+                    className={`rounded-xl border px-3 py-2 ${
                       item.done
                         ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-50"
-                        : "border-white/10 bg-slate-950/70 text-slate-300"
+                        : "border-white/10 bg-slate-950/70 text-slate-400"
                     }`}
                   >
-                    <p className="font-black">{item.label}</p>
-                    <p className="mt-1 text-xs leading-5">{item.detail}</p>
+                    <p className="text-xs font-black">{item.label}</p>
+                    <p className="mt-0.5 text-[10px] leading-4 opacity-70">{item.detail}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Painel de variáveis clínicas numéricas */}
-            {session.variant.woundVariables ? (
-              <div className="mt-4 rounded-[24px] border border-white/10 bg-slate-900/80 p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-300">
-                  Variáveis clínicas
-                </p>
-                <div className="mt-3 space-y-2">
-                  {/* Variáveis principais — sempre visíveis */}
-                  {WOUND_VARIABLES_MAIN.map((key) => {
-                    const value = session.variant.woundVariables![key] as number;
-                    return (
-                      <div
-                        key={key}
-                        className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs"
-                      >
-                        <span className="font-bold text-slate-300">
-                          {WOUND_VARIABLE_DISPLAY_LABELS[key]}
-                        </span>
-                        <span className="font-black text-white capitalize">
-                          {getWoundVariableLabel(key, value)}
-                        </span>
-                      </div>
-                    );
-                  })}
+            {/* Variáveis clínicas — desbloqueadas progressivamente */}
+            {session.variant.woundVariables ? (() => {
+              const isUnlocked = (key: keyof WoundVariables) => {
+                if (reviewMode) return true;
+                const rule = VARIABLE_UNLOCK_MAP[key];
+                return rule.type === "observation"
+                  ? observationIds.includes(rule.id as ObservationId)
+                  : dialogueIds.includes(rule.id as DialogueId);
+              };
+              // Variáveis extra apenas em modo revisão; sem botão de toggle na sidebar
+              const visibleMain  = WOUND_VARIABLES_MAIN.filter(isUnlocked);
+              const visibleExtra = reviewMode ? WOUND_VARIABLES_EXTRA.filter(isUnlocked) : [];
+              const anyVisible   = visibleMain.length > 0 || visibleExtra.length > 0;
 
-                  {/* Variáveis secundárias — expandíveis */}
-                  {showExtraVars &&
-                    WOUND_VARIABLES_EXTRA.map((key) => {
-                      const value = session.variant.woundVariables![key] as number;
-                      return (
-                        <div
-                          key={key}
-                          className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-xs"
-                        >
-                          <span className="text-slate-400">
-                            {WOUND_VARIABLE_DISPLAY_LABELS[key]}
-                          </span>
-                          <span className="font-semibold text-slate-200 capitalize">
-                            {getWoundVariableLabel(key, value)}
-                          </span>
-                        </div>
-                      );
-                    })}
-
-                  <button
-                    type="button"
-                    onClick={() => setShowExtraVars((prev) => !prev)}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-xs font-bold text-sky-300 transition hover:border-sky-400"
-                  >
-                    {showExtraVars ? "Ocultar detalhes" : "Ver mais detalhes"}
-                  </button>
+              return (
+                <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300">Variáveis clínicas</p>
+                  {anyVisible ? (
+                    <div className="mt-2 space-y-1.5">
+                      {[...visibleMain, ...visibleExtra].map((key) => {
+                        const value = session.variant.woundVariables![key] as number;
+                        return (
+                          <div
+                            key={key}
+                            className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-950/60 px-2 py-1.5 text-[10px]"
+                          >
+                            <span className="font-bold text-slate-300">{WOUND_VARIABLE_DISPLAY_LABELS[key]}</span>
+                            <span className="font-black text-white capitalize">{getWoundVariableLabel(key, value)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-[10px] leading-4 text-slate-400">
+                      Aparece à medida que observas e perguntas.
+                    </p>
+                  )}
                 </div>
-              </div>
-            ) : null}
+              );
+            })() : null}
           </aside>
 
-          <div className="space-y-4">
-            <div className="rounded-[28px] border border-white/10 bg-slate-900/80 px-5 py-4">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-sky-300">
-                Contexto atual
-              </p>
-              <p className="mt-3 text-sm leading-6 text-slate-200">{session.variant.patientBanner}</p>
+          {/* ── Área principal ──────────────────────────────────────────────── */}
+          <div className="flex flex-1 flex-col gap-3 overflow-hidden p-4">
+
+            {/* Banner contextual */}
+            <div className="shrink-0 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-300">Contexto atual</p>
+              <p className="mt-1.5 text-sm leading-5 text-slate-200">{session.variant.patientBanner}</p>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-slate-950/60 px-5 py-4">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-300">
+            {/* Guidance bar */}
+            <div className="shrink-0 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300">
                 {reviewMode ? "Modo de revisão" : "O que ainda falta fechar"}
               </p>
-              <p className="mt-3 text-sm leading-6 text-slate-200">{stageGuidance}</p>
+              <p className="mt-1.5 text-xs leading-5 text-slate-200">{stageGuidance}</p>
             </div>
 
-            {step === "observacao" ? (
-              <CaseObservationPanel
-                session={session}
-                observationIds={observationIds}
-                reviewStatusById={reviewMode ? review.observationStatus : undefined}
-                reviewMode={reviewMode}
-                onReveal={reviewMode ? () => undefined : revealObservation}
-              />
-            ) : step === "dialogo" ? (
-              <CaseDialoguePanel
-                session={session}
-                dialogueIds={dialogueIds}
-                activeDialogueId={activeDialogueId}
-                reviewStatusById={reviewMode ? review.dialogueStatus : undefined}
-                reviewMode={reviewMode}
-                onAsk={askDialogue}
-              />
-            ) : (
-              <CaseTreatmentPlanner
-                session={session}
-                treatmentIds={treatmentIds}
-                applicationIds={applicationIds}
-                treatmentStatusById={reviewMode ? review.treatmentStatus : undefined}
-                applicationStatusById={reviewMode ? review.applicationStatus : undefined}
-                reviewMode={reviewMode}
-                filter={filter}
-                onFilterChange={setFilter}
-                onToggleTreatment={toggleTreatment}
-                onToggleApplication={toggleApplication}
-              />
-            )}
+            {/* Painel do passo atual — cresce, scroll interno */}
+            <div className="min-h-0 flex-1 overflow-hidden">
+              {step === "observacao" ? (
+                <CaseObservationPanel
+                  session={session}
+                  observationIds={observationIds}
+                  reviewStatusById={reviewMode ? review.observationStatus : undefined}
+                  reviewMode={reviewMode}
+                  onReveal={reviewMode ? () => undefined : revealObservation}
+                />
+              ) : step === "dialogo" ? (
+                <CaseDialoguePanel
+                  session={session}
+                  dialogueIds={dialogueIds}
+                  activeDialogueId={activeDialogueId}
+                  reviewStatusById={reviewMode ? review.dialogueStatus : undefined}
+                  reviewMode={reviewMode}
+                  onAsk={askDialogue}
+                />
+              ) : (
+                <CaseTreatmentPlanner
+                  session={session}
+                  treatmentIds={treatmentIds}
+                  applicationIds={applicationIds}
+                  treatmentStatusById={reviewMode ? review.treatmentStatus : undefined}
+                  applicationStatusById={reviewMode ? review.applicationStatus : undefined}
+                  reviewMode={reviewMode}
+                  filter={filter}
+                  onFilterChange={setFilter}
+                  onToggleTreatment={toggleTreatment}
+                  onToggleApplication={toggleApplication}
+                />
+              )}
+            </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] border border-white/10 bg-slate-950/60 px-5 py-4">
-              <p className="text-sm text-slate-300">
+            {/* Barra de ações */}
+            <div className="shrink-0 flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+              <p className="text-xs text-slate-300">
                 {reviewMode
                   ? "Podes navegar pelas etapas para comparar a tua resolução com a resposta máxima desta variante."
                   : readyToSubmit
                     ? "Já reuniste informação suficiente para receber a avaliação final."
                     : "Conclui a observação, o diálogo, o plano e a técnica para desbloquear o resultado final."}
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex shrink-0 gap-3">
                 {reviewMode ? (
                   <button
                     type="button"
                     onClick={() => setStep("resultado")}
-                    className="rounded-2xl border border-white/10 bg-slate-900 px-5 py-3 text-sm font-black text-white"
+                    className="rounded-2xl border border-white/10 bg-slate-900 px-4 py-2 text-xs font-black text-white"
                   >
                     Voltar ao resultado
                   </button>
@@ -432,7 +444,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                     type="button"
                     onClick={finishCase}
                     disabled={!readyToSubmit}
-                    className={`rounded-2xl px-5 py-3 text-sm font-black transition ${
+                    className={`rounded-2xl px-4 py-2 text-xs font-black transition ${
                       readyToSubmit
                         ? "bg-sky-500 text-white hover:bg-sky-400"
                         : "cursor-not-allowed bg-slate-700 text-slate-300"
@@ -444,7 +456,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
               </div>
             </div>
           </div>
-        </section>
+        </>
       )}
     </main>
   );

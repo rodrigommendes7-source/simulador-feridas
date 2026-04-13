@@ -1,10 +1,11 @@
-@import "tailwindcss";
-
-/* Google Fonts — Inter (400,500) + JetBrains Mono (400) */
+/* Google Fonts — deve vir antes de qualquer outro @import */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap");
 
 /* Design tokens — variáveis CSS, reset, e classes de componentes */
 @import "../design-tokens.css";
+
+/* Tailwind — por último, para as utilitárias sobreporem os componentes em conflito */
+@import "tailwindcss";
 
 /* Mapeamento Tailwind — expõe tokens como utilitários bg-*, text-* */
 @theme inline {

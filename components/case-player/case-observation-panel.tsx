@@ -1,25 +1,6 @@
 import Image from "next/image";
 import type { CaseSession, ObservationId, ReviewStatus } from "@/lib/clinical";
 
-function reviewButtonStyle(status: ReviewStatus, selected: boolean): React.CSSProperties {
-  const base: React.CSSProperties = {
-    width: "100%",
-    textAlign: "left",
-    justifyContent: "flex-start",
-    padding: "var(--space-sm) var(--space-md)",
-    borderRadius: "var(--radius-lg)",
-    fontSize: "var(--text-body)",
-    fontWeight: "var(--weight-medium)",
-    cursor: "pointer",
-    border: "0.5px solid",
-    transition: "opacity 0.15s",
-  };
-  if (status === "correct") return { ...base, background: "var(--color-success-subtle)", borderColor: "var(--color-success-border)", color: "var(--color-text-primary)" };
-  if (status === "incorrect") return { ...base, background: "var(--color-error-subtle)", borderColor: "var(--color-error-border)", color: "var(--color-text-primary)" };
-  if (status === "missed") return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)", color: "var(--color-text-primary)" };
-  if (selected) return { ...base, background: "var(--color-info-subtle)", borderColor: "var(--color-info-border)", color: "var(--color-text-primary)" };
-  return { ...base, background: "var(--color-elevated)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" };
-}
 
 function reviewDetailStyle(status: ReviewStatus | null): React.CSSProperties {
   const base: React.CSSProperties = {
@@ -46,25 +27,6 @@ export function CaseObservationPanel({
   onReveal: (id: ObservationId) => void;
 }) {
   const imageSeen = reviewMode || observationIds.includes("imagem");
-
-  const visibleObservationIds = new Set(
-    session.template.observationDefinitions
-      .filter(
-        (definition) =>
-          definition.id !== "imagem" &&
-          (observationIds.includes(definition.id) || reviewStatusById?.[definition.id] === "missed")
-      )
-      .map((definition) => definition.id)
-  );
-
-  const revealedObservations = session.template.observationDefinitions
-    .filter((definition) => visibleObservationIds.has(definition.id))
-    .map((definition) => ({
-      definition,
-      detail: session.variant.observationDetails[definition.id],
-      status: reviewStatusById?.[definition.id] ?? null,
-    }))
-    .filter((item) => item.detail);
 
   return (
     <div
@@ -149,7 +111,7 @@ export function CaseObservationPanel({
         ) : null}
       </div>
 
-      {/* Coluna direita — botões + detalhes revelados por baixo */}
+      {/* Coluna direita — grelha de slots de observação */}
       <div
         className="card"
         style={{
@@ -162,48 +124,62 @@ export function CaseObservationPanel({
       >
         <p className="text-label">Observação guiada</p>
 
-        {/* Botões de observação */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "var(--space-sm)",
+            flex: 1,
+          }}
+        >
           {session.template.observationDefinitions
             .filter((def) => def.id !== "imagem")
             .map((def) => {
-              const revealed = observationIds.includes(def.id);
+              const revealed =
+                observationIds.includes(def.id) ||
+                reviewStatusById?.[def.id] === "missed";
               const status = reviewStatusById?.[def.id] ?? null;
+              const detail = session.variant.observationDetails[def.id];
+
+              if (revealed && detail) {
+                return (
+                  <div
+                    key={def.id}
+                    style={reviewDetailStyle(status)}
+                  >
+                    <p className="text-label" style={{ color: "var(--color-info)" }}>
+                      {def.label}
+                    </p>
+                    <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                      {detail.detail}
+                    </p>
+                  </div>
+                );
+              }
+
               return (
                 <button
                   key={def.id}
                   type="button"
                   onClick={() => onReveal(def.id)}
-                  style={reviewButtonStyle(status, revealed)}
+                  style={{
+                    borderRadius: "var(--radius-lg)",
+                    padding: "var(--space-md)",
+                    border: "0.5px solid var(--color-border)",
+                    background: "var(--color-elevated)",
+                    color: "var(--color-text-secondary)",
+                    fontSize: "var(--text-body)",
+                    fontWeight: "var(--weight-medium)",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "border-color 150ms ease, background 150ms ease",
+                  }}
                 >
                   {def.prompt}
                 </button>
               );
             })}
         </div>
-
-        {/* Detalhes revelados — por baixo dos botões */}
-        {revealedObservations.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
-            {revealedObservations.map(({ definition, detail, status }) => (
-              <div key={definition.id} style={reviewDetailStyle(status)}>
-                <p className="text-label" style={{ color: "var(--color-info)" }}>
-                  {definition.label}
-                </p>
-                <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                  {detail.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p
-            className="text-body"
-            style={{ color: "var(--color-text-disabled)" }}
-          >
-            Seleciona uma observação para ver o detalhe aqui.
-          </p>
-        )}
       </div>
     </div>
   );

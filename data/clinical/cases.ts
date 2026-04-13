@@ -86,6 +86,16 @@ const applicationDefinitions: ApplicationOption[] = [
       contraindicacoes: [{ etiologia: [3] }, { perfusao: [0] }],
     },
   },
+  {
+    id: "sem_protecao",
+    label: "Sem proteção / exposição ao ar",
+    learningTopicIds: ["decisao-clinica"],
+    // Sem cobertura — incorreto quando há infeção ou exsudado
+    regras: {
+      condicoes_ideais: {},
+      contraindicacoes: [{ infeccao: [1, 2, 3] }, { exsudado: [2, 3, 4] }],
+    },
+  },
 ];
 
 function goal(
@@ -144,7 +154,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Preciso de ajuda para sair da cama e mudar de decúbito.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "aquacel", "fibrosol", "allevyn", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "atl", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Sem limpeza adequada, a cobertura perde coerência clínica.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia ajuda a preparar o leito e enquadra melhor a cobertura.", { treatmentFunctions: ["control-bioburden"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -188,7 +198,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Estou muito dependente para as mudanças de posição.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "aquacel", "fibrosol", "allevyn", "vliwasorb", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Sem limpeza adequada, a cobertura perde coerência clínica.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia ajuda a preparar o leito e enquadra melhor a cobertura.", { treatmentFunctions: ["control-bioburden"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -233,7 +243,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Preciso de ajuda para me virar.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "aquacel", "allevyn", "colagenase", "hidrogel", "oxido-zinco", "atl", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A limpeza continua a ser a base do plano.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia ajuda a preparar o leito e enquadra melhor a cobertura.", { treatmentFunctions: ["control-bioburden"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -298,7 +308,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, mas com dificuldade.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "silvercel", "aquacel-ag", "aquacel", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Há necessidade de limpeza local antes do restante plano.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia local ajuda a preparar o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao", "betadine-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -345,7 +355,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, mas com dificuldade.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "silvercel", "aquacel-ag", "actisorb-silver", "vliwasorb", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Há necessidade de limpeza local antes do restante plano.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia local ajuda a preparar o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao", "betadine-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -394,7 +404,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, embora com dificuldade.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "silvercel", "aquacel-ag", "vliwasorb", "aquacel", "colagenase", "oxido-zinco", "protetor-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A limpeza continua a ser a base do plano.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia local ajuda a preparar o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao", "betadine-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -461,7 +471,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Ando pouco e com grande dificuldade.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "silvercel", "aquacel-ag", "actisorb-silver", "vliwasorb", "aquacel", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "urgotul", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A limpeza local deve anteceder o restante plano.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia ajuda a preparar o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao", "betadine-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -512,7 +522,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Ando pouco e com grande dificuldade.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "silvercel", "aquacel-ag", "actisorb-silver", "vliwasorb", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A limpeza local deve anteceder o restante plano.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia ajuda a preparar o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao", "betadine-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -562,7 +572,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Ando pouco e com grande dificuldade.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "silvercel", "aquacel-ag", "actisorb-silver", "vliwasorb", "aquacel", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "direto_seco", "compressao_forte"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A limpeza local deve anteceder o restante plano.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia ajuda a preparar o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao", "betadine-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -632,7 +642,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, embora com desconforto.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "aquacel", "fibrosol", "allevyn", "urgotul", "colagenase", "hidrogel", "oxido-zinco", "atl", "protetor-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte", "terapia_compressiva"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A observação e a aplicação devem partir de um leito limpo.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia adequada prepara o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -679,7 +689,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, embora com desconforto.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "aquacel", "allevyn", "urgotul", "colagenase", "hidrogel", "atl", "protetor-spray", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte", "terapia_compressiva"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A observação e a aplicação devem partir de um leito limpo.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia adequada prepara o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
@@ -725,7 +735,7 @@ const cases: CaseTemplate[] = [
           mobilidade: "Consigo andar, embora com desconforto.",
         },
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "aquacel", "fibrosol", "allevyn", "urgotul", "colagenase", "oxido-zinco", "atl", "protetor-spray", "hidrogel", "betametasona"],
-        applicationOptions: ["apos_limpeza", "com_protecao_perilesional", "sem_desbridamento_agressivo", "fixacao_atraumatica", "direto_seco", "compressao_forte", "terapia_compressiva"],
+        applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A observação e a aplicação devem partir de um leito limpo.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
           goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia adequada prepara o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao"] }, ["decisao-clinica", "antimicrobianos"]),

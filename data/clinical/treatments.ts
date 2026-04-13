@@ -174,10 +174,6 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_ideais: { infeccao: [1, 2, 3], exsudado: [2, 3, 4] },
       contraindicacoes: [{ infeccao: [0] }],
     },
-    clinicalRequirements: [
-      { variable: "infeccao", min: 1 }, // requer sinais de infeção
-      { variable: "exsudado", min: 2 }, // requer exsudado leve ou mais
-    ],
   },
 
   {
@@ -296,9 +292,6 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { exsudado: [3] },
       contraindicacoes: [{ exsudado: [1] }],
     },
-    clinicalRequirements: [
-      { variable: "exsudado", min: 4 }, // só adequado com exsudado abundante
-    ],
   },
 
   {
@@ -323,10 +316,6 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { infeccao: [1, 2, 3], tecido: [3] },
       contraindicacoes: [{ infeccao: [0], tecido: [4] }],
     },
-    clinicalRequirements: [
-      { variable: "infeccao", min: 1 }, // requer presença de infeção (local ou mais)
-      { variable: "exsudado", max: 3 }, // contraind. com exsudado muito abundante sem controlo
-    ],
   },
 
   {
@@ -351,10 +340,6 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { infeccao: [1, 2, 3], exsudado: [2] },
       contraindicacoes: [{ infeccao: [0] }],
     },
-    clinicalRequirements: [
-      { variable: "exsudado", min: 3 }, // requer exsudado moderado ou abundante
-      { variable: "infeccao", min: 1 }, // requer presença de infeção
-    ],
   },
 
   {
@@ -535,7 +520,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     id: "agua-oxigenada",
     label: "Água oxigenada",
     canonicalId: "agua-oxigenada",
-    equivalenceGroup: "oxidant-antiseptic",
+    equivalenceGroup: "antiseptic-liquid",
     category: "Líquidos",
     subCategory: "Antisséptico oxidante",
     functions: ["control-bioburden"],
@@ -547,11 +532,11 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: null,
     substancia_ativa: "Água oxigenada",
     categoria_clinica: "liquidos",
-    // Nunca ideal — parcial apenas em infeção com tecido não viável; incorreto em granulação (destrutivo)
+    // Nunca ideal — sempre parcial (uso controverso mas não proibido em contexto limitado)
     regras: {
       condicoes_ideais: { exsudado: [] }, // nunca correto — lista vazia nunca satisfaz
-      condicoes_parciais: { infeccao: [1, 2], tecido: [1, 2] },
-      contraindicacoes: [{ tecido: [3] }, { tecido: [4] }],
+      condicoes_parciais: {},
+      contraindicacoes: [],
     },
   },
 
@@ -582,7 +567,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     id: "cloreto-sodio",
     label: "Cloreto de sódio solução (soro)",
     canonicalId: "cloreto-sodio",
-    equivalenceGroup: "cleanse-basic",
+    equivalenceGroup: "cleanse-liquid",
     category: "Líquidos",
     subCategory: "Limpeza base",
     functions: ["cleanse"],
@@ -605,7 +590,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     id: "betadine-solucao",
     label: "Iodopovidona solução cutânea",
     canonicalId: "betadine-solucao",
-    equivalenceGroup: "iodine-liquid",
+    equivalenceGroup: "antiseptic-liquid",
     category: "Líquidos",
     subCategory: "Antisséptico iodado",
     functions: ["control-bioburden"],
@@ -617,33 +602,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: "Betadine Solução Dérmica",
     substancia_ativa: "Iodopovidona solução cutânea",
     categoria_clinica: "liquidos",
-    // Ideal com infeção; parcial como preventivo
+    // Sempre correto — antisséptico válido independentemente do estado da ferida
     regras: {
-      condicoes_ideais: { infeccao: [1, 2, 3] },
-      condicoes_parciais: { infeccao: [0] },
-      contraindicacoes: [],
-    },
-  },
-
-  {
-    id: "betadine-espuma",
-    label: "Iodopovidona espuma cutânea",
-    canonicalId: "betadine-espuma",
-    equivalenceGroup: "iodine-liquid",
-    category: "Líquidos",
-    subCategory: "Antisséptico iodado",
-    functions: ["control-bioburden"],
-    indications: ["suspeita de infeção local", "antissépsia local"],
-    contraindications: ["uso prolongado sem reavaliação"],
-    evidenceRefs: ["povidone-review"],
-    learningTopicIds: ["antimicrobianos"],
-    uiTags: ["iodo", "espuma", "antissépsia"],
-    nome_comercial: "Betadine Espuma",
-    substancia_ativa: "Iodopovidona espuma cutânea",
-    categoria_clinica: "liquidos",
-    regras: {
-      condicoes_ideais: { infeccao: [1, 2, 3] },
-      condicoes_parciais: { infeccao: [0] },
+      condicoes_ideais: {},
       contraindicacoes: [],
     },
   },
@@ -652,7 +613,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     id: "octiset",
     label: "Octenidina + fenoxietanol solução",
     canonicalId: "octiset",
-    equivalenceGroup: "cleanse-advanced",
+    equivalenceGroup: "antiseptic-liquid",
     category: "Líquidos",
     subCategory: "Antisséptico de largo espectro",
     functions: ["cleanse", "control-bioburden"],
@@ -664,34 +625,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: "Octiset",
     substancia_ativa: "Octenidina + fenoxietanol solução",
     categoria_clinica: "liquidos",
-    // Ideal com infeção; parcial sem infeção (apenas limpeza)
+    // Sempre correto — antisséptico de largo espectro válido em qualquer ferida
     regras: {
-      condicoes_ideais: { infeccao: [1, 2, 3] },
-      condicoes_parciais: { infeccao: [0] },
-      contraindicacoes: [],
-    },
-  },
-
-  {
-    id: "agua-injetaveis",
-    label: "Água para preparações injetáveis",
-    canonicalId: "agua-injetaveis",
-    equivalenceGroup: "cleanse-basic",
-    category: "Líquidos",
-    subCategory: "Limpeza",
-    functions: ["cleanse"],
-    indications: ["limpeza de ferida quando soro não disponível"],
-    contraindications: [],
-    evidenceRefs: ["water-cleansing"],
-    learningTopicIds: ["decisao-clinica"],
-    uiTags: ["água estéril", "limpeza", "alternativa ao soro"],
-    nome_comercial: null,
-    substancia_ativa: "Água para preparações injetáveis",
-    categoria_clinica: "liquidos",
-    // Sempre parcial — aceitável como alternativa ao soro mas não ideal (hipotónica)
-    regras: {
-      condicoes_ideais: { exsudado: [] }, // nunca correto
-      condicoes_parciais: {},             // sempre parcial
+      condicoes_ideais: {},
       contraindicacoes: [],
     },
   },
@@ -718,16 +654,13 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { pele_perilesional: [3] },
       contraindicacoes: [],
     },
-    clinicalRequirements: [
-      { variable: "pele_perilesional", max: 3 }, // só relevante com pele perilesional comprometida
-    ],
   },
 
   {
     id: "octenilin-solucao",
     label: "Octenidina solução lavagem de feridas",
     canonicalId: "octenilin-solucao",
-    equivalenceGroup: "cleanse-advanced",
+    equivalenceGroup: "cleanse-liquid",
     category: "Líquidos",
     subCategory: "Antisséptico de largo espectro",
     functions: ["cleanse", "control-bioburden"],
@@ -739,9 +672,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: "Octenilin Solução",
     substancia_ativa: "Octenidina solução lavagem de feridas",
     categoria_clinica: "liquidos",
+    // Sempre correto — limpeza avançada equivalente ao soro com ação antisséptica adicional
     regras: {
-      condicoes_ideais: { infeccao: [1, 2, 3] },
-      condicoes_parciais: { infeccao: [0] },
+      condicoes_ideais: {},
       contraindicacoes: [],
     },
   },
@@ -797,10 +730,6 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { pele_perilesional: [4] },
       contraindicacoes: [{ pele_perilesional: [1] }],
     },
-    clinicalRequirements: [
-      { variable: "exsudado", max: 2 },         // contraind. com exsudado moderado/abundante
-      { variable: "pele_perilesional", max: 3 }, // só com pele perilesional comprometida
-    ],
   },
 
   {
@@ -848,9 +777,6 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_ideais: { exsudado: [] }, // nunca ideal
       contraindicacoes: [{ exsudado: [1, 2, 3, 4] }],
     },
-    clinicalRequirements: [
-      { variable: "infeccao", max: 0 }, // contraind. com qualquer nível de infeção
-    ],
   },
 
   {
@@ -899,10 +825,6 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { infeccao: [1] },
       contraindicacoes: [{ infeccao: [0] }],
     },
-    clinicalRequirements: [
-      { variable: "infeccao", min: 1 }, // requer sinais de infeção
-      { variable: "exsudado", max: 3 }, // contraind. com exsudado muito abundante
-    ],
   },
 
   {
@@ -1028,9 +950,6 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       condicoes_parciais: { tecido: [1, 2], exsudado: [3] },
       contraindicacoes: [{ exsudado: [4] }, { humidade: [4] }],
     },
-    clinicalRequirements: [
-      { variable: "exsudado", max: 2 }, // contraind. com exsudado moderado ou abundante
-    ],
   },
 
   {

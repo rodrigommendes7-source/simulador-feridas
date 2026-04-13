@@ -278,16 +278,6 @@ export function CaseTreatmentPlanner({
                             ? (treatment.substancia_ativa ?? treatment.label)
                             : (treatment.nome_comercial ?? treatment.label)}
                         </span>
-                        <span
-                          style={{
-                            display: "block",
-                            marginTop: "2px",
-                            fontSize: "var(--text-label)",
-                            color: "var(--color-text-secondary)",
-                          }}
-                        >
-                          {treatment.uiTags.join(" · ")}
-                        </span>
                       </span>
                     </label>
                   );

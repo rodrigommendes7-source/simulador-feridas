@@ -284,25 +284,6 @@ export function evaluateApplicationForWound(
 }
 
 /**
- * Verifica se um material respeita os seus requisitos clínicos simplificados
- * (min/max por variável). Materiais sem clinicalRequirements são sempre aceites.
- */
-export function isMaterialClinicallyAppropriate(
-  treatmentId: string,
-  woundVariables: WoundVariables
-): boolean {
-  const treatment = getTreatment(treatmentId);
-  if (!treatment?.clinicalRequirements?.length) return true;
-
-  return treatment.clinicalRequirements.every((req) => {
-    const value = (woundVariables[req.variable as keyof WoundVariables] as number) ?? 0;
-    if (req.min !== undefined && value < req.min) return false;
-    if (req.max !== undefined && value > req.max) return false;
-    return true;
-  });
-}
-
-/**
  * Avalia todos os tratamentos seleccionados face às variáveis da ferida.
  * Filtra materiais sem regras definidas.
  */

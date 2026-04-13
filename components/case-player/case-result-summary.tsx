@@ -64,7 +64,6 @@ export function CaseResultSummary({
   onReset: () => void;
 }) {
   const idealResponse = buildIdealResponse(session);
-  const hasPenalties = evaluation.clinicalPenalties.length > 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)", padding: "var(--space-2xl)" }}>
@@ -120,11 +119,6 @@ export function CaseResultSummary({
             <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
               {scoreDeltaLabel(previousBestScore, evaluation.score)}
             </p>
-            {hasPenalties && (
-              <p className="text-body" style={{ marginTop: "var(--space-xs)", color: "var(--color-error)" }}>
-                Inclui {evaluation.clinicalPenalties.reduce((a, p) => a + p.points, 0)} pontos de penalização por materiais clinicamente inadequados.
-              </p>
-            )}
           </div>
           <div className="card" style={{ padding: "var(--space-md)", maxWidth: "28rem" }}>
             <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
@@ -136,51 +130,6 @@ export function CaseResultSummary({
           </div>
         </div>
       </section>
-
-      {/* ── Penalizações clínicas (se existirem) ── */}
-      {hasPenalties && (
-        <section
-          style={{
-            background: "var(--color-error-subtle)",
-            border: "0.5px solid var(--color-error-border)",
-            borderRadius: "var(--radius-xl)",
-            padding: "var(--space-lg)",
-          }}
-        >
-          <p className="text-label" style={{ color: "var(--color-error)" }}>
-            Penalizações clínicas
-          </p>
-          <div
-            style={{
-              marginTop: "var(--space-md)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "var(--space-sm)",
-            }}
-          >
-            {evaluation.clinicalPenalties.map((penalty) => (
-              <div
-                key={penalty.treatmentId}
-                style={{
-                  background: "var(--color-surface)",
-                  border: "var(--border-default)",
-                  borderRadius: "var(--radius-md)",
-                  padding: "var(--space-sm) var(--space-md)",
-                }}
-              >
-                <p
-                  style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
-                >
-                  {penalty.treatmentLabel} — {penalty.reason}
-                </p>
-                <p className="text-body" style={{ marginTop: "2px", color: "var(--color-error)" }}>
-                  Penalização: -{penalty.points} pontos.
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* ── 4 blocos de decisão ── */}
       <section

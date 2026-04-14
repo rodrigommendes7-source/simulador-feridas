@@ -285,10 +285,32 @@ function applicationMatchesGoal(
   return matcher.applicationIds?.includes(applicationId) ?? false;
 }
 
+function classifyApplicationByRules(
+  applicationDef: { regras?: { condicoes_ideais: Record<string, number[]>; condicoes_parciais?: Record<string, number[]>; contraindicacoes: Record<string, number[]>[] } },
+  woundVariables: Record<string, number>
+): "correto" | "parcial" | "incorreto" | null {
+  if (!applicationDef.regras) return null;
+  const { condicoes_ideais, condicoes_parciais, contraindicacoes } = applicationDef.regras;
+
+  function matchesAll(cond: Record<string, number[]>): boolean {
+    for (const [key, vals] of Object.entries(cond)) {
+      if (!vals || vals.length === 0) continue;
+      if (!vals.includes(woundVariables[key] as number)) return false;
+    }
+    return true;
+  }
+
+  if (contraindicacoes.some((c) => matchesAll(c))) return "incorreto";
+  if (matchesAll(condicoes_ideais)) return "correto";
+  if (condicoes_parciais && matchesAll(condicoes_parciais)) return "parcial";
+  return "parcial";
+}
+
 function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
   const section = createSection("application-technique", "Técnica de aplicação", 20);
   const selected = new Set(attempt.applicationIds);
   const specialRules = session.variant.evaluationRules.filter((rule) => rule.target === "application");
+  const woundVars = (session.variant.woundVariables ?? {}) as Record<string, number>;
 
   for (const applicationId of session.variant.applicationOptions) {
     const label = getApplicationLabel(session.template, applicationId);
@@ -331,6 +353,35 @@ function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
         matchingGoal.rationale,
         matchingGoal.learningTopicIds
       );
+      continue;
+    }
+
+    // Sem goal específico: avaliar pela regras da applicationDefinition (condicoes_ideais/contraindicacoes)
+    if (!matchingGoal) {
+      const appDef = session.template.applicationDefinitions.find((d) => d.id === applicationId);
+      if (appDef) {
+        const ruleClassification = classifyApplicationByRules(appDef as Parameters<typeof classifyApplicationByRules>[0], woundVars);
+        if (ruleClassification !== null) {
+          if (selected.has(applicationId)) {
+            if (ruleClassification === "incorreto") {
+              pushItem(section, applicationId, label, "inadequado",
+                "Esta técnica está contraindicada para o estado atual da ferida.",
+                appDef.learningTopicIds);
+            } else {
+              pushItem(section, applicationId, label,
+                ruleClassification === "correto" ? "adequado" : "redundante",
+                ruleClassification === "correto"
+                  ? "Técnica adequada para o estado atual da ferida."
+                  : "Técnica aceitável mas não prioritária para este estado da ferida.",
+                appDef.learningTopicIds);
+            }
+          } else if (ruleClassification === "correto") {
+            pushItem(section, applicationId, label, "redundante",
+              "Esta técnica seria adequada mas não foi selecionada.",
+              appDef.learningTopicIds);
+          }
+        }
+      }
     }
   }
 

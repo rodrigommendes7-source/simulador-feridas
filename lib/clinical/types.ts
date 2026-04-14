@@ -124,13 +124,8 @@ export type DialogueId =
   | "mobilidade";
 
 export type ApplicationId =
-  | "apos_limpeza"
-  | "com_protecao_perilesional"
-  | "sem_desbridamento_agressivo"
-  | "fixacao_atraumatica"
   | "compressao_forte"
   | "direto_seco"
-  // Técnicas de tratamento adicionadas
   | "penso_rapido"
   | "penso_simples"
   | "ligadura"

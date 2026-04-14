@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npx tsc:*)",
       "Bash(node -e ':*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(npm run:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(node --experimental-strip-types --experimental-specifier-resolution=node /c/Users/rodri/simulador-feridas/lib/clinical/evaluation.test.ts)"
     ]
   }
 }

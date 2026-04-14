@@ -30,7 +30,7 @@ const baseAttempt: AttemptRecord = {
   selectedObservationIds: ["imagem", "exsudado", "tecidos"],
   selectedDialogueIds: ["dor", "posicao"],
   selectedTreatmentIds: ["aquacel-simples"],
-  selectedApplicationIds: ["apos_limpeza"],
+  selectedApplicationIds: ["penso_simples"],
   summary: "Reforca a leitura do exsudado.",
   timestamp: "2026-04-02T10:00:00.000Z",
   durationSeconds: 320,

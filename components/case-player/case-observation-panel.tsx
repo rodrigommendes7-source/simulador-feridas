@@ -145,7 +145,12 @@ export function CaseObservationPanel({
                 return (
                   <div
                     key={def.id}
-                    style={reviewDetailStyle(status)}
+                    style={{
+                      ...reviewDetailStyle(status),
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                    }}
                   >
                     <p className="text-label" style={{ color: "var(--color-info)" }}>
                       {def.label}
@@ -171,6 +176,8 @@ export function CaseObservationPanel({
                     fontSize: "var(--text-body)",
                     fontWeight: "var(--weight-medium)",
                     cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
                     textAlign: "left",
                     transition: "border-color 150ms ease, background 150ms ease",
                   }}

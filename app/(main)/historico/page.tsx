@@ -128,7 +128,7 @@ export default function HistoryPage() {
               </p>
               <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
                 {studyPlan.retryCase
-                  ? `Média atual: ${studyPlan.retryCase.average}/100 em ${studyPlan.retryCase.attempts} tentativa(s).`
+                  ? `Média atual: ${studyPlan.retryCase.average}/100 em ${studyPlan.retryCase.attempts} ${studyPlan.retryCase.attempts === 1 ? "tentativa" : "tentativas"}.`
                   : "Conclui alguns casos para gerar uma prioridade de repetição."}
               </p>
               {studyPlan.retryCase ? (
@@ -205,7 +205,7 @@ export default function HistoryPage() {
                         </span>
                       </div>
                       <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                        {item.attempts} tentativa(s) registada(s)
+                        {item.attempts} {item.attempts === 1 ? "tentativa registada" : "tentativas registadas"}
                       </p>
                       <Link
                         href={`/casos/${item.templateId}`}
@@ -266,7 +266,7 @@ export default function HistoryPage() {
                           fontSize: "var(--text-body)",
                         }}
                       >
-                        {topic.title} · {topic.count} vez(es)
+                        {topic.title} · {topic.count === 1 ? "1 vez" : `${topic.count} vezes`}
                       </Link>
                     ))
                   ) : (

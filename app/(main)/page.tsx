@@ -220,7 +220,7 @@ export default function HomePage() {
                     </span>
                   </div>
                   <p className="text-body mt-2">
-                    Recomendado {topic.recommendationCount} vez(es), com {topic.weakSignalCount} sinal(is) de fragilidade.
+                    Recomendado {topic.recommendationCount === 1 ? "1 vez" : `${topic.recommendationCount} vezes`}, com {topic.weakSignalCount === 1 ? "1 sinal" : `${topic.weakSignalCount} sinais`} de fragilidade.
                   </p>
                 </Link>
               ))}

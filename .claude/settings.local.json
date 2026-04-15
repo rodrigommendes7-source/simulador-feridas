@@ -14,7 +14,10 @@
       "Bash(python3 -c \" import sys, json for line in sys.stdin: line = line.strip\\(\\) if not line: continue try: obj = json.loads\\(line\\) msg = obj.get\\('message', {}\\) role = msg.get\\('role', ''\\) content = msg.get\\('content', []\\) if isinstance\\(content, list\\): for block in content: if isinstance\\(block, dict\\) and block.get\\('type'\\) in ['text', 'tool_result']: text = block.get\\('text', ''\\) or str\\(block.get\\('content', ''\\)\\) if text: print\\(f'[{role}] {text[:500]}'\\) print\\('---'\\) elif isinstance\\(content, str\\) and \\('caso' in content.lower\\(\\) or 'hipergranul' in content.lower\\(\\)\\): print\\(f'[{role}] {content[:500]}'\\) except: pass \")",
       "Bash(npm test:*)",
       "Bash(curl -s http://localhost:3000/casos)",
-      "Read(//c/Users/rodri/simulador-feridas/**)"
+      "Read(//c/Users/rodri/simulador-feridas/**)",
+      "Bash(grep -n \"\\\\\\\\\\(possível\\\\\\\\|pode\\\\\\\\|consegue\\\\\\\\\\)\" /c/Users/rodri/simulador-feridas/data/clinical/cases.ts)",
+      "Bash(grep -n \"^  {\\\\s*$\" /c/Users/rodri/simulador-feridas/data/clinical/cases.ts)",
+      "Bash(sed 's/\"//g')"
     ]
   }
 }

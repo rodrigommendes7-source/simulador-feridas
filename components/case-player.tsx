@@ -235,7 +235,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
       label: "Plano terapêutico",
       done: completedTreatment,
       detail: completedTreatment
-        ? `${treatmentIds.length} material(is) selecionado(s)`
+        ? `${treatmentIds.length} ${treatmentIds.length === 1 ? "material selecionado" : "materiais selecionados"}`
         : "Seleciona pelo menos um material principal",
     },
     {

@@ -48,7 +48,7 @@ export default function MainLayout({
         </nav>
       </header>
 
-      <div style={{ padding: "var(--space-3xl) var(--space-2xl)" }}>
+      <div style={{ padding: "var(--space-lg) var(--space-2xl)" }}>
         {children}
       </div>
     </div>

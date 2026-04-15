@@ -6,7 +6,15 @@
       "Bash(npx next:*)",
       "Bash(npm run:*)",
       "Bash(npx ts-node:*)",
-      "Bash(node --experimental-strip-types --experimental-specifier-resolution=node /c/Users/rodri/simulador-feridas/lib/clinical/evaluation.test.ts)"
+      "Bash(node --experimental-strip-types --experimental-specifier-resolution=node /c/Users/rodri/simulador-feridas/lib/clinical/evaluation.test.ts)",
+      "Bash(node --import tsx/esm lib/clinical/evaluation.test.ts)",
+      "Bash(node --experimental-strip-types --experimental-specifier-resolution=node scripts/validate-clinical-data.mts)",
+      "Bash(xargs wc:*)",
+      "Bash(python3 -c \" import json, sys with open\\('/c/Users/rodri/.claude/projects/c--Users-rodri-simulador-feridas/b386ee6e-e066-4476-9434-98f023d72d18.jsonl'\\) as f: for line in f: try: obj = json.loads\\(line\\) msg = obj.get\\('message', {}\\) content = msg.get\\('content', []\\) if isinstance\\(content, list\\): for block in content: if isinstance\\(block, dict\\) and block.get\\('type'\\) == 'text': text = block.get\\('text', ''\\) if 'Caso 5' in text or 'caso 5' in text or 'hipergranula' in text: print\\(text[:3000]\\) print\\('---'\\) break except: pass \")",
+      "Bash(python3 -c \" import sys, json for line in sys.stdin: line = line.strip\\(\\) if not line: continue try: obj = json.loads\\(line\\) msg = obj.get\\('message', {}\\) role = msg.get\\('role', ''\\) content = msg.get\\('content', []\\) if isinstance\\(content, list\\): for block in content: if isinstance\\(block, dict\\) and block.get\\('type'\\) in ['text', 'tool_result']: text = block.get\\('text', ''\\) or str\\(block.get\\('content', ''\\)\\) if text: print\\(f'[{role}] {text[:500]}'\\) print\\('---'\\) elif isinstance\\(content, str\\) and \\('caso' in content.lower\\(\\) or 'hipergranul' in content.lower\\(\\)\\): print\\(f'[{role}] {content[:500]}'\\) except: pass \")",
+      "Bash(npm test:*)",
+      "Bash(curl -s http://localhost:3000/casos)",
+      "Read(//c/Users/rodri/simulador-feridas/**)"
     ]
   }
 }

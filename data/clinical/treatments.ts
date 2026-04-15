@@ -44,7 +44,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     functions: ["absorb", "hydrate", "debride"],
     indications: ["exsudado baixo a moderado", "fibrina superficial", "desbridamento autolítico"],
     contraindications: ["exsudado abundante", "infeção marcada"],
-    evidenceRefs: ["hydrocolloid-review"],
+    evidenceRefs: ["foam-review"],
     learningTopicIds: ["gestao-exsudado", "desbridamento"],
     uiTags: ["hidrocólóide", "autolítico", "baixo exsudado"],
     nome_comercial: "Varihesive Gel Control",
@@ -233,7 +233,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     functions: ["absorb", "atraumatic-cover"],
     indications: ["exsudado baixo a moderado", "ferida superficial"],
     contraindications: ["exsudado abundante"],
-    evidenceRefs: ["hydrocolloid-review"],
+    evidenceRefs: ["foam-review"],
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["extra fino", "baixo exsudado", "CMC"],
     nome_comercial: "Varihesive Extra Fino",
@@ -257,7 +257,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     functions: ["absorb", "hydrate", "debride"],
     indications: ["exsudado baixo a moderado", "desbridamento autolítico"],
     contraindications: ["exsudado abundante", "infeção marcada"],
-    evidenceRefs: ["hydrocolloid-review"],
+    evidenceRefs: ["foam-review"],
     learningTopicIds: ["gestao-exsudado", "desbridamento"],
     uiTags: ["hidrocólóide", "sem rebordo", "autolítico"],
     nome_comercial: "Varihesive Gel Control",
@@ -304,7 +304,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     functions: ["control-bioburden", "debride", "manage-odor"],
     indications: ["infeção local", "fibrina", "odor clinicamente relevante"],
     contraindications: ["ferida limpa em epitelização sem infeção"],
-    evidenceRefs: ["honey-review"],
+    evidenceRefs: ["silver-consensus"],
     learningTopicIds: ["antimicrobianos", "desbridamento"],
     uiTags: ["mel", "antimicrobiano", "desbridante"],
     nome_comercial: "L-Mesitran",
@@ -896,10 +896,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: null,
     substancia_ativa: "Nitrato de prata (lápis)",
     categoria_clinica: "outros",
-    // Parcial apenas em contexto de granulação exuberante; incorreto na maioria das situações
+    // Ideal em hipergranulação; incorreto em todos os outros contextos
     regras: {
-      condicoes_ideais: { exsudado: [] }, // nunca ideal
-      condicoes_parciais: { tecido: [3] }, // granulação (possível hipergranulação)
+      condicoes_ideais: { tecido: [5] }, // hipergranulação
       contraindicacoes: [{ tecido: [1] }, { tecido: [2] }, { tecido: [4] }],
     },
   },

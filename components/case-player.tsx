@@ -21,7 +21,7 @@ import {
   WOUND_VARIABLES_EXTRA,
   WOUND_VARIABLES_MAIN,
   getWoundVariableLabel,
-} from "@/lib/clinical/material-evaluation";
+} from "@/lib/clinical/wound-display";
 import type { WoundVariables } from "@/lib/clinical";
 
 // Mapeia cada variável clínica à observação ou pergunta de diálogo que a desvenda
@@ -73,6 +73,10 @@ export function CasePlayer({ templateId }: { templateId: string }) {
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState<Step>("observacao");
   const [reviewMode, setReviewMode] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem("tutorial-visto");
+  });
   // Controla a expansão das variáveis clínicas secundárias no painel lateral
   const [showExtraVars, setShowExtraVars] = useState(false);
   const [startedAt, setStartedAt] = useState<number | null>(null);
@@ -81,7 +85,6 @@ export function CasePlayer({ templateId }: { templateId: string }) {
   const [activeDialogueId, setActiveDialogueId] = useState<DialogueId | null>(null);
   const [treatmentIds, setTreatmentIds] = useState<string[]>([]);
   const [applicationIds, setApplicationIds] = useState<ApplicationId[]>([]);
-  const [filter, setFilter] = useState("");
   const [previousBestScore, setPreviousBestScore] = useState<number | null>(null);
 
   const attempt = useMemo(
@@ -116,7 +119,6 @@ export function CasePlayer({ templateId }: { templateId: string }) {
     setActiveDialogueId(null);
     setTreatmentIds([]);
     setApplicationIds([]);
-    setFilter("");
     setPreviousBestScore(null);
     if (nextSession) {
       setSession(nextSession);
@@ -245,8 +247,92 @@ export function CasePlayer({ templateId }: { templateId: string }) {
     },
   ];
 
+  function dismissTutorial() {
+    localStorage.setItem("tutorial-visto", "1");
+    setShowTutorial(false);
+  }
+
   return (
-    <main className="-mx-6 -my-8 flex h-[calc(100vh-52px)] overflow-hidden">
+    <>
+    {showTutorial && (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 1000,
+          background: "rgba(0,0,0,0.65)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "var(--space-2xl)",
+        }}
+        onClick={dismissTutorial}
+      >
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-xl)",
+            padding: "var(--space-3xl)",
+            maxWidth: "480px",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-lg)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div>
+            <p className="text-label" style={{ color: "var(--color-accent)", marginBottom: "var(--space-xs)" }}>
+              Como funciona
+            </p>
+            <h2 className="text-h2">Simulador de Feridas</h2>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+            {[
+              { step: "1", title: "Observa a ferida", body: "Começa por rever a imagem clínica e recolhe os achados essenciais: exsudado, tecidos e pele perilesional." },
+              { step: "2", title: "Faz perguntas ao utente", body: "Usa o diálogo para completar a leitura clínica: dor, duração da lesão e mobilidade." },
+              { step: "3", title: "Define o plano terapêutico", body: "Escolhe os materiais e a técnica de aplicação. O foco é mais importante do que a quantidade." },
+              { step: "4", title: "Recebe feedback detalhado", body: "Cada escolha é avaliada com base nos objetivos clínicos do caso e nos princípios de decisão." },
+            ].map(({ step: s, title, body }) => (
+              <div key={s} style={{ display: "flex", gap: "var(--space-md)" }}>
+                <div
+                  style={{
+                    flexShrink: 0,
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "50%",
+                    background: "var(--color-accent-subtle)",
+                    border: "var(--border-accent)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "var(--text-label)",
+                    fontWeight: "var(--weight-medium)",
+                    color: "var(--color-accent)",
+                  }}
+                >
+                  {s}
+                </div>
+                <div>
+                  <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)", fontSize: "var(--text-body)" }}>{title}</p>
+                  <p className="text-body" style={{ marginTop: "2px" }}>{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ width: "100%" }}
+            onClick={dismissTutorial}
+          >
+            Começar
+          </button>
+        </div>
+      </div>
+    )}
+    <main className="-mx-6 -my-4 flex h-[calc(100vh-52px)] overflow-hidden">
       {!started ? (
         <div className="h-full w-full overflow-y-auto">
           <CaseIntro session={session} onStart={startCase} />
@@ -539,40 +625,46 @@ export function CasePlayer({ templateId }: { templateId: string }) {
               padding: "var(--space-md)",
             }}
           >
-            {/* Banner contextual */}
+            {/* Banner contextual + guidance — linha única */}
             <div
               style={{
                 flexShrink: 0,
-                background: "var(--color-surface)",
-                border: "var(--border-default)",
-                borderRadius: "var(--radius-lg)",
-                padding: "var(--space-sm) var(--space-md)",
+                display: "flex",
+                gap: "var(--space-sm)",
               }}
             >
-              <p className="text-label" style={{ color: "var(--color-info)" }}>
-                Contexto atual
-              </p>
-              <p className="text-body" style={{ marginTop: "2px" }}>
-                {session.variant.patientBanner}
-              </p>
-            </div>
-
-            {/* Guidance bar */}
-            <div
-              style={{
-                flexShrink: 0,
-                background: "var(--color-elevated)",
-                border: "var(--border-default)",
-                borderRadius: "var(--radius-lg)",
-                padding: "var(--space-sm) var(--space-md)",
-              }}
-            >
-              <p className="text-label" style={{ color: "var(--color-warning)" }}>
-                {reviewMode ? "Modo de revisão" : "O que ainda falta fechar"}
-              </p>
-              <p className="text-body" style={{ marginTop: "2px" }}>
-                {stageGuidance}
-              </p>
+              <div
+                style={{
+                  flex: 1,
+                  background: "var(--color-surface)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "var(--space-xs) var(--space-md)",
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "var(--space-sm)",
+                }}
+              >
+                <span className="text-label" style={{ color: "var(--color-info)", flexShrink: 0 }}>Contexto</span>
+                <span style={{ fontSize: "var(--text-label)", color: "var(--color-text-secondary)" }}>{session.variant.patientBanner}</span>
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                  background: "var(--color-elevated)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "var(--space-xs) var(--space-md)",
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "var(--space-sm)",
+                }}
+              >
+                <span className="text-label" style={{ color: "var(--color-warning)", flexShrink: 0 }}>
+                  {reviewMode ? "Revisão" : "Orientação"}
+                </span>
+                <span style={{ fontSize: "var(--text-label)", color: "var(--color-text-secondary)" }}>{stageGuidance}</span>
+              </div>
             </div>
 
             {/* Painel do passo atual */}
@@ -602,8 +694,6 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                   treatmentStatusById={reviewMode ? review.treatmentStatus : undefined}
                   applicationStatusById={reviewMode ? review.applicationStatus : undefined}
                   reviewMode={reviewMode}
-                  filter={filter}
-                  onFilterChange={setFilter}
                   onToggleTreatment={toggleTreatment}
                   onToggleApplication={toggleApplication}
                 />
@@ -621,15 +711,15 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                 background: "var(--color-surface)",
                 border: "var(--border-default)",
                 borderRadius: "var(--radius-lg)",
-                padding: "var(--space-sm) var(--space-md)",
+                padding: "var(--space-xs) var(--space-md)",
               }}
             >
-              <p className="text-body" style={{ color: "var(--color-text-secondary)" }}>
+              <p style={{ fontSize: "var(--text-label)", color: "var(--color-text-secondary)" }}>
                 {reviewMode
-                  ? "Podes navegar pelas etapas para comparar a tua resolução com a resposta máxima desta variante."
+                  ? "Navega pelas etapas para comparar a tua resolução."
                   : readyToSubmit
                     ? "Já reuniste informação suficiente para receber a avaliação final."
-                    : "Conclui a observação, o diálogo, o plano e a técnica para desbloquear o resultado final."}
+                    : "Conclui a observação, o diálogo, o plano e a técnica para desbloquear o resultado."}
               </p>
               <div style={{ display: "flex", flexShrink: 0, gap: "var(--space-sm)" }}>
                 {reviewMode ? (
@@ -667,5 +757,6 @@ export function CasePlayer({ templateId }: { templateId: string }) {
         </>
       )}
     </main>
+    </>
   );
 }

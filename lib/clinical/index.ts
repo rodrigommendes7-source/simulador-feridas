@@ -3,4 +3,4 @@ export * from "./catalog";
 export * from "./evaluation";
 export * from "./history";
 export * from "./validation";
-export * from "./material-evaluation";
+export * from "./wound-display";

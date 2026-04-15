@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   getApplicationLabel,
-  getIdealAttempt,
   getTreatmentLabel,
   type CaseEvaluation,
   type CaseSession,
@@ -34,21 +33,6 @@ function scoreDeltaLabel(previousBestScore: number | null, currentScore: number)
   return "Igualaste o teu melhor registo anterior neste caso.";
 }
 
-function buildIdealResponse(session: CaseSession) {
-  const idealAttempt = getIdealAttempt(session);
-  return {
-    observations: session.template.observationDefinitions
-      .filter((item) => idealAttempt.observationIds.includes(item.id))
-      .map((item) => item.label),
-    questions: session.template.dialoguePrompts
-      .filter((item) => idealAttempt.dialogueIds.includes(item.id))
-      .map((item) => item.label.replace("Perguntar sobre ", "")),
-    treatments: idealAttempt.treatmentIds.map((item) => getTreatmentLabel(item)),
-    applications: idealAttempt.applicationIds.map((item) =>
-      getApplicationLabel(session.template, item)
-    ),
-  };
-}
 
 export function CaseResultSummary({
   session,
@@ -63,8 +47,6 @@ export function CaseResultSummary({
   onReview: () => void;
   onReset: () => void;
 }) {
-  const idealResponse = buildIdealResponse(session);
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)", padding: "var(--space-2xl)" }}>
 
@@ -252,56 +234,6 @@ export function CaseResultSummary({
               </p>
             )}
           </div>
-        </div>
-      </section>
-
-      {/* ── Resposta ideal ── */}
-      <section
-        style={{
-          background: "var(--color-success-subtle)",
-          border: "0.5px solid var(--color-success-border)",
-          borderRadius: "var(--radius-xl)",
-          padding: "var(--space-lg)",
-        }}
-      >
-        <p className="text-label" style={{ color: "var(--color-success)" }}>
-          Resposta real com pontuação máxima
-        </p>
-        <div
-          style={{
-            marginTop: "var(--space-md)",
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "var(--space-md)",
-          }}
-        >
-          {[
-            ["Observação", idealResponse.observations],
-            ["Perguntas", idealResponse.questions],
-            ["Tratamento", idealResponse.treatments],
-            ["Aplicação", idealResponse.applications],
-          ].map(([label, items]) => (
-            <div key={label as string}>
-              <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                {label}
-              </p>
-              <div style={{ marginTop: "var(--space-sm)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-                {(items as string[]).map((item) => (
-                  <div
-                    key={item}
-                    style={{
-                      background: "var(--color-surface)",
-                      border: "var(--border-default)",
-                      borderRadius: "var(--radius-md)",
-                      padding: "var(--space-xs) var(--space-sm)",
-                    }}
-                  >
-                    <p className="text-body">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 

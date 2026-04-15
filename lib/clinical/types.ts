@@ -6,8 +6,8 @@ export type WoundVariables = {
   exsudado: 1 | 2 | 3 | 4;
   /** 0=ausente  1=local  2=marcada  3=sistémica */
   infeccao: 0 | 1 | 2 | 3;
-  /** 1=necrose  2=fibrina  3=granulação  4=epitelização */
-  tecido: 1 | 2 | 3 | 4;
+  /** 1=necrose  2=fibrina  3=granulação  4=epitelização  5=hipergranulação */
+  tecido: 1 | 2 | 3 | 4 | 5;
   /** 0=ausente  1=ligeiro  2=moderado  3=intenso */
   odor: 0 | 1 | 2 | 3;
   /** 1=seca  2=ligeira  3=moderada  4=maceração */
@@ -22,8 +22,8 @@ export type WoundVariables = {
   dor: 0 | 1 | 2 | 3;
   /** 0=ausente  1=ligeira  2=moderada  3=abundante */
   hemorragia: 0 | 1 | 2 | 3;
-  /** 1=pressão  2=venosa  3=arterial  4=diabética  5=traumática  6=cirúrgica */
-  etiologia: 1 | 2 | 3 | 4 | 5 | 6;
+  /** 1=pressão  2=venosa  3=arterial  4=diabética  5=traumática  6=cirúrgica  7=queimadura */
+  etiologia: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   /** 0=comprometida  1=adequada */
   perfusao: 0 | 1;
 };
@@ -236,10 +236,10 @@ export type EvaluationRule = {
 
 export type WoundState = {
   exudate: "baixo" | "moderado" | "abundante";
-  infection: "ausente" | "suspeita-local" | "marcada";
-  tissue: "granulacao" | "granulacao-fibrina" | "fibrina" | "desvitalizado";
-  periwound: "integra" | "fragil" | "macerada";
-  odor: "ausente" | "ligeiro" | "presente";
+  infection: "ausente" | "suspeita-local" | "marcada" | "colonizacao-critica";
+  tissue: "granulacao" | "granulacao-fibrina" | "fibrina" | "desvitalizado" | "hipergranulacao" | "necrose-fibrina" | "necrose-mista";
+  periwound: "integra" | "fragil" | "macerada" | "eritematosa";
+  odor: "ausente" | "ligeiro" | "presente" | "fetido" | "intenso";
 };
 
 export type ObservationDetail = {

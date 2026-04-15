@@ -41,7 +41,7 @@ export const learningTopics: LearningTopic[] = [
       },
     ],
     evidenceIds: ["hydrofiber-review", "alginate-review", "foam-review"],
-    treatmentIds: ["aquacel-simples", "fibrosol", "vliwasorb", "silvercel", "aquacel-ag", "allevyn"],
+    treatmentIds: ["aquacel", "fibrosol", "vliwasorb", "silvercel", "aquacel-ag", "allevyn"],
     caseIds: ["1", "2", "3", "4"],
     relatedTopicIds: ["protecao-perilesional", "decisao-clinica"],
   },
@@ -65,7 +65,7 @@ export const learningTopics: LearningTopic[] = [
         title: "Antimicrobianos sem reavaliação",
         explanation:
           "A antissépsia e os pensos com prata não devem substituir a leitura clínica do caso nem o controlo do problema dominante. Usar prata de forma sistemática sem sinais de infeção é um erro de raciocínio.",
-        relatedTreatmentIds: ["silvercel", "aquacel-ag", "iodopovidona-solucao"],
+        relatedTreatmentIds: ["silvercel", "aquacel-ag", "betadine-solucao"],
       },
       {
         id: "anti-double-silver",
@@ -79,11 +79,11 @@ export const learningTopics: LearningTopic[] = [
         title: "Confundir odor com infeção sistémica",
         explanation:
           "Odor isolado não confirma infeção — pode ter origem em colonização, exsudado em decomposição ou tecido necrótico. O plano antimicrobiano deve basear-se no conjunto de sinais locais, e não apenas no odor.",
-        relatedTreatmentIds: ["actisorb-plus-prata"],
+        relatedTreatmentIds: ["actisorb-silver"],
       },
     ],
     evidenceIds: ["silver-consensus", "povidone-review", "octenidine-consensus"],
-    treatmentIds: ["silvercel", "aquacel-ag", "iodopovidona-solucao", "actisorb-plus-prata"],
+    treatmentIds: ["silvercel", "aquacel-ag", "betadine-solucao", "actisorb-silver"],
     caseIds: ["2", "3"],
     relatedTopicIds: ["gestao-exsudado", "decisao-clinica"],
   },
@@ -102,7 +102,7 @@ export const learningTopics: LearningTopic[] = [
         title: "Cobertura absorvente sem preparar o leito",
         explanation:
           "Controlar o exsudado sem abordar tecido desvitalizado pode deixar o problema dominante por resolver. Fibrina aderente não desaparece apenas com absorção — precisa de ser abordada diretamente.",
-        relatedTreatmentIds: ["aquacel-simples", "vliwasorb"],
+        relatedTreatmentIds: ["aquacel", "vliwasorb"],
       },
       {
         id: "deb-hydrogel-wet",
@@ -139,7 +139,7 @@ export const learningTopics: LearningTopic[] = [
         title: "Aplicar barreira sem rever o exsudado",
         explanation:
           "A proteção peri-ferida é mais eficaz quando acompanha o controlo da humidade. Uma barreira sem cobertura absorvente adequada não evita a maceração se o exsudado continuar a extravazar.",
-        relatedTreatmentIds: ["oxido-zinco", "protetor-polimero-acrilico-spray", "creme-gordo"],
+        relatedTreatmentIds: ["oxido-zinco", "protetor-spray"],
       },
       {
         id: "peri-omit-maceration",
@@ -157,7 +157,7 @@ export const learningTopics: LearningTopic[] = [
       },
     ],
     evidenceIds: ["skin-barrier-review"],
-    treatmentIds: ["oxido-zinco", "protetor-polimero-acrilico-spray", "creme-gordo"],
+    treatmentIds: ["oxido-zinco", "protetor-spray"],
     caseIds: ["1", "2", "3", "4"],
     relatedTopicIds: ["gestao-exsudado", "decisao-clinica"],
   },
@@ -230,7 +230,7 @@ export const learningTopics: LearningTopic[] = [
       },
     ],
     evidenceIds: ["water-cleansing", "debridement-review"],
-    treatmentIds: ["cloreto-sodio-09", "octenilin-solucao-lavagem", "betametasona"],
+    treatmentIds: ["cloreto-sodio", "octenilin-solucao", "betametasona"],
     caseIds: ["1", "2", "3", "4"],
     relatedTopicIds: ["tecidos-e-leito", "gestao-exsudado", "desbridamento"],
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { ApplicationId, CaseSession, ReviewStatus } from "@/lib/clinical";
 import { getTreatment, listTreatments } from "@/lib/clinical";
 
@@ -29,8 +29,6 @@ export function CaseTreatmentPlanner({
   treatmentStatusById,
   applicationStatusById,
   reviewMode = false,
-  filter,
-  onFilterChange,
   onToggleTreatment,
   onToggleApplication,
 }: {
@@ -40,32 +38,15 @@ export function CaseTreatmentPlanner({
   treatmentStatusById?: Record<string, ReviewStatus>;
   applicationStatusById?: Partial<Record<ApplicationId, ReviewStatus>>;
   reviewMode?: boolean;
-  filter: string;
-  onFilterChange: (value: string) => void;
   onToggleTreatment: (id: string) => void;
   onToggleApplication: (id: ApplicationId) => void;
 }) {
-  const deferredFilter = useDeferredValue(filter);
-
   const [labelMode, setLabelMode] = useState<"nome_comercial" | "substancia_ativa">(
     "substancia_ativa"
   );
 
   const groupedTreatments = useMemo(() => {
-    const visible = listTreatments().filter((treatment) => {
-      const haystack = [
-        treatment.label,
-        treatment.nome_comercial ?? "",
-        treatment.substancia_ativa ?? "",
-        treatment.category,
-        treatment.subCategory,
-        ...treatment.uiTags,
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      return haystack.includes(deferredFilter.trim().toLowerCase());
-    });
+    const visible = listTreatments();
 
     const CATEGORY_ORDER = ["Apósito", "Líquidos", "Pomadas", "Outros"];
     const grouped = visible.reduce<Record<string, typeof visible>>((acc, treatment) => {
@@ -79,7 +60,7 @@ export function CaseTreatmentPlanner({
         .concat(Object.keys(grouped).filter((cat) => !CATEGORY_ORDER.includes(cat)))
         .map((cat) => [cat, grouped[cat]])
     );
-  }, [deferredFilter]);
+  }, []);
 
   function getTreatmentDisplayLabel(treatment: ReturnType<typeof getTreatment>) {
     if (!treatment) return "";
@@ -124,66 +105,49 @@ export function CaseTreatmentPlanner({
               gap: "var(--space-sm)",
             }}
           >
-            <div>
-              <p className="text-label">Plano terapêutico</p>
-              <p
-                className="text-body"
-                style={{ marginTop: "2px", color: "var(--color-text-disabled)" }}
-              >
-                Filtra por função clínica, categoria ou nome.
-              </p>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-xs)" }}>
-              {/* Toggle */}
-              <div
+            <p className="text-label">Plano terapêutico</p>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                background: "var(--color-elevated)",
+                border: "var(--border-default)",
+                borderRadius: "var(--radius-lg)",
+                padding: "2px",
+                fontSize: "var(--text-label)",
+                fontWeight: "var(--weight-medium)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setLabelMode("nome_comercial")}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  background: "var(--color-elevated)",
-                  border: "var(--border-default)",
-                  borderRadius: "var(--radius-lg)",
-                  padding: "2px",
-                  fontSize: "var(--text-label)",
-                  fontWeight: "var(--weight-medium)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "var(--space-xs) var(--space-sm)",
+                  background: labelMode === "nome_comercial" ? "var(--color-accent)" : "transparent",
+                  color: labelMode === "nome_comercial" ? "var(--color-base)" : "var(--color-text-secondary)",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
                 }}
               >
-                <button
-                  type="button"
-                  onClick={() => setLabelMode("nome_comercial")}
-                  style={{
-                    borderRadius: "var(--radius-md)",
-                    padding: "var(--space-xs) var(--space-sm)",
-                    background: labelMode === "nome_comercial" ? "var(--color-accent)" : "transparent",
-                    color: labelMode === "nome_comercial" ? "var(--color-base)" : "var(--color-text-secondary)",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  Nome comercial
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLabelMode("substancia_ativa")}
-                  style={{
-                    borderRadius: "var(--radius-md)",
-                    padding: "var(--space-xs) var(--space-sm)",
-                    background: labelMode === "substancia_ativa" ? "var(--color-accent)" : "transparent",
-                    color: labelMode === "substancia_ativa" ? "var(--color-base)" : "var(--color-text-secondary)",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  Substância ativa
-                </button>
-              </div>
-              <input
-                className="input"
-                value={filter}
-                onChange={(event) => onFilterChange(event.target.value)}
-                placeholder="Ex.: prata, absorvente…"
-              />
+                Nome comercial
+              </button>
+              <button
+                type="button"
+                onClick={() => setLabelMode("substancia_ativa")}
+                style={{
+                  borderRadius: "var(--radius-md)",
+                  padding: "var(--space-xs) var(--space-sm)",
+                  background: labelMode === "substancia_ativa" ? "var(--color-accent)" : "transparent",
+                  color: labelMode === "substancia_ativa" ? "var(--color-base)" : "var(--color-text-secondary)",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                Substância ativa
+              </button>
             </div>
           </div>
 
@@ -262,6 +226,9 @@ export function CaseTreatmentPlanner({
                             fontWeight: "var(--weight-medium)",
                             color: "var(--color-text-primary)",
                             fontSize: "var(--text-body)",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
                           }}
                         >
                           {displayLabel}
@@ -272,6 +239,9 @@ export function CaseTreatmentPlanner({
                             marginTop: "2px",
                             fontSize: "var(--text-label)",
                             color: "var(--color-text-disabled)",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
                           }}
                         >
                           {labelMode === "nome_comercial"

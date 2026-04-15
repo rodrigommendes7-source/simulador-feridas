@@ -45,9 +45,7 @@ export function CaseObservationPanel({
         <div
           style={{
             flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            position: "relative",
             background: "var(--color-base)",
             borderRadius: "var(--radius-lg)",
             border: "var(--border-default)",
@@ -59,12 +57,9 @@ export function CaseObservationPanel({
             <Image
               src={session.template.imageSrc}
               alt={session.template.imageAlt}
-              width={1600}
-              height={1200}
+              fill
               style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
+                objectFit: "cover",
                 borderRadius: "var(--radius-lg)",
               }}
             />
@@ -73,7 +68,12 @@ export function CaseObservationPanel({
               type="button"
               onClick={() => onReveal("imagem")}
               style={{
-                maxWidth: "24rem",
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                maxWidth: "100%",
                 textAlign: "center",
                 background: "none",
                 border: "none",

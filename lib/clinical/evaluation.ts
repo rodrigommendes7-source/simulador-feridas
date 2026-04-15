@@ -372,7 +372,7 @@ function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
                 ruleClassification === "correto" ? "adequado" : "redundante",
                 ruleClassification === "correto"
                   ? "Técnica adequada para o estado atual da ferida."
-                  : "Técnica aceitável mas não prioritária para este estado da ferida.",
+                  : "Técnica aplicável, mas existem opções mais indicadas para o estado atual da ferida.",
                 appDef.learningTopicIds);
             }
           } else if (ruleClassification === "correto") {
@@ -412,29 +412,55 @@ function buildAttemptWithSelection<K extends keyof AttemptInput>(
   };
 }
 
+function greedyBestSelection<T, K extends keyof AttemptInput>(
+  options: readonly T[],
+  field: K,
+  buildSection: (session: CaseSession, attempt: AttemptInput) => EvaluationSection,
+  session: CaseSession
+): T[] {
+  // Greedy forward: repeatedly add the option that most improves the score.
+  // Falls back to no-item if all additions would hurt (negative marginal contribution).
+  const currentSelection: T[] = [];
+  let currentScore = getSectionRawScore(
+    buildSection(session, buildAttemptWithSelection(field, currentSelection as AttemptInput[K]))
+  );
+
+  while (true) {
+    let bestGain = 0;
+    let bestOption: T | null = null;
+
+    for (const option of options) {
+      if (currentSelection.includes(option)) continue;
+      const candidate = [...currentSelection, option];
+      const score = getSectionRawScore(
+        buildSection(session, buildAttemptWithSelection(field, candidate as AttemptInput[K]))
+      );
+      const gain = score - currentScore;
+      if (gain > bestGain) {
+        bestGain = gain;
+        bestOption = option;
+      }
+    }
+
+    if (bestOption === null) break;
+    currentSelection.push(bestOption);
+    currentScore += bestGain;
+  }
+
+  // Return items in the same order as the original options array for determinism
+  const selectionSet = new Set(currentSelection);
+  return options.filter((opt) => selectionSet.has(opt));
+}
+
 function getBestRawScoreForSelections<T, K extends keyof AttemptInput>(
   options: readonly T[],
   field: K,
   buildSection: (session: CaseSession, attempt: AttemptInput) => EvaluationSection,
   session: CaseSession
 ) {
-  let bestScore = 0;
-  const subsetCount = 1 << options.length;
-
-  for (let mask = 0; mask < subsetCount; mask += 1) {
-    const selection: T[] = [];
-
-    for (let index = 0; index < options.length; index += 1) {
-      if ((mask & (1 << index)) !== 0) {
-        selection.push(options[index]!);
-      }
-    }
-
-    const attempt = buildAttemptWithSelection(field, selection as AttemptInput[K]);
-    bestScore = Math.max(bestScore, getSectionRawScore(buildSection(session, attempt)));
-  }
-
-  return bestScore;
+  const bestSelection = greedyBestSelection(options, field, buildSection, session);
+  const attempt = buildAttemptWithSelection(field, bestSelection as AttemptInput[K]);
+  return Math.max(0, getSectionRawScore(buildSection(session, attempt)));
 }
 
 function getBestSelectionForSelections<T, K extends keyof AttemptInput>(
@@ -443,29 +469,7 @@ function getBestSelectionForSelections<T, K extends keyof AttemptInput>(
   buildSection: (session: CaseSession, attempt: AttemptInput) => EvaluationSection,
   session: CaseSession
 ) {
-  let bestScore = -1;
-  let bestSelection: T[] = [];
-  const subsetCount = 1 << options.length;
-
-  for (let mask = 0; mask < subsetCount; mask += 1) {
-    const selection: T[] = [];
-
-    for (let index = 0; index < options.length; index += 1) {
-      if ((mask & (1 << index)) !== 0) {
-        selection.push(options[index]!);
-      }
-    }
-
-    const attempt = buildAttemptWithSelection(field, selection as AttemptInput[K]);
-    const score = getSectionRawScore(buildSection(session, attempt));
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestSelection = selection;
-    }
-  }
-
-  return bestSelection;
+  return greedyBestSelection(options, field, buildSection, session);
 }
 
 function toReviewStatus(classification: EvaluationClassification): ReviewStatus {

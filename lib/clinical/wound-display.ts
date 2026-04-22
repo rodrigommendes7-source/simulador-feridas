@@ -2,7 +2,7 @@ import type { WoundVariables } from "./types.ts";
 
 const WOUND_VARIABLE_LABELS: Record<keyof WoundVariables, Record<number, string>> = {
   exsudado:          { 1: "Sem exsudado", 2: "Leve", 3: "Moderado", 4: "Abundante" },
-  infeccao:          { 0: "Ausente", 1: "Sinais locais", 2: "Infeção local", 3: "Infeção sistémica" },
+  infeccao:          { 0: "Contaminação", 1: "Local Infection (covert)", 2: "Spreading Infection", 3: "Systemic Infection" },
   tecido:            { 1: "Necrose seca", 2: "Fibrina dominante", 3: "Granulação ativa", 4: "Epitelização", 5: "Hipergranulação" },
   odor:              { 0: "Ausente", 1: "Leve", 2: "Moderado", 3: "Intenso" },
   humidade:          { 1: "Seca", 2: "Leve", 3: "Moderada", 4: "Maceração" },

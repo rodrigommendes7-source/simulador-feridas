@@ -556,7 +556,15 @@ function buildRecommendedPlanDifferences(session: CaseSession, attempt: AttemptI
 
 function buildReading(session: CaseSession) {
   const { woundState } = session.variant;
-  return `Ferida com exsudado ${woundState.exudate}, tecido ${woundState.tissue.replace("-", " ")}, infeção ${woundState.infection.replace("-", " ")} e pele peri-ferida ${woundState.periwound}.`;
+  const infectionLabel: Record<typeof woundState.infection, string> = {
+    "contamination": "contaminação (sem sinais clínicos)",
+    "colonization": "colonização (sem resposta do hospedeiro)",
+    "local-infection-covert": "Local Infection (covert) — sinais subtis",
+    "local-infection-overt": "Local Infection (overt) — sinais clássicos",
+    "spreading-infection": "Spreading Infection — escalamento urgente",
+    "systemic-infection": "Systemic Infection — emergência clínica",
+  };
+  return `Ferida com exsudado ${woundState.exudate}, tecido ${woundState.tissue.replace(/-/g, " ")}, infeção: ${infectionLabel[woundState.infection]} e pele peri-ferida ${woundState.periwound}.`;
 }
 
 function sectionPercentage(section: EvaluationSection) {

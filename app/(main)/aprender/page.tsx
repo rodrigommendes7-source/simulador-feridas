@@ -166,7 +166,144 @@ export default async function LearningPage({
               ) : null}
             </div>
           ) : null}
+
+          {activeTopic.keyConcepts && activeTopic.keyConcepts.length > 0 && (
+            <div
+              style={{
+                marginTop: "var(--space-xl)",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: "var(--space-sm)",
+              }}
+            >
+              {activeTopic.keyConcepts.map((concept) => (
+                <div
+                  key={concept.id}
+                  style={{
+                    background: "var(--color-elevated)",
+                    border: "var(--border-default)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-md)",
+                  }}
+                >
+                  <p className="text-label" style={{ color: "var(--color-accent)" }}>
+                    {concept.title}
+                  </p>
+                  <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                    {concept.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* Tabelas clínicas */}
+        {activeTopic.tables && activeTopic.tables.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)" }}>
+            {activeTopic.tables.map((table) => (
+              <div
+                key={table.id}
+                style={{
+                  background: "var(--color-surface)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-xl)",
+                  padding: "var(--space-xl)",
+                }}
+              >
+                <p className="text-label" style={{ color: "var(--color-warning)" }}>
+                  {table.title}
+                </p>
+                {table.caption && (
+                  <p
+                    className="text-body"
+                    style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}
+                  >
+                    {table.caption}
+                  </p>
+                )}
+                <div style={{ marginTop: "var(--space-md)", overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "var(--text-body)" }}>
+                    <thead>
+                      <tr>
+                        {table.headers.map((header) => (
+                          <th
+                            key={header}
+                            style={{
+                              textAlign: "left",
+                              padding: "var(--space-xs) var(--space-sm)",
+                              borderBottom: "var(--border-default)",
+                              color: "var(--color-accent)",
+                              fontWeight: "var(--weight-medium)",
+                              fontSize: "var(--text-label)",
+                              textTransform: "uppercase",
+                              letterSpacing: "var(--tracking-label)",
+                            }}
+                          >
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {table.rows.map((row, rowIdx) => (
+                        <tr key={rowIdx}>
+                          {row.cells.map((cell, cellIdx) => (
+                            <td
+                              key={cellIdx}
+                              style={{
+                                padding: "var(--space-xs) var(--space-sm)",
+                                borderBottom: "var(--border-default)",
+                                verticalAlign: "top",
+                                color: cellIdx === 0 ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+                                fontWeight: cellIdx === 0 ? "var(--weight-medium)" : "normal",
+                              }}
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Alertas clínicos */}
+        {activeTopic.clinicalAlerts && activeTopic.clinicalAlerts.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+            {activeTopic.clinicalAlerts.map((alert) => {
+              const severityColor =
+                alert.severity === "critical"
+                  ? "var(--color-error)"
+                  : alert.severity === "warning"
+                  ? "var(--color-warning)"
+                  : "var(--color-info)";
+              return (
+                <div
+                  key={alert.id}
+                  style={{
+                    background: "var(--color-surface)",
+                    border: "var(--border-default)",
+                    borderLeft: `4px solid ${severityColor}`,
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-md)",
+                  }}
+                >
+                  <p className="text-label" style={{ color: severityColor }}>
+                    {alert.title}
+                  </p>
+                  <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                    {alert.body}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Quando considerar / Quando evitar */}
         <div className="grid md:grid-cols-2" style={{ gap: "var(--space-md)" }}>

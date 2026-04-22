@@ -67,4 +67,10 @@ export const evidenceReferences: EvidenceReference[] = [
     url: "https://pubmed.ncbi.nlm.nih.gov/17077872/",
     summary: "Referência para controlo de odor com carvão ativado.",
   },
+  {
+    id: "biofilm-iwii",
+    title: "IWII Consensus on biofilm and wound infection",
+    url: "https://pubmed.ncbi.nlm.nih.gov/35797226/",
+    summary: "Consenso IWII 2022 sobre identificação e gestão do biofilme em feridas crónicas.",
+  },
 ];

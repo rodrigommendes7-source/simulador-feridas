@@ -17,7 +17,14 @@
       "Read(//c/Users/rodri/simulador-feridas/**)",
       "Bash(grep -n \"\\\\\\\\\\(possível\\\\\\\\|pode\\\\\\\\|consegue\\\\\\\\\\)\" /c/Users/rodri/simulador-feridas/data/clinical/cases.ts)",
       "Bash(grep -n \"^  {\\\\s*$\" /c/Users/rodri/simulador-feridas/data/clinical/cases.ts)",
-      "Bash(sed 's/\"//g')"
+      "Bash(sed 's/\"//g')",
+      "Bash(grep -E '^[a-z0-9\\\\-]+$')",
+      "Bash(grep -v '^$')",
+      "Bash(grep -v '^--$')",
+      "Bash(python3)",
+      "Bash(/c/Python314/python)",
+      "Bash(awk -F'\"' '{print $2}')",
+      "Bash(grep -n \"infection\\\\|infection:\\\\|infeccao\" /c/Users/rodri/simulador-feridas/components/case-player/*.tsx)"
     ]
   }
 }

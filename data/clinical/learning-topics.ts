@@ -44,6 +44,135 @@ export const learningTopics: LearningTopic[] = [
     treatmentIds: ["aquacel", "fibrosol", "vliwasorb", "silvercel", "aquacel-ag", "allevyn"],
     caseIds: ["1", "2", "3", "4"],
     relatedTopicIds: ["protecao-perilesional", "decisao-clinica"],
+    tables: [
+      {
+        id: "tipos-exsudado",
+        title: "Tipos e significado clínico do exsudado",
+        caption:
+          "O exsudado é avaliado em quantidade, consistência e odor — indicador fundamental para a escolha do penso e deteção de infeção.",
+        headers: ["Parâmetro", "Aspeto", "Significado clínico"],
+        rows: [
+          {
+            cells: [
+              "Seroso",
+              "Claro, aquoso, transparente",
+              "Normal. Fase inflamatória precoce ou ferida limpa em granulação.",
+            ],
+          },
+          {
+            cells: [
+              "Serossanguinolento",
+              "Rosado, levemente turvo",
+              "Normal em feridas recentes, após desbridamento ou trauma mecânico.",
+            ],
+          },
+          {
+            cells: [
+              "Sanguinolento",
+              "Vermelho, sangue vivo ou escuro",
+              "Traumatismo recente, fragilidade vascular, anticoagulação.",
+            ],
+          },
+          {
+            cells: [
+              "Purulento",
+              "Espesso, opaco, amarelo/verde/acastanhado",
+              "Infeção estabelecida. Ação clínica imediata. Avaliar antibioterapia.",
+            ],
+          },
+          {
+            cells: [
+              "Odor fétido",
+              "Cheiro intenso, desagradável",
+              "Infeção ou necrose. Considerar carvão ativado ou mel médico.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "absorcao-por-nivel",
+        title: "Escolha do penso por nível de exsudado",
+        caption:
+          "A capacidade de absorção deve ser proporcional ao volume real — nem sub nem sobredimensionada.",
+        headers: ["Nível", "Objetivo", "Materiais de eleição"],
+        rows: [
+          {
+            cells: [
+              "Escasso",
+              "Reter humidade; evitar ressecamento",
+              "Hidrogel · Hidrocoloide · Urgotul · Vaselina gaze",
+            ],
+          },
+          {
+            cells: [
+              "Moderado",
+              "Absorção controlada; ambiente húmido sem excesso",
+              "Allevyn · Aquacel · Varihesive · Urgo Clean",
+            ],
+          },
+          {
+            cells: [
+              "Abundante",
+              "Alta absorção; prevenir maceração",
+              "Vliwasorb · Exufiber · Alginato de cálcio · Silvercel",
+            ],
+          },
+          {
+            cells: [
+              "Peri-lesional",
+              "Barreira contra exsudado e maceração",
+              "Spray protetor acrílico · Óxido de zinco · ATL",
+            ],
+          },
+        ],
+      },
+    ],
+    keyConcepts: [
+      {
+        id: "regra-saturacao",
+        title: "Regra prática de saturação",
+        body: "Se o penso satura antes do prazo previsto — subir para maior absorção. Se a ferida macera — descer a absorção ou aumentar o intervalo de mudança.",
+      },
+    ],
+    clinicalAlerts: [
+      {
+        id: "purulento-sistemico",
+        severity: "critical",
+        title: "Exsudado purulento + odor + febre + taquicardia",
+        body: "Suspeita de infeção sistémica. Escalar imediatamente para avaliação médica.",
+      },
+    ],
+  },
+  {
+    id: "biofilme",
+    pedagogicalDifficulty: "intermedio",
+    title: "Biofilme em feridas crónicas",
+    definition:
+      "Comunidade microbiana estruturada, aderente ao leito, protegida por matriz extracelular. Resiste a antimicrobianos tópicos isolados e é causa frequente de estagnação de feridas crónicas.",
+    indications: [
+      "Ferida crónica >4 semanas sem progressão",
+      "Exsudado viscoso/gelatinoso recorrente",
+      "Tecido friável que sangra facilmente",
+      "Fibrina que reaparece após desbridamento",
+    ],
+    contraindications: [],
+    warningSigns: [
+      "Recidivas de infeção após cursos de antibiótico",
+      "Ferida estagnada apesar de cuidado aparentemente adequado",
+    ],
+    commonMistakes: [
+      {
+        id: "prata-isolada-biofilme",
+        title: "Usar prata como única estratégia contra biofilme",
+        explanation:
+          "O biofilme exige combinação: desbridamento mecânico/enzimático repetido + antisséptico de espectro amplo (octenidina, PHMB) + cobertura adequada. Prata isolada não é suficiente.",
+        relatedTreatmentIds: ["aquacel-ag", "silvercel"],
+      },
+    ],
+    evidenceIds: ["biofilm-iwii"],
+    treatmentIds: ["octenilin-solucao", "colagenase", "aquacel-ag"],
+    caseIds: ["5"],
+    relatedTopicIds: ["antimicrobianos", "desbridamento"],
   },
   {
     id: "antimicrobianos",
@@ -86,6 +215,117 @@ export const learningTopics: LearningTopic[] = [
     treatmentIds: ["silvercel", "aquacel-ag", "betadine-solucao", "actisorb-silver"],
     caseIds: ["2", "3"],
     relatedTopicIds: ["gestao-exsudado", "decisao-clinica"],
+    tables: [
+      {
+        id: "abordagem-por-nivel",
+        title: "Abordagem à infeção por nível",
+        caption:
+          "Antissépticos NÃO são usados de forma rotineira em feridas em cicatrização — são citotóxicos para o tecido de granulação.",
+        headers: ["Nível", "Características", "Abordagem", "Materiais"],
+        rows: [
+          {
+            cells: [
+              "Contaminação",
+              "Microrganismos presentes, sem proliferação",
+              "Limpeza com soro. Sem antisséptico.",
+              "Soro fisiológico 0,9%",
+            ],
+          },
+          {
+            cells: [
+              "Colonização",
+              "Microrganismos presentes sem resposta do hospedeiro",
+              "Limpeza + penso antimicrobiano se estagnação",
+              "Aquacel Ag · Urgotul Ag · Mel médico",
+            ],
+          },
+          {
+            cells: [
+              "Biofilme",
+              "Comunidade bacteriana protegida por matriz",
+              "Desbridamento mecânico + antisséptico tópico + penso antimicrobiano",
+              "Octenilin · Mel médico · Cadexómero de iodo",
+            ],
+          },
+          {
+            cells: [
+              "Infeção local",
+              "Calor, rubor, dor, pus",
+              "Antisséptico tópico + penso antimicrobiano. Avaliar antibiótico oral.",
+              "Betadine · Octiset · Silvercel · Aquacel Ag",
+            ],
+          },
+          {
+            cells: [
+              "Infeção sistémica",
+              "Febre, taquicardia, confusão, hipotensão",
+              "Escalada médica urgente. Antibiótico IV. UCI se sépsis.",
+              "→ Intervenção médica ←",
+            ],
+          },
+        ],
+      },
+      {
+        id: "sinais-subtis",
+        title: "Sinais subtis em feridas crónicas",
+        caption:
+          "Em feridas crónicas ou em imunossuprimidos, os sinais clássicos podem estar ausentes. Manter alto índice de suspeição.",
+        headers: ["Sinal subtil", "Implicação clínica"],
+        rows: [
+          {
+            cells: [
+              "Aumento inexplicado da dor",
+              "Pode preceder outros sinais. Investigar sempre.",
+            ],
+          },
+          {
+            cells: [
+              "Granulação friável que sangra com facilidade",
+              "Tecido de má qualidade por carga bacteriana elevada.",
+            ],
+          },
+          {
+            cells: [
+              "Odor sem exsudado purulento visível",
+              "Biofilme ou anaerobiose. Antisséptico tópico + desbridamento.",
+            ],
+          },
+          {
+            cells: [
+              "Estagnação da cicatrização",
+              "Sem evolução após 2–4 semanas. Suspeita de infeção crónica.",
+            ],
+          },
+          {
+            cells: [
+              "Aumento súbito do exsudado",
+              "Sem causa aparente. Avaliar colonização crítica ou infeção.",
+            ],
+          },
+        ],
+      },
+    ],
+    keyConcepts: [
+      {
+        id: "octenidina-biocompativel",
+        title: "Octenidina como antisséptico de eleição",
+        body: "A octenidina (Octiset, Octenilin) é um dos antissépticos mais biocompatíveis: segura em feridas abertas, sem coloração e sem interferência com cultura microbiológica. Preferir ao betadine em feridas em cicatrização.",
+      },
+    ],
+    clinicalAlerts: [
+      {
+        id: "sepsis",
+        severity: "critical",
+        title: "Sinais sistémicos — possível sépsis",
+        body: "Febre · taquicardia · hipotensão · alteração do estado de consciência. Contacto médico imediato. Não aguardar.",
+      },
+      {
+        id: "diabetico-imunossuprimido",
+        severity: "warning",
+        title: "Doente diabético, imunossuprimido ou com isquemia",
+        body: "Os sinais inflamatórios podem estar muito atenuados. Manter alto índice de suspeição mesmo sem sinais clássicos.",
+      },
+    ],
   },
   {
     id: "desbridamento",
@@ -123,6 +363,83 @@ export const learningTopics: LearningTopic[] = [
     treatmentIds: ["colagenase", "hidrogel"],
     caseIds: ["1", "2", "3", "4"],
     relatedTopicIds: ["tecidos-e-leito", "decisao-clinica"],
+    tables: [
+      {
+        id: "metodos-desbridamento",
+        title: "Métodos de desbridamento",
+        caption:
+          "A escolha do método depende do tipo e extensão do tecido desvitalizado, da perfusão local e dos recursos disponíveis.",
+        headers: ["Método", "Mecanismo", "Indicação principal", "Limitação"],
+        rows: [
+          {
+            cells: [
+              "Autolítico",
+              "Humidade mantida activa as enzimas endógenas do leito",
+              "Fibrina leve a moderada; doente cooperante; ambulatório",
+              "Lento (dias a semanas); ineficaz em necrose extensa",
+            ],
+          },
+          {
+            cells: [
+              "Enzimático",
+              "Colagenase cliva fibras de colagénio desnaturado",
+              "Fibrina aderente moderada; quando o desbridamento cirúrgico não é viável",
+              "Requer prescrição; pode causar irritação perilesional",
+            ],
+          },
+          {
+            cells: [
+              "Mecânico (irrigação)",
+              "Força física remove detritos e exsudado",
+              "Limpeza de cavidades; feridas com fibrina lassa",
+              "Pode traumatizar tecido de granulação; não desbridante para fibrina aderente",
+            ],
+          },
+          {
+            cells: [
+              "Cirúrgico / sharp",
+              "Bisturi ou tesoura remove tecido macroscopicamente",
+              "Necrose extensa; urgência clínica; ferida com biofilme",
+              "Requer competência especializada; risco hemorrágico",
+            ],
+          },
+          {
+            cells: [
+              "Biológico (larvas)",
+              "Larvas de Lucilia sericata digerem tecido necrótico",
+              "Feridas crónicas com tecido desvitalizado extenso; resistência a outros métodos",
+              "Aceitação limitada; disponibilidade restrita",
+            ],
+          },
+        ],
+      },
+    ],
+    keyConcepts: [
+      {
+        id: "deb-wound-bed-prep",
+        title: "Desbridamento é preparação, não tratamento final",
+        body: "O objetivo do desbridamento é tornar o leito clinicamente legível — remover o que obstrui a avaliação e a cicatrização. A cobertura definitiva vem depois, uma vez que o tecido dominante é identificado com clareza.",
+      },
+      {
+        id: "deb-autolytic-moisture",
+        title: "Autólise requer humidade — mas não excesso",
+        body: "O desbridamento autolítico só funciona quando o leito está húmido o suficiente para ativar enzimas endógenas. Hidrogel em ferida exsudativa agrava a maceração sem acelerar a autólise. O equilíbrio de humidade é a chave.",
+      },
+    ],
+    clinicalAlerts: [
+      {
+        id: "deb-ischemia-contraindication",
+        severity: "critical" as const,
+        title: "Não desbridar tecido isquémico sem avaliação vascular",
+        body: "Em feridas arteriais ou mistas com necrose seca, o desbridamento pode precipitar uma lesão irreversível se a perfusão for insuficiente. Avaliar o índice tornozelo-braço (ITB) antes de qualquer abordagem agressiva.",
+      },
+      {
+        id: "deb-collagenase-perilesional",
+        severity: "warning" as const,
+        title: "Proteger a pele perilesional ao usar colagenase",
+        body: "A colagenase é enzima proteolítica não seletiva — pode macerar a pele sã ao redor da ferida. Aplicar sempre pasta de óxido de zinco ou barreira cutânea na pele perilesional antes de usar colagenase.",
+      },
+    ],
   },
   {
     id: "protecao-perilesional",
@@ -160,6 +477,77 @@ export const learningTopics: LearningTopic[] = [
     treatmentIds: ["oxido-zinco", "protetor-spray"],
     caseIds: ["1", "2", "3", "4"],
     relatedTopicIds: ["gestao-exsudado", "decisao-clinica"],
+    tables: [
+      {
+        id: "alteracoes-peri-lesionais",
+        title: "Alterações da pele peri-lesional",
+        caption:
+          "A pele à volta da ferida é um indicador clínico rico. Cada alteração tem uma causa provável e uma resposta terapêutica distinta.",
+        headers: ["Alteração", "Aspeto", "Causa provável", "Ação clínica"],
+        rows: [
+          {
+            cells: [
+              "Maceração",
+              "Pele esbranquiçada, amolecida, com aspeto encharcado",
+              "Exsudado excessivo ou penso pouco absorvente",
+              "Trocar para cobertura mais absorvente; aplicar barreira cutânea (óxido de zinco ou spray protetor)",
+            ],
+          },
+          {
+            cells: [
+              "Eritema / rubor",
+              "Vermelhidão, com ou sem calor local",
+              "Reação alérgica ao adesivo, pressão ou início de infeção",
+              "Identificar causa; considerar penso hipoalergénico; rever etiologia da ferida",
+            ],
+          },
+          {
+            cells: [
+              "Edema perilesional",
+              "Pele tensa, brilhante, sinal de godet positivo",
+              "Insuficiência venosa, linfedema, infeção local",
+              "Elevar o membro; considerar terapia compressiva se indicada; avaliar sinais de infeção",
+            ],
+          },
+          {
+            cells: [
+              "Hiperqueratose",
+              "Pele espessada, esbranquiçada, descamativa",
+              "Pressão crónica, exsudado persistente, calçado inadequado",
+              "Desbridamento da hiperqueratose se necessário; controlo da causa mecânica",
+            ],
+          },
+          {
+            cells: [
+              "Pele seca / descamação",
+              "Pele fina, rugosa, com descamação fina",
+              "Idade avançada, desidratação, insuficiência venosa crónica",
+              "Aplicar emoliente não comedogénico; rever hidratação sistémica",
+            ],
+          },
+          {
+            cells: [
+              "Lesão por adesivo (MARSI)",
+              "Erosão, flictena ou eritema no local do adesivo",
+              "Remoção traumática, sensibilidade cutânea, penso inadequado",
+              "Usar técnica de remoção atraumática; mudar para penso sem adesivo agressivo; aplicar spray protetor",
+            ],
+          },
+        ],
+      },
+    ],
+    keyConcepts: [
+      {
+        id: "peri-barrier-first",
+        title: "A barreira peri-lesional não substitui o controlo do exsudado",
+        body: "Aplicar óxido de zinco ou spray protetor sem rever a cobertura absorvente é tratar o sintoma e não a causa. O objetivo é reduzir o exsudado que chega à pele — a barreira é sempre complementar.",
+      },
+      {
+        id: "marsi-prevention",
+        title: "MARSI — a lesão que ninguém documenta",
+        body: "A lesão relacionada com adesivos médicos (MARSI) é subnotificada. Remoção rápida, pele húmida e pele geriátrica frágil são os principais fatores de risco. Sempre remover o penso com tração paralela à pele, nunca perpendicular.",
+      },
+    ],
   },
   {
     id: "tecidos-e-leito",
@@ -190,11 +578,120 @@ export const learningTopics: LearningTopic[] = [
           "Granulação ativa pode ter um aspeto rosado semelhante ao tecido em epitelização, mas ainda necessita de proteção e humidade adequada. Tratar como epitelização antecipa uma fase que ainda não foi atingida.",
         relatedTreatmentIds: ["urgotul"],
       },
+      {
+        id: "hipergran-causa",
+        title: "Tratar hipergranulação sem identificar causa",
+        explanation:
+          "Hipergranulação é frequentemente iatrogénica — oclusão excessiva, prata prolongada (>2 semanas), atrito. Reduzir o tecido sem remover a causa leva a recorrência. Rever cobertura e duração do tratamento antes de recorrer a cauterização.",
+        relatedTreatmentIds: ["aquacel-ag", "silvercel", "betametasona"],
+      },
     ],
     evidenceIds: ["debridement-review"],
     treatmentIds: ["colagenase", "hidrogel", "urgotul"],
     caseIds: ["1", "2", "3", "4"],
     relatedTopicIds: ["desbridamento", "decisao-clinica"],
+    tables: [
+      {
+        id: "tipos-tecido",
+        title: "Tipos de tecido no leito da ferida",
+        caption:
+          "O leito da ferida é avaliado em percentagem de cada tipo de tecido. O objetivo clínico é maximizar granulação e epitelização.",
+        headers: ["Tecido", "Aspeto", "Significado", "Ação clínica"],
+        rows: [
+          {
+            cells: [
+              "Granulação",
+              "Vermelho, rugoso, húmido, bem vascularizado",
+              "Cicatrização ativa e favorável",
+              "Manter ambiente húmido; não traumatizar na mudança",
+            ],
+          },
+          {
+            cells: [
+              "Fibrina / esfacelo",
+              "Amarelo, mole, húmido, pode ter odor",
+              "Tecido desvitalizado — impede cicatrização",
+              "Desbridamento autolítico (hidrogel) ou enzimático (colagenase)",
+            ],
+          },
+          {
+            cells: [
+              "Necrose seca",
+              "Preta/castanha, dura, desidratada",
+              "Tecido morto — barreira mecânica",
+              "Hidratação prévia + desbridamento enzimático ou sharp",
+            ],
+          },
+          {
+            cells: [
+              "Necrose húmida",
+              "Mole, escura, odor fétido",
+              "Risco elevado de infeção grave",
+              "Desbridamento urgente + avaliação médica imediata",
+            ],
+          },
+          {
+            cells: [
+              "Epitelização",
+              "Rosa pálido, brilhante, avança das bordas",
+              "Fecho da ferida em curso",
+              "Proteger; não traumatizar; manter húmido sem macerar",
+            ],
+          },
+          {
+            cells: [
+              "Hipergranulação",
+              "Tecido acima do nível da pele, vermelho, friável",
+              "Impede a epitelização",
+              "Nitrato de prata (lápis), corticoide tópico ou pressão local",
+            ],
+          },
+        ],
+      },
+    ],
+    keyConcepts: [
+      {
+        id: "tecido-define-plano",
+        title: "O tecido define o plano",
+        body: "O tipo de tecido determina o método de desbridamento e o penso a utilizar. Avaliar e registar em percentagem em cada observação.",
+      },
+    ],
+  },
+  {
+    id: "concerns-do-utente",
+    pedagogicalDifficulty: "intermedio",
+    title: "Patient-centered concerns (TIMERS-S)",
+    definition:
+      "A componente Social/Patient-centered do TIMERS reconhece que a cicatrização depende de fatores humanos: dor, adesão ao tratamento, mobilidade, suporte social e recursos económicos.",
+    indications: [
+      "Avaliar dor sistematicamente com escala validada (EVA/NRS)",
+      "Identificar barreiras à adesão (horários, custos, capacidade cognitiva)",
+      "Envolver família/cuidadores quando a pessoa tem dependência",
+    ],
+    contraindications: [],
+    warningSigns: [
+      "Dor não controlada que impede o penso",
+      "Faltas repetidas a consultas",
+      "Isolamento social ou desnutrição",
+    ],
+    commonMistakes: [
+      {
+        id: "ignorar-dor",
+        title: "Fazer penso sem avaliar dor",
+        explanation:
+          "A dor compromete adesão e cicatrização; avaliar e controlar antes de intervir. Dor ≥4/10 justifica analgesia prévia ao penso.",
+      },
+      {
+        id: "mobilidade-ignorada",
+        title: "Não avaliar impacto da ferida na mobilidade",
+        explanation:
+          "Em doentes com mobilidade comprometida (LPP, pé diabético), o alívio de pressão e a capacidade de autocuidado são determinantes para o prognóstico. Envolver cuidadores é parte do plano.",
+      },
+    ],
+    evidenceIds: [],
+    treatmentIds: [],
+    caseIds: ["2", "3", "4", "5"],
+    relatedTopicIds: ["decisao-clinica"],
   },
   {
     id: "decisao-clinica",
@@ -233,5 +730,353 @@ export const learningTopics: LearningTopic[] = [
     treatmentIds: ["cloreto-sodio", "octenilin-solucao", "betametasona"],
     caseIds: ["1", "2", "3", "4"],
     relatedTopicIds: ["tecidos-e-leito", "gestao-exsudado", "desbridamento"],
+  },
+  // ─── Fase 3: novos temas ─────────────────────────────────────────────────────
+  {
+    id: "bordos-da-ferida",
+    pedagogicalDifficulty: "base",
+    title: "Bordos da ferida",
+    definition:
+      "Os bordos fornecem informação sobre a dinâmica de cicatrização: epitelização ativa, estagnação, maceração ou causa subjacente não controlada.",
+    indications: ["Avaliação inicial", "Monitorização da progressão", "Suspeita de neoplasia ou vasculite"],
+    contraindications: ["Decidir o plano sem observar os bordos"],
+    warningSigns: [
+      "Bordos enrolados (rolled/epibole)",
+      "Bordos fixos e pallidos",
+      "Bordos irregulares de aparecimento rápido",
+    ],
+    commonMistakes: [
+      {
+        id: "bordos-ignore",
+        title: "Não registar os bordos na avaliação inicial",
+        explanation:
+          "Documentar apenas o leito sem os bordos perde dados sobre cicatrização. Bordos enrolados (epibole) indicam estagnação e podem requerer desbridamento mecânico ou estimulação física.",
+      },
+      {
+        id: "bordos-macerated-vs-epibole",
+        title: "Confundir bordos macerados com epibole",
+        explanation:
+          "Bordos esbranquiçados por maceração (húmidos, amolecidos) diferem dos bordos enrolados por estagnação. A causa é diferente — a primeira é humidade excessiva, a segunda é falha de migração epitelial — e a resposta clínica também.",
+      },
+    ],
+    evidenceIds: ["debridement-review"],
+    treatmentIds: [],
+    caseIds: ["1", "2", "3", "4"],
+    relatedTopicIds: ["tecidos-e-leito", "desbridamento"],
+    tables: [
+      {
+        id: "tipos-bordos",
+        title: "Tipos de bordos e interpretação clínica",
+        caption: "O aspeto dos bordos orienta a suspeita diagnóstica e o foco terapêutico.",
+        headers: ["Tipo de bordo", "Aspeto", "Significado clínico", "Ação"],
+        rows: [
+          {
+            cells: [
+              "Em epitelização",
+              "Fino, translúcido, avançando sobre o leito",
+              "Cicatrização ativa — bom sinal",
+              "Manter humidade; não interferir",
+            ],
+          },
+          {
+            cells: [
+              "Regulares / definidos",
+              "Nítidos, planos, sem descolamento",
+              "Ferida estável, sem progressão positiva ou negativa",
+              "Avaliar se há bloqueio à cicatrização",
+            ],
+          },
+          {
+            cells: [
+              "Macerados",
+              "Esbranquiçados, amolecidos, húmidos",
+              "Exsudado excessivo ou penso inadequado",
+              "Aumentar absorção; aplicar barreira perilesional",
+            ],
+          },
+          {
+            cells: [
+              "Enrolados (epibole)",
+              "Bordos dobrados sobre si, espessados",
+              "Estagnação da migração epitelial (ferida crónica)",
+              "Desbridamento mecânico dos bordos; reavaliar causa",
+            ],
+          },
+          {
+            cells: [
+              "Indefinidos / irregulares",
+              "Limites imprecisos, eritema perilesional",
+              "Infeção local, vasculite, neoplasia",
+              "Não progredir sem diagnóstico; referência médica se suspeita de neoplasia",
+            ],
+          },
+        ],
+      },
+    ],
+    keyConcepts: [
+      {
+        id: "bordos-mirror",
+        title: "Os bordos espelham o que acontece no leito",
+        body: "Um leito em granulação ativa com bordos parados ou enrolados indica que a cicatrização está bloqueada apesar de aparência positiva. Os bordos devem avançar acompanhando o leito — quando não avançam, há um problema por identificar.",
+      },
+    ],
+  },
+  {
+    id: "sinais-de-alarme",
+    pedagogicalDifficulty: "intermedio",
+    title: "Sinais de alarme e escalamento clínico",
+    definition:
+      "Reconhecer sinais sistémicos e locais que requerem escalamento imediato fora da competência do enfermeiro de cuidados gerais.",
+    indications: [
+      "Febre ≥ 38 °C associada a ferida",
+      "Eritema progressivo > 2 cm",
+      "Linfangite",
+      "Deterioração aguda do estado geral",
+    ],
+    contraindications: ["Aguardar mais avaliações antes de escalar quando há sinais sistémicos"],
+    warningSigns: [
+      "Febre + ferida = escalar imediatamente",
+      "Eritema que não regride após 24-48 h de antibiótico local",
+      "Hipotensão + ferida infetada = sepsis até prova em contrário",
+    ],
+    commonMistakes: [
+      {
+        id: "alarm-delay",
+        title: "Aguardar a próxima avaliação antes de escalar",
+        explanation:
+          "Na spreading infection e systemic infection, horas contam. Escalar deve ser a primeira ação, não a última depois de tentar todas as coberturas.",
+      },
+      {
+        id: "alarm-local-only",
+        title: "Tratar infeção sistémica apenas com antimicrobiano local",
+        explanation:
+          "Sinais sistémicos (febre, sépsis) requerem antibiótico sistémico. Pensos com prata ou iodo não atingem concentrações sanguíneas eficazes — são complementares, não substitutos.",
+      },
+    ],
+    evidenceIds: ["biofilm-iwii"],
+    treatmentIds: [],
+    caseIds: ["3", "5", "7"],
+    relatedTopicIds: ["antimicrobianos", "biofilme", "concerns-do-utente"],
+    tables: [
+      {
+        id: "continuum-infeccao",
+        title: "Continuum de infeção (IWII 2022)",
+        caption: "Da contaminação à infeção sistémica — cada nível tem sinais e resposta distintos.",
+        headers: ["Nível", "Sinais chave", "Resposta clínica"],
+        rows: [
+          {
+            cells: [
+              "Contaminação",
+              "Micro-organismos presentes, sem multiplicação, sem sinais",
+              "Limpeza regular; vigiar",
+            ],
+          },
+          {
+            cells: [
+              "Colonização",
+              "Micro-organismos multiplicam-se, sem resposta do hospedeiro",
+              "Otimizar limpeza; não usar antimicrobianos",
+            ],
+          },
+          {
+            cells: [
+              "Local Infection (covert)",
+              "Granulação friável, odor, atraso na cicatrização",
+              "Antimicrobiano tópico (prata, iodo); reavaliar em 2 semanas",
+            ],
+          },
+          {
+            cells: [
+              "Local Infection (overt)",
+              "Eritema, dor, calor, exsudado purulento",
+              "Antimicrobiano tópico; considerar antibiótico sistémico; referência médica",
+            ],
+          },
+          {
+            cells: [
+              "Spreading Infection",
+              "Eritema > 2 cm, linfangite, febre",
+              "Escalar imediatamente; antibiótico sistémico urgente",
+            ],
+          },
+          {
+            cells: [
+              "Systemic Infection",
+              "Sépsis, hipotensão, febre alta",
+              "Emergência médica — transferência hospitalar",
+            ],
+          },
+        ],
+      },
+    ],
+    clinicalAlerts: [
+      {
+        id: "sepsis-alert",
+        severity: "critical" as const,
+        title: "Sépsis associada a ferida — emergência médica",
+        body: "Febre > 38,5 °C, taquicardia > 100 bpm e ferida com sinais de infeção = critérios de sépsis até prova em contrário. Escalar imediatamente. Não aguardar próxima avaliação.",
+      },
+      {
+        id: "spreading-alert",
+        severity: "warning" as const,
+        title: "Eritema progressivo — reavaliar em 24 horas",
+        body: "Eritema que ultrapassa os bordos da ferida ou não regride com antimicrobiano local em 24-48 h deve levar a referência médica urgente para avaliação de antibioterapia sistémica.",
+      },
+    ],
+  },
+  {
+    id: "escolha-do-penso",
+    pedagogicalDifficulty: "base",
+    title: "Princípios de escolha do penso",
+    definition:
+      "A cobertura ideal resolve o problema dominante da ferida, mantém equilíbrio de humidade, protege a pele perilesional e minimiza o trauma na remoção.",
+    indications: ["Qualquer decisão de cobertura primária ou secundária"],
+    contraindications: [
+      "Escolher por hábito ou disponibilidade sem avaliar o leito",
+      "Usar o mesmo penso independentemente da evolução",
+    ],
+    warningSigns: [
+      "Penso colado ao leito (leito demasiado seco)",
+      "Exsudado a extravasar dos bordos do penso (absorção insuficiente)",
+      "Deterioração do leito apesar do penso",
+    ],
+    commonMistakes: [
+      {
+        id: "penso-habit",
+        title: "Escolher o penso por hábito ou protocolo fixo",
+        explanation:
+          "Um protocolo de ferida genérico ignora a variabilidade clínica. O penso certo é aquele que resolve o problema dominante desta ferida, neste momento — e muda quando o leito muda.",
+      },
+      {
+        id: "penso-too-many",
+        title: "Combinar materiais sem função aditiva",
+        explanation:
+          "Usar cobertura primária + secundária + adjuvante sem papel clínico definido aumenta o custo e o trauma de remoção sem melhorar o resultado. Cada material do plano deve resolver um problema específico.",
+      },
+    ],
+    evidenceIds: ["foam-review", "hydrofiber-review", "alginate-review"],
+    treatmentIds: ["aquacel", "biatain", "urgotul", "mepilex"],
+    caseIds: ["1", "2", "3", "4", "5", "6"],
+    relatedTopicIds: ["tecidos-e-leito", "gestao-exsudado", "protecao-perilesional"],
+    tables: [
+      {
+        id: "penso-por-problema",
+        title: "Cobertura por problema dominante",
+        caption: "Guia rápido para alinhar a escolha do penso com o problema clínico identificado.",
+        headers: ["Problema dominante", "Cobertura preferencial", "Evitar"],
+        rows: [
+          {
+            cells: [
+              "Exsudado abundante",
+              "Alginate, hidrofiber, espuma de alta absorção",
+              "Hidrogel, TLC-Ag sem camada absorvente",
+            ],
+          },
+          {
+            cells: [
+              "Exsudado baixo / leito seco",
+              "Hidrogel, TLC-Nosf, interface não aderente",
+              "Alginate, espuma de alta absorção",
+            ],
+          },
+          {
+            cells: [
+              "Infeção local (covert / overt)",
+              "Prata (hidrofiber, espuma, TLC-Ag), iodopovidona",
+              "Coberturas oclusivas sem ação antimicrobiana",
+            ],
+          },
+          {
+            cells: [
+              "Fibrina / tecido desvitalizado",
+              "Colagenase (enzimático), hidrogel (autolítico), TLC-Nosf",
+              "Alginate seco; espuma sem humidade ativa",
+            ],
+          },
+          {
+            cells: [
+              "Granulação ativa / epitelização",
+              "Interface atraumática (TLC, silicone), espuma suave",
+              "Gaze seca; cobertura aderente",
+            ],
+          },
+          {
+            cells: [
+              "Hipergranulação",
+              "Espuma com compressão suave, nitrato de prata (se indicado)",
+              "Coberturas que promovam humidade adicional",
+            ],
+          },
+        ],
+      },
+    ],
+    keyConcepts: [
+      {
+        id: "penso-primary-secondary",
+        title: "Cobertura primária vs. secundária",
+        body: "A cobertura primária contacta diretamente o leito (ex: TLC, alginate, hidrogel). A secundária cobre e fixa a primária (ex: espuma, compressa). Nem sempre são necessárias as duas — simplificar quando possível.",
+      },
+      {
+        id: "penso-moisture-balance",
+        title: "Equilíbrio de humidade — nem seco nem encharcado",
+        body: "O leito ideal é húmido mas não macerado. Um penso que seca o leito impede a migração epitelial; um penso que encharque macera a pele perilesional. O objetivo é o equilíbrio, não a humidade máxima.",
+      },
+    ],
+  },
+  {
+    id: "fixacao-e-remocao",
+    pedagogicalDifficulty: "base",
+    title: "Fixação e remoção atraumática do penso",
+    definition:
+      "A técnica de fixação e remoção influencia a dor, o trauma da pele perilesional e a eficácia da cobertura. A remoção atraumática é um objetivo clínico, não um luxo.",
+    indications: [
+      "Pele frágil (geriátrica, sob corticóides, edematosa)",
+      "MARSI prévia",
+      "Dor ao retirar penso referida pelo doente",
+    ],
+    contraindications: ["Remoção rápida ou seca sem humedecimento prévio em pele frágil"],
+    warningSigns: [
+      "Eritema no local do adesivo após remoção",
+      "Flictenas ou erosões no contorno do penso",
+      "Doente recusa mudança de penso por antecipação de dor",
+    ],
+    commonMistakes: [
+      {
+        id: "fixacao-tape-fragile",
+        title: "Usar adesivo convencional em pele geriátrica ou frágil",
+        explanation:
+          "Fita adesiva convencional em pele frágil causa MARSI — a força de remoção supera a resistência da epiderme. Preferir fixações com silicone ou tubular elástico. Remover sempre com tração paralela à pele.",
+      },
+      {
+        id: "fixacao-no-framework",
+        title: "Não fixar o penso de forma segura",
+        explanation:
+          "Um penso mal fixo desloca-se, perde a função de barreira e aumenta o risco de contaminação. A fixação faz parte do plano de tratamento — não é um detalhe de enfermagem menor.",
+      },
+    ],
+    evidenceIds: ["skin-barrier-review"],
+    treatmentIds: ["protetor-spray"],
+    caseIds: ["1", "2", "3", "4"],
+    relatedTopicIds: ["protecao-perilesional", "escolha-do-penso", "concerns-do-utente"],
+    keyConcepts: [
+      {
+        id: "remocao-traction",
+        title: "Regra da tração paralela",
+        body: "Ao remover qualquer penso ou adesivo, segurar a pele à frente e puxar o penso paralelo à superfície cutânea (ângulo de 0°), nunca perpendicular (90°). Esta técnica reduz drasticamente o trauma da epiderme.",
+      },
+      {
+        id: "remocao-humedecer",
+        title: "Humedecer antes de remover em penso aderido",
+        body: "Se o penso estiver colado ao leito ou à pele perilesional, aplicar soro fisiológico ou água na interface durante 1-2 minutos antes de remover. Nunca arrancar — a dor e o trauma são iatrogénicos.",
+      },
+    ],
+    clinicalAlerts: [
+      {
+        id: "marsi-risk",
+        severity: "warning" as const,
+        title: "MARSI — risco aumentado em pele frágil",
+        body: "Doentes com > 70 anos, a tomar corticóides sistémicos, com edema crónico ou malnutrição têm risco muito elevado de MARSI. Documentar na avaliação inicial e planear fixação atraumática desde o primeiro penso.",
+      },
+    ],
   },
 ];

@@ -99,7 +99,8 @@ export type ClinicalIntent =
   | "manage-odor"
   | "offload-pressure"
   | "atraumatic-cover"
-  | "cleanse-wound";
+  | "cleanse-wound"
+  | "escalate-medical";
 
 export type EvaluationClassification =
   | "essencial"
@@ -131,6 +132,7 @@ export type ApplicationId =
   | "ligadura"
   | "penso_impermeavel"
   | "terapia_compressiva"
+  | "alivio_pressao"
   | "sem_protecao";
 
 export type EvidenceReference = {
@@ -170,6 +172,39 @@ export type CommonMistake = {
   relatedTreatmentIds?: string[];
 };
 
+/** Linha de uma tabela clínica (pares chave/valor em colunas). */
+export type ClinicalTableRow = {
+  /** Valores das colunas, na mesma ordem de `headers`. */
+  cells: string[];
+};
+
+/** Tabela clínica estruturada (ex: tecidos × ação clínica). */
+export type ClinicalTable = {
+  id: string;
+  title: string;
+  /** Descrição breve do propósito da tabela (1-2 frases). */
+  caption?: string;
+  /** Cabeçalhos das colunas. */
+  headers: string[];
+  rows: ClinicalTableRow[];
+};
+
+/** Destaque clínico — conceito chave ou regra prática. */
+export type KeyConcept = {
+  id: string;
+  title: string;
+  body: string;
+};
+
+/** Alerta clínico — bandeira vermelha, sinais sistémicos, escalamento. */
+export type ClinicalAlert = {
+  id: string;
+  /** Gravidade visual — afeta a cor do destaque na UI. */
+  severity: "info" | "warning" | "critical";
+  title: string;
+  body: string;
+};
+
 export type LearningTopic = {
   id: string;
   title: string;
@@ -183,6 +218,12 @@ export type LearningTopic = {
   treatmentIds: string[];
   caseIds: string[];
   relatedTopicIds: string[];
+  /** Tabelas clínicas estruturadas (opcional). */
+  tables?: ClinicalTable[];
+  /** Conceitos-chave ou regras práticas (opcional). */
+  keyConcepts?: KeyConcept[];
+  /** Alertas clínicos / bandeiras vermelhas (opcional). */
+  clinicalAlerts?: ClinicalAlert[];
 };
 
 export type ObservationDefinition = {
@@ -236,7 +277,22 @@ export type EvaluationRule = {
 
 export type WoundState = {
   exudate: "baixo" | "moderado" | "abundante";
-  infection: "ausente" | "suspeita-local" | "marcada" | "colonizacao-critica";
+  /**
+   * Alinhado com IWII Wound Infection Continuum 2022.
+   * - contamination: micro-organismos presentes, sem multiplicação
+   * - colonization: multiplicação sem resposta do hospedeiro
+   * - local-infection-covert: sinais subtis (granulação friável, odor, estagnação)
+   * - local-infection-overt: sinais clássicos (eritema, dor, calor, exsudado purulento)
+   * - spreading-infection: eritema >2 cm, extensão para tecidos profundos, linfangite
+   * - systemic-infection: febre, sépsis
+   */
+  infection:
+    | "contamination"
+    | "colonization"
+    | "local-infection-covert"
+    | "local-infection-overt"
+    | "spreading-infection"
+    | "systemic-infection";
   tissue: "granulacao" | "granulacao-fibrina" | "fibrina" | "desvitalizado" | "hipergranulacao" | "necrose-fibrina" | "necrose-mista";
   periwound: "integra" | "fragil" | "macerada" | "eritematosa";
   odor: "ausente" | "ligeiro" | "presente" | "fetido" | "intenso";

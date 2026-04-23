@@ -74,7 +74,8 @@ export function CaseTreatmentPlanner({
         display: "grid",
         height: "100%",
         gap: "var(--space-md)",
-        gridTemplateColumns: "1.15fr 0.85fr",
+        gridTemplateColumns: "minmax(0, 1.15fr) minmax(0, 0.85fr)",
+        minWidth: 0,
       }}
     >
       {/* Coluna esquerda — catálogo */}
@@ -198,7 +199,7 @@ export function CaseTreatmentPlanner({
                 style={{
                   marginTop: "var(--space-sm)",
                   display: "grid",
-                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))",
                   gap: "var(--space-sm)",
                 }}
               >
@@ -226,9 +227,7 @@ export function CaseTreatmentPlanner({
                             fontWeight: "var(--weight-medium)",
                             color: "var(--color-text-primary)",
                             fontSize: "var(--text-body)",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
+                            wordBreak: "break-word",
                           }}
                         >
                           {displayLabel}
@@ -239,9 +238,7 @@ export function CaseTreatmentPlanner({
                             marginTop: "2px",
                             fontSize: "var(--text-label)",
                             color: "var(--color-text-disabled)",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
+                            wordBreak: "break-word",
                           }}
                         >
                           {labelMode === "nome_comercial"

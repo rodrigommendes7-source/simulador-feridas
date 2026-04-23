@@ -5,6 +5,8 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import {
   type AttemptRecord,
   getCaseProgress,
+  getContinueLearningTarget,
+  getRandomCase,
   getRecommendedNextCases,
   listCaseTemplates,
   loadAttemptHistory,
@@ -45,8 +47,11 @@ export default function CasesPage() {
     [history]
   );
 
+  const continueTarget = useMemo(() => getContinueLearningTarget(history), [history]);
+  const randomCase = useMemo(() => getRandomCase(), []);
+
   return (
-    <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)" }}>
+    <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)", height: "100%" }}>
 
       {/* ── Cabeçalho ─────────────────────────────────────────────────────── */}
       <section
@@ -55,6 +60,7 @@ export default function CasesPage() {
           border: "var(--border-default)",
           borderRadius: "var(--radius-xl)",
           padding: "var(--space-2xl)",
+          flexShrink: 0,
         }}
       >
         <p className="text-label">Resolver casos</p>
@@ -70,8 +76,24 @@ export default function CasesPage() {
         </p>
       </section>
 
+      {/* ── Ações rápidas ─────────────────────────────────────────────────── */}
+      <section style={{ display: "flex", gap: "var(--space-md)", flexWrap: "wrap", flexShrink: 0 }}>
+        <Link
+          href={continueTarget ? `/casos/${continueTarget.nextCaseId}` : "/casos/1"}
+          className={continueTarget ? "btn btn-primary btn-lg" : "btn btn-secondary btn-lg"}
+        >
+          {continueTarget ? "Continuar aprendizagem" : "Iniciar primeiro caso"}
+        </Link>
+        <Link
+          href={randomCase ? `/casos/${randomCase.id}` : "/casos"}
+          className="btn btn-secondary btn-lg"
+        >
+          Caso aleatório
+        </Link>
+      </section>
+
       {/* ── Grelha de casos ───────────────────────────────────────────────── */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
         {cases.map((item) => {
           const progress = getCaseProgress(history, item.id);
           const recommended = singleRecommendedId === item.id;

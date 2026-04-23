@@ -1,7 +1,7 @@
-import { caseTemplates } from "../../data/clinical/cases.ts";
-import { evidenceReferences } from "../../data/clinical/evidence.ts";
-import { learningTopics } from "../../data/clinical/learning-topics.ts";
-import { treatmentCatalog } from "../../data/clinical/treatments.ts";
+import { caseTemplates } from "../../data/clinical/casos.ts";
+import { evidenceReferences } from "../../data/clinical/evidencia.ts";
+import { learningTopics } from "../../data/clinical/topicos-aprendizagem.ts";
+import { treatmentCatalog } from "../../data/clinical/tratamentos.ts";
 
 export type ValidationIssue = {
   level: "error" | "warning";

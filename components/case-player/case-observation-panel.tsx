@@ -59,7 +59,7 @@ export function CaseObservationPanel({
               alt={session.template.imageAlt}
               fill
               style={{
-                objectFit: "cover",
+                objectFit: session.template.id === "3" ? "contain" : "cover",
                 borderRadius: "var(--radius-lg)",
               }}
             />

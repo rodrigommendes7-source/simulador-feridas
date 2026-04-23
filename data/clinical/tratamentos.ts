@@ -20,7 +20,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     functions: ["absorb"],
     indications: [
       "exsudado moderado a abundante",
-      "ferida com sangramento ligeiro (hemostático natural)",
+      "ferida com sangramento ligeiro",
       "cavidades com exsudado",
       "úlceras venosas e diabéticas exsudativas",
     ],
@@ -55,14 +55,14 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     ],
     contraindications: [
       "exsudado abundante",
-      "infeção marcada (local-infection-overt ou superior)",
+      "infeção marcada",
       "feridas profundas ou cavitárias",
     ],
     evidenceRefs: ["foam-review"],
     learningTopicIds: ["gestao-exsudado", "desbridamento"],
     uiTags: ["hidrocólóide", "autolítico", "baixo exsudado"],
     nome_comercial: "Varihesive Gel Control",
-    substancia_ativa: "Carboximetilcelulose sódica (hidrocólóide)",
+    substancia_ativa: "Carboximetilcelulose sódica",
     categoria_clinica: "apositos",
     // Ideal em ferida seca/baixo exsudado com fibrina; parcial com moderado; incorreto em abundante ou infeção marcada
     regras: {
@@ -74,14 +74,14 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "allevyn-ag",
-    label: "Espuma de poliuretano com prata, adesivo",
+    label: "Espuma de poliuretano com prata adesivo",
     canonicalId: "allevyn-ag",
     equivalenceGroup: "foam-silver",
     category: "Apósito",
     subCategory: "Controlo da infeção + Absorção",
     functions: ["absorb", "control-bioburden", "atraumatic-cover"],
     indications: [
-      "local infection (covert ou overt)",
+      "infeção local encoberta ou evidente",
       "exsudado moderado a abundante com carga microbiana",
       "feridas crónicas com sinais subtis de infeção",
       "úlceras diabéticas ou venosas infetadas",
@@ -105,7 +105,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "allevyn-nao-adesivo",
-    label: "Espuma de poliuretano, não adesivo",
+    label: "Espuma de poliuretano não adesivo",
     canonicalId: "allevyn-nao-adesivo",
     equivalenceGroup: "foam",
     category: "Apósito",
@@ -117,7 +117,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["espuma", "não aderente", "absorvente"],
     nome_comercial: "Allevyn Non-Adesivo",
-    substancia_ativa: "Espuma de poliuretano, não adesivo",
+    substancia_ativa: "Espuma de poliuretano não adesivo",
     categoria_clinica: "apositos",
     // Ideal com exsudado moderado; parcial com ligeiro ou abundante; incorreto em seco
     regras: {
@@ -149,7 +149,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["antimicrobianos"],
     uiTags: ["carvão ativado", "prata", "odor"],
     nome_comercial: "Actisorb Silver",
-    substancia_ativa: "Carvão ativado com prata (Actisorb Silver 220)",
+    substancia_ativa: "Carvão ativado com prata",
     categoria_clinica: "apositos",
     // Ideal com odor moderado/intenso + infeção; parcial com odor ligeiro; incorreto sem odor nem infeção
     regras: {
@@ -161,7 +161,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "mepilex",
-    label: "Espuma de silicone suave, não adesivo",
+    label: "Espuma de silicone suave não adesivo",
     canonicalId: "mepilex",
     equivalenceGroup: "foam",
     category: "Apósito",
@@ -169,8 +169,8 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     functions: ["absorb", "atraumatic-cover"],
     indications: [
       "exsudado moderado",
-      "pele frágil ou peri-lesional macerada",
-      "risco de MARSI (lesão por adesivo)",
+      "pele frágil ou perilesional macerada",
+      "risco de MARSI",
       "úlceras de pressão categoria 2-3",
     ],
     contraindications: ["ferida seca sem exsudado"],
@@ -207,7 +207,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["espuma", "não aderente", "absorvente"],
     nome_comercial: "Biatain",
-    substancia_ativa: "Espuma de poliuretano (Biatain não-adesivo)",
+    substancia_ativa: "Espuma de poliuretano",
     categoria_clinica: "apositos",
     regras: {
       condicoes_ideais: { exsudado: [3, 4] },
@@ -218,25 +218,25 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "inadine",
-    label: "Iodopovidona (compressa impregnada)",
+    label: "Iodopovidona compressa impregnada",
     canonicalId: "inadine",
     equivalenceGroup: "iodine-dressing",
     category: "Apósito",
     subCategory: "Antissépsia",
     functions: ["control-bioburden"],
     indications: [
-      "local infection (covert ou overt)",
+      "infeção local encoberta ou evidente",
       "feridas com carga bacteriana elevada",
       "cuidados paliativos com ferida infetada",
     ],
-    contraindications: ["uso prolongado sem reavaliação (> 2 semanas)"],
+    contraindications: ["uso prolongado sem reavaliação"],
     evidenceRefs: ["povidone-review"],
     learningTopicIds: ["antimicrobianos"],
     uiTags: ["iodo", "compressa", "antissépsia"],
     nome_comercial: "Inadine",
-    substancia_ativa: "Iodopovidona (compressa impregnada)",
+    substancia_ativa: "Iodopovidona compressa impregnada",
     categoria_clinica: "apositos",
-    // Ideal com infeção; parcial como preventivo; sem contraindicações clínicas absolutas neste contexto
+    // Ideal com infeção; parcial como preventivo
     regras: {
       condicoes_ideais: { infeccao: [1, 2, 3] },
       condicoes_parciais: { infeccao: [0] },
@@ -253,7 +253,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     subCategory: "Controlo da infeção + Absorção",
     functions: ["absorb", "control-bioburden"],
     indications: [
-      "local infection (covert ou overt) com exsudado moderado a abundante",
+      "infeção local encoberta ou evidente com exsudado moderado a abundante",
       "biofilme suspeito em ferida crónica estagnada",
       "úlceras diabéticas e de pressão infetadas",
       "feridas cirúrgicas com deiscência e infeção",
@@ -277,7 +277,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "aquacel",
-    label: "Carboximetilcelulose (penso simples)",
+    label: "Carboximetilcelulose",
     canonicalId: "aquacel",
     equivalenceGroup: "absorbent-fiber",
     category: "Apósito",
@@ -285,7 +285,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     functions: ["absorb"],
     indications: [
       "exsudado moderado",
-      "fibrina com humidade (desbridamento autolítico combinado)",
+      "fibrina com humidade",
       "feridas pós-operatórias com exsudado",
       "úlceras venosas e diabéticas com exsudado moderado",
     ],
@@ -297,7 +297,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["absorvente", "hidrofibra", "CMC"],
     nome_comercial: "Aquacel",
-    substancia_ativa: "Carboximetilcelulose (penso simples)",
+    substancia_ativa: "Carboximetilcelulose",
     categoria_clinica: "apositos",
     // Ideal com exsudado moderado; parcial com ligeiro; incorreto em seco
     regras: {
@@ -309,7 +309,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "fibrosol",
-    label: "Carboximetilcelulose sódica (fibra hidro)",
+    label: "Carboximetilcelulose sódica",
     canonicalId: "fibrosol",
     equivalenceGroup: "absorbent-fiber",
     category: "Apósito",
@@ -321,7 +321,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["absorvente", "fibra hidro"],
     nome_comercial: "Fibrosol",
-    substancia_ativa: "Carboximetilcelulose sódica (fibra hidro)",
+    substancia_ativa: "Carboximetilcelulose sódica",
     categoria_clinica: "apositos",
     regras: {
       condicoes_ideais: { exsudado: [3] },
@@ -332,7 +332,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "varihesive-extra-fino",
-    label: "Carboximetilcelulose sódica (compressa extra fino)",
+    label: "Hidrocólóide extra fino",
     canonicalId: "varihesive-extra-fino",
     equivalenceGroup: "hydrocolloid-thin",
     category: "Apósito",
@@ -342,9 +342,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     contraindications: ["exsudado abundante"],
     evidenceRefs: ["foam-review"],
     learningTopicIds: ["gestao-exsudado"],
-    uiTags: ["extra fino", "baixo exsudado", "CMC"],
+    uiTags: ["extra fino", "baixo exsudado"],
     nome_comercial: "Varihesive Extra Fino",
-    substancia_ativa: "Carboximetilcelulose sódica (compressa extra fino)",
+    substancia_ativa: "Carboximetilcelulose sódica extra fino",
     categoria_clinica: "apositos",
     // Ideal com baixo exsudado; parcial com moderado; incorreto em abundante
     regras: {
@@ -356,7 +356,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "varihesive-gel-control",
-    label: "Carboximetilcelulose sódica s/ rebordo",
+    label: "Hidrocólóide sem rebordo",
     canonicalId: "varihesive-gel-control",
     equivalenceGroup: "hydrocolloid",
     category: "Apósito",
@@ -368,7 +368,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["gestao-exsudado", "desbridamento"],
     uiTags: ["hidrocólóide", "sem rebordo", "autolítico"],
     nome_comercial: "Varihesive Gel Control",
-    substancia_ativa: "Carboximetilcelulose sódica s/ rebordo",
+    substancia_ativa: "Carboximetilcelulose sódica sem rebordo",
     categoria_clinica: "apositos",
     regras: {
       condicoes_ideais: { exsudado: [1, 2], tecido: [2, 3] },
@@ -403,14 +403,14 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "l-mesitran",
-    label: "Mel (gaze de apósito)",
+    label: "Mel em gaze de apósito",
     canonicalId: "l-mesitran",
     equivalenceGroup: "honey-dressing",
     category: "Apósito",
     subCategory: "Antimicrobiano natural",
     functions: ["control-bioburden", "debride", "manage-odor"],
     indications: [
-      "infeção local (covert ou overt) com tecido desvitalizado",
+      "infeção local com tecido desvitalizado",
       "odor clinicamente relevante associado a infeção",
       "fibrina moderada com carga microbiana",
       "alternativa ao antimicrobiano tópico em alergia ao iodo ou prata",
@@ -423,7 +423,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["antimicrobianos", "desbridamento"],
     uiTags: ["mel", "antimicrobiano", "desbridante"],
     nome_comercial: "L-Mesitran",
-    substancia_ativa: "Mel (gaze de apósito)",
+    substancia_ativa: "Mel em gaze de apósito",
     categoria_clinica: "apositos",
     // Ideal com infeção + tecido não viável; parcial com infeção em granulação; incorreto em ferida limpa em epitelização
     regras: {
@@ -483,7 +483,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "urgotul",
-    label: "Interface lipido-colóide não aderente (TLC-Nosf)",
+    label: "Interface lipido-colóide não aderente",
     canonicalId: "urgotul",
     equivalenceGroup: "atraumatic-contact",
     category: "Apósito",
@@ -502,7 +502,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: "Urgotul",
     substancia_ativa: "Lipido-colóide com partículas hidrátias",
     categoria_clinica: "apositos",
-    // Ideal com dor ao penso (protege na remoção); bónus em tecido de granulação
+    // Ideal com dor ao penso; bónus em tecido de granulação
     regras: {
       condicoes_ideais: { dor: [1, 2, 3] },
       condicoes_parciais: { dor: [0] },
@@ -513,7 +513,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "urgo-start",
-    label: "Matricial absorvente lipido-colóide, não adesivo",
+    label: "Matricial absorvente lipido-colóide não adesivo",
     canonicalId: "urgo-start",
     equivalenceGroup: "matrix-contact",
     category: "Apósito",
@@ -525,7 +525,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["tecidos-e-leito"],
     uiTags: ["lipocolóide", "matricial", "granulação"],
     nome_comercial: "Urgo Start",
-    substancia_ativa: "Matricial absorvente lipido-colóide, não adesivo",
+    substancia_ativa: "Matricial absorvente lipido-colóide não adesivo",
     categoria_clinica: "apositos",
     // Ideal em granulação ativa; parcial em fibrina; incorreto com infeção marcada
     regras: {
@@ -537,7 +537,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "urgotul-ag",
-    label: "Prata (compressa não aderente impregnada)",
+    label: "Compressa não aderente impregnada com prata",
     canonicalId: "urgotul-ag",
     equivalenceGroup: "silver-contact",
     category: "Apósito",
@@ -549,7 +549,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["antimicrobianos", "tecidos-e-leito"],
     uiTags: ["prata", "não aderente", "infeção"],
     nome_comercial: "Urgotul Ag",
-    substancia_ativa: "Prata (compressa não aderente impregnada)",
+    substancia_ativa: "Prata em compressa não aderente impregnada",
     categoria_clinica: "apositos",
     // Ideal com infeção + dor; parcial com infeção sem dor; incorreto sem infeção
     regras: {
@@ -561,7 +561,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "allevyn",
-    label: "Espuma de poliuretano hidrocelular c/ rebordo",
+    label: "Espuma de poliuretano hidrocelular com rebordo",
     canonicalId: "allevyn",
     equivalenceGroup: "foam",
     category: "Apósito",
@@ -573,7 +573,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["gestao-exsudado"],
     uiTags: ["espuma", "com rebordo", "atraumático"],
     nome_comercial: "Allevyn",
-    substancia_ativa: "Espuma de poliuretano hidrocelular c/ rebordo",
+    substancia_ativa: "Espuma de poliuretano hidrocelular com rebordo",
     categoria_clinica: "apositos",
     // Ideal com exsudado moderado; parcial com ligeiro ou abundante; incorreto em seco
     regras: {
@@ -652,9 +652,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: null,
     substancia_ativa: "Água oxigenada",
     categoria_clinica: "liquidos",
-    // Nunca ideal — sempre parcial (uso controverso mas não proibido em contexto limitado)
+    // Nunca ideal — sempre parcial
     regras: {
-      condicoes_ideais: { exsudado: [] }, // nunca correto — lista vazia nunca satisfaz
+      condicoes_ideais: { exsudado: [] },
       condicoes_parciais: {},
       contraindicacoes: [],
     },
@@ -676,16 +676,16 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: null,
     substancia_ativa: "Álcool etílico",
     categoria_clinica: "liquidos",
-    // Sempre incorreto em qualquer ferida aberta — objeto vazio = qualquer condição
+    // Sempre incorreto em qualquer ferida aberta
     regras: {
-      condicoes_ideais: { exsudado: [] }, // nunca correto
+      condicoes_ideais: { exsudado: [] },
       contraindicacoes: [{}],
     },
   },
 
   {
     id: "cloreto-sodio",
-    label: "Cloreto de sódio solução (soro)",
+    label: "Cloreto de sódio",
     canonicalId: "cloreto-sodio",
     equivalenceGroup: "cleanse-liquid",
     category: "Líquidos",
@@ -697,7 +697,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["decisao-clinica"],
     uiTags: ["soro", "limpeza", "base"],
     nome_comercial: null,
-    substancia_ativa: "Cloreto de sódio solução (soro)",
+    substancia_ativa: "Cloreto de sódio",
     categoria_clinica: "liquidos",
     // Limpeza básica universal — sempre correto
     regras: {
@@ -731,16 +731,16 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "octiset",
-    label: "Octenidina + fenoxietanol solução",
+    label: "Octenidina com fenoxietanol solução",
     canonicalId: "octiset",
     equivalenceGroup: "antiseptic-liquid",
     category: "Líquidos",
     subCategory: "Antisséptico de largo espectro",
     functions: ["cleanse", "control-bioburden"],
     indications: [
-      "suspeita de biofilme (ferida estagnada, granulação friável)",
-      "local infection (covert ou overt)",
-      "antissépsia antes de aplicação de cobertura com prata",
+      "suspeita de biofilme",
+      "infeção local encoberta ou evidente",
+      "antissépsia antes de cobertura com prata",
       "limpeza de feridas colonizadas criticamente",
     ],
     contraindications: [],
@@ -748,9 +748,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["antimicrobianos", "decisao-clinica"],
     uiTags: ["octenidina", "antissépsia", "biofilme"],
     nome_comercial: "Octiset",
-    substancia_ativa: "Octenidina + fenoxietanol solução",
+    substancia_ativa: "Octenidina com fenoxietanol solução",
     categoria_clinica: "liquidos",
-    // Sempre correto — antisséptico de largo espectro válido em qualquer ferida
+    // Sempre correto — antisséptico de largo espectro
     regras: {
       condicoes_ideais: {},
       contraindicacoes: [],
@@ -765,7 +765,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     category: "Líquidos",
     subCategory: "Barreira cutânea",
     functions: ["protect-periwound"],
-    indications: ["risco de adesivo", "maceração perilesional"],
+    indications: ["risco de MARSI", "maceração perilesional"],
     contraindications: [],
     evidenceRefs: ["skin-barrier-review"],
     learningTopicIds: ["protecao-perilesional"],
@@ -783,9 +783,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "octenilin-solucao",
-    label: "Octenidina solução lavagem de feridas",
+    label: "Octenidina solução de lavagem",
     canonicalId: "octenilin-solucao",
-    equivalenceGroup: "cleanse-liquid",
+    equivalenceGroup: "cleanse-antiseptic-liquid",
     category: "Líquidos",
     subCategory: "Antisséptico de largo espectro",
     functions: ["cleanse", "control-bioburden"],
@@ -799,9 +799,9 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["antimicrobianos", "decisao-clinica"],
     uiTags: ["octenidina", "antissépsia", "lavagem"],
     nome_comercial: "Octenilin Solução",
-    substancia_ativa: "Octenidina solução lavagem de feridas",
+    substancia_ativa: "Octenidina solução de lavagem",
     categoria_clinica: "liquidos",
-    // Sempre correto — limpeza avançada equivalente ao soro com ação antisséptica adicional
+    // Sempre correto — limpeza avançada com ação antisséptica
     regras: {
       condicoes_ideais: {},
       contraindicacoes: [],
@@ -839,7 +839,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "atl",
-    label: "Gordura anidra (creme gordo)",
+    label: "Gordura anidra",
     canonicalId: "atl",
     equivalenceGroup: "periwound-emollient",
     category: "Pomadas",
@@ -851,7 +851,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["protecao-perilesional"],
     uiTags: ["gordura anidra", "barreira", "hidratação"],
     nome_comercial: "ATL",
-    substancia_ativa: "Gordura anidra (creme gordo)",
+    substancia_ativa: "Gordura anidra",
     categoria_clinica: "pomadas",
     // Ideal com pele frágil ou eritematosa; parcial em íntegra; incorreto em maceração
     regras: {
@@ -887,7 +887,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "betametasona",
-    label: "Betametasona (pomada corticosteroide)",
+    label: "Betametasona pomada corticosteroide",
     canonicalId: "betametasona",
     equivalenceGroup: "topical-steroid",
     category: "Pomadas",
@@ -899,11 +899,11 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["decisao-clinica", "materiais-desadequados"],
     uiTags: ["corticosteroide", "uso específico"],
     nome_comercial: "Betnovate",
-    substancia_ativa: "Betametasona (pomada corticosteroide)",
+    substancia_ativa: "Betametasona pomada corticosteroide",
     categoria_clinica: "pomadas",
-    // Sempre incorreto no contexto de tratamento de feridas (exsudado 1-4 cobre todos os casos)
+    // Sempre incorreto no contexto de tratamento de feridas
     regras: {
-      condicoes_ideais: { exsudado: [] }, // nunca ideal
+      condicoes_ideais: { exsudado: [] },
       contraindicacoes: [{ exsudado: [1, 2, 3, 4] }],
     },
   },
@@ -941,8 +941,8 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     subCategory: "Antimicrobiano tópico",
     functions: ["control-bioburden"],
     indications: [
-      "infeção local em queimaduras (indicação primária)",
-      "local infection overt em feridas com carga bacteriana gram-negativa",
+      "infeção local em queimaduras",
+      "infeção local evidente com carga bacteriana gram-negativa",
       "feridas traumáticas infetadas com tecido desvitalizado",
     ],
     contraindications: [
@@ -966,7 +966,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "colagenase",
-    label: "Colagenase pomada (desbridante enzimático)",
+    label: "Colagenase pomada desbridante",
     canonicalId: "colagenase",
     equivalenceGroup: "debridement-enzymatic",
     category: "Pomadas",
@@ -974,7 +974,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     functions: ["debride"],
     indications: [
       "fibrina aderente moderada a extensa",
-      "tecido desvitalizado (necrose superficial) quando cirurgia não viável",
+      "tecido desvitalizado quando cirurgia não viável",
       "feridas crónicas estagnadas por carga de fibrina",
       "complemento ao desbridamento autolítico em leitos mistos",
     ],
@@ -986,7 +986,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["desbridamento", "tecidos-e-leito"],
     uiTags: ["desbridamento", "enzimático", "fibrina"],
     nome_comercial: "Ulcerase",
-    substancia_ativa: "Colagenase pomada (desbridante enzimático)",
+    substancia_ativa: "Colagenase pomada desbridante",
     categoria_clinica: "pomadas",
     // Ideal para necrose ou fibrina; parcial com tecido misto; incorreto em epitelização
     regras: {
@@ -1027,7 +1027,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
 
   {
     id: "nitrato-prata",
-    label: "Nitrato de prata (lápis)",
+    label: "Nitrato de prata lápis",
     canonicalId: "nitrato-prata",
     equivalenceGroup: "cauterizing",
     category: "Outros",
@@ -1039,11 +1039,11 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     learningTopicIds: ["tecidos-e-leito"],
     uiTags: ["cauterizante", "lápis", "hipergranulação"],
     nome_comercial: null,
-    substancia_ativa: "Nitrato de prata (lápis)",
+    substancia_ativa: "Nitrato de prata lápis",
     categoria_clinica: "outros",
     // Ideal em hipergranulação; incorreto em todos os outros contextos
     regras: {
-      condicoes_ideais: { tecido: [5] }, // hipergranulação
+      condicoes_ideais: { tecido: [5] },
       contraindicacoes: [{ tecido: [1] }, { tecido: [2] }, { tecido: [4] }],
     },
   },
@@ -1126,7 +1126,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: "Octenilin Gel",
     substancia_ativa: "Octenidina gel",
     categoria_clinica: "outros",
-    // Ideal com infeção (especialmente profunda); parcial sem infeção; bónus em feridas profundas/cavidades
+    // Ideal com infeção; parcial sem infeção; bónus em feridas profundas/cavidades
     regras: {
       condicoes_ideais: { infeccao: [1, 2, 3] },
       condicoes_parciais: { infeccao: [0] },
@@ -1134,4 +1134,37 @@ export const treatmentCatalog: TreatmentDefinition[] = [
       bonus: { profundidade: [3, 4] },
     },
   },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // COMO FUNCIONA A LIGAÇÃO CASO → MATERIAL
+  //
+  // Os materiais disponíveis em cada caso são definidos em duas camadas:
+  //
+  // 1. availableTreatments (CaseTemplate) — lista os IDs dos materiais que
+  //    o estudante pode escolher para aquele caso específico. É o "menu" do
+  //    seletor de materiais no CaseTreatmentPlanner.
+  //
+  // 2. clinicalTargets (CaseVariant) — define os objetivos clínicos da variante
+  //    (ex: controlar infeção, absorver exsudado). Cada objetivo referencia
+  //    treatmentIds com as escolhas corretas/parciais esperadas.
+  //    O motor de avaliação (evaluation.ts) compara o plano do estudante
+  //    com estes objetivos para calcular a pontuação.
+  //
+  // 3. evaluationRules (CaseVariant) — regras de penalização ou bónus para
+  //    materiais específicos (ex: penalizar uso de álcool etílico). Permitem
+  //    refinar a avaliação além dos objetivos.
+  //
+  // Fluxo:
+  //   CaseTemplate.availableTreatments
+  //     → mostra opções ao estudante
+  //   CaseVariant.clinicalTargets[].treatmentIds
+  //     → define o que é correto/parcial/incorreto
+  //   CaseVariant.evaluationRules[]
+  //     → aplica penalizações ou bónus adicionais
+  //
+  // Para adicionar um material a um caso:
+  //   1. Garantir que existe em treatmentCatalog (este ficheiro)
+  //   2. Adicionar o ID a CaseTemplate.availableTreatments
+  //   3. Referenciar em clinicalTargets e/ou evaluationRules conforme necessário
+  // ══════════════════════════════════════════════════════════════════════════
 ];

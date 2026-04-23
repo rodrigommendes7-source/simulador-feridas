@@ -342,6 +342,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
           <CaseResultSummary
             session={session}
             evaluation={evaluation}
+            attempt={attempt}
             previousBestScore={previousBestScore}
             onReview={openReview}
             onReset={resetCase}

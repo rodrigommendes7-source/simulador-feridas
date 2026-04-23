@@ -201,6 +201,21 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
     const availableGoals = matchedGoals.filter((goal) => !claimedGoalIds.has(goal.id));
 
     if (matchedGoals.length === 0) {
+      // Limpeza e antissépsia universais são sempre corretas — nunca penalizar
+      const isUniversalCleanser =
+        treatment.contraindications.length === 0 &&
+        (treatment.functions.includes("cleanse") || treatment.functions.includes("control-bioburden"));
+      if (isUniversalCleanser) {
+        pushItem(
+          section,
+          treatment.id,
+          treatment.label,
+          "adequado",
+          "Limpeza e antissépsia são sempre adequadas como preparação do leito da ferida.",
+          treatment.learningTopicIds
+        );
+        continue;
+      }
       pushItem(
         section,
         treatment.id,
@@ -559,10 +574,10 @@ function buildReading(session: CaseSession) {
   const infectionLabel: Record<typeof woundState.infection, string> = {
     "contamination": "contaminação (sem sinais clínicos)",
     "colonization": "colonização (sem resposta do hospedeiro)",
-    "local-infection-covert": "Local Infection (covert) — sinais subtis",
-    "local-infection-overt": "Local Infection (overt) — sinais clássicos",
-    "spreading-infection": "Spreading Infection — escalamento urgente",
-    "systemic-infection": "Systemic Infection — emergência clínica",
+    "local-infection-covert": "infeção local encoberta — sinais subtis",
+    "local-infection-overt": "infeção local evidente — sinais clássicos",
+    "spreading-infection": "infeção em propagação — escalamento urgente",
+    "systemic-infection": "infeção sistémica — emergência clínica",
   };
   return `Ferida com exsudado ${woundState.exudate}, tecido ${woundState.tissue.replace(/-/g, " ")}, infeção: ${infectionLabel[woundState.infection]} e pele peri-ferida ${woundState.periwound}.`;
 }

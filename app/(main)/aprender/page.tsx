@@ -54,7 +54,7 @@ export default async function LearningPage({
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   return (
-    <main className="grid lg:grid-cols-[280px_1fr]" style={{ gap: "var(--space-2xl)" }}>
+    <main className="grid lg:grid-cols-[280px_1fr]" style={{ gap: "var(--space-2xl)", height: "100%" }}>
 
       {/* ── Sidebar de temas ─────────────────────────────────────────────── */}
       <aside

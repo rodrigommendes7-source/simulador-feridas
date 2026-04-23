@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
-  getApplicationLabel,
   getTreatmentLabel,
+  type AttemptInput,
   type CaseEvaluation,
   type CaseSession,
 } from "@/lib/clinical";
@@ -33,20 +33,79 @@ function scoreDeltaLabel(previousBestScore: number | null, currentScore: number)
   return "Igualaste o teu melhor registo anterior neste caso.";
 }
 
+// Constrói a lista "Decisões essenciais": observações + diálogos + técnica que foram essenciais
+function buildEssentialLines(session: CaseSession, attempt: AttemptInput, evaluation: CaseEvaluation): string[] {
+  const lines: string[] = [];
+
+  // Observações essenciais seleccionadas
+  const obsSection = evaluation.sections.find((s) => s.id === "observation");
+  if (obsSection) {
+    for (const item of obsSection.items) {
+      if (item.classification === "essencial" && item.sourceId && attempt.observationIds.includes(item.sourceId as never)) {
+        lines.push(`Observaste ${item.label.toLowerCase()}.`);
+      }
+    }
+  }
+
+  // Diálogos essenciais seleccionados
+  const assessSection = evaluation.sections.find((s) => s.id === "assessment");
+  if (assessSection) {
+    for (const item of assessSection.items) {
+      if (item.classification === "essencial" && item.sourceId && attempt.dialogueIds.includes(item.sourceId as never)) {
+        lines.push(`Perguntaste sobre ${item.label.toLowerCase()}.`);
+      }
+    }
+  }
+
+  // Técnica essencial seleccionada
+  const appSection = evaluation.sections.find((s) => s.id === "application-technique");
+  if (appSection) {
+    for (const item of appSection.items) {
+      if (item.classification === "essencial" && item.sourceId && attempt.applicationIds.includes(item.sourceId as never)) {
+        lines.push(`Técnica: ${item.label}.`);
+      }
+    }
+  }
+
+  return lines;
+}
+
+// Constrói a lista "Tratamentos corretos": label + justificação de 1 linha
+function buildCorrectTreatmentLines(attempt: AttemptInput, evaluation: CaseEvaluation): { label: string; explanation: string }[] {
+  const treatSection = evaluation.sections.find((s) => s.id === "treatment-plan");
+  if (!treatSection) return [];
+
+  return treatSection.items
+    .filter(
+      (item) =>
+        (item.classification === "essencial" || item.classification === "adequado") &&
+        item.sourceId &&
+        attempt.treatmentIds.includes(item.sourceId)
+    )
+    .map((item) => ({
+      label: getTreatmentLabel(item.sourceId!),
+      explanation: item.explanation,
+    }));
+}
 
 export function CaseResultSummary({
   session,
   evaluation,
+  attempt,
   previousBestScore,
   onReview,
   onReset,
 }: {
   session: CaseSession;
   evaluation: CaseEvaluation;
+  attempt: AttemptInput;
   previousBestScore: number | null;
   onReview: () => void;
   onReset: () => void;
 }) {
+  const essentialLines = buildEssentialLines(session, attempt, evaluation);
+  const correctTreatments = buildCorrectTreatmentLines(attempt, evaluation);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)", padding: "var(--space-2xl)" }}>
 
@@ -121,40 +180,64 @@ export function CaseResultSummary({
           gap: "var(--space-md)",
         }}
       >
-        {(
-          [
-            ["Decisões essenciais", evaluation.reasoningSummary.essential, "sky"],
-            ["Decisões corretas", evaluation.reasoningSummary.correct, "emerald"],
-            ["Excessos ou redundâncias", evaluation.reasoningSummary.redundant, "amber"],
-            ["Erros com impacto clínico", evaluation.reasoningSummary.inadequate, "rose"],
-          ] as [string, string[], BlockColor][]
-        ).map(([title, items, color]) => (
-          <div key={title} style={blockStyle(color)}>
-            <p className="text-label" style={{ color: blockLabelColor(color) }}>
-              {title}
-            </p>
-            <div
-              style={{
-                marginTop: "var(--space-md)",
-                display: "flex",
-                flexDirection: "column",
-                gap: "var(--space-xs)",
-              }}
-            >
-              {items.length > 0 ? (
-                items.map((item, index) => (
-                  <p key={index} className="text-body">
-                    {item}
-                  </p>
-                ))
-              ) : (
-                <p className="text-body" style={{ color: "var(--color-text-disabled)" }}>
-                  Sem registos relevantes nesta categoria.
-                </p>
-              )}
-            </div>
+          {/* Decisões essenciais */}
+        <div style={blockStyle("sky")}>
+          <p className="text-label" style={{ color: blockLabelColor("sky") }}>Decisões essenciais</p>
+          <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+            {essentialLines.length > 0 ? (
+              essentialLines.map((item, index) => (
+                <p key={index} className="text-body">{item}</p>
+              ))
+            ) : (
+              <p className="text-body" style={{ color: "var(--color-text-disabled)" }}>Sem registos relevantes nesta categoria.</p>
+            )}
           </div>
-        ))}
+        </div>
+
+        {/* Tratamentos corretos */}
+        <div style={blockStyle("emerald")}>
+          <p className="text-label" style={{ color: blockLabelColor("emerald") }}>Tratamentos corretos</p>
+          <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+            {correctTreatments.length > 0 ? (
+              correctTreatments.map((item, index) => (
+                <div key={index}>
+                  <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)", fontSize: "var(--text-body)" }}>{item.label}</p>
+                  <p className="text-body" style={{ marginTop: "2px" }}>{item.explanation}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-body" style={{ color: "var(--color-text-disabled)" }}>Sem registos relevantes nesta categoria.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Excessos ou redundâncias */}
+        <div style={blockStyle("amber")}>
+          <p className="text-label" style={{ color: blockLabelColor("amber") }}>Excessos ou redundâncias</p>
+          <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+            {evaluation.reasoningSummary.redundant.length > 0 ? (
+              evaluation.reasoningSummary.redundant.map((item, index) => (
+                <p key={index} className="text-body">{item}</p>
+              ))
+            ) : (
+              <p className="text-body" style={{ color: "var(--color-text-disabled)" }}>Sem registos relevantes nesta categoria.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Erros com impacto clínico */}
+        <div style={blockStyle("rose")}>
+          <p className="text-label" style={{ color: blockLabelColor("rose") }}>Erros com impacto clínico</p>
+          <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+            {evaluation.reasoningSummary.inadequate.length > 0 ? (
+              evaluation.reasoningSummary.inadequate.map((item, index) => (
+                <p key={index} className="text-body">{item}</p>
+              ))
+            ) : (
+              <p className="text-body" style={{ color: "var(--color-text-disabled)" }}>Sem registos relevantes nesta categoria.</p>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* ── Plano recomendado + diferenças ── */}
@@ -163,49 +246,22 @@ export function CaseResultSummary({
       >
         <div className="card" style={{ padding: "var(--space-lg)" }}>
           <p className="text-label" style={{ color: "var(--color-warning)" }}>
-            Plano recomendado
+            Plano otimizado
           </p>
-          <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
-            <div>
-              <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                Plano mínimo seguro
-              </p>
-              <div style={{ marginTop: "var(--space-sm)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-                {evaluation.recommendedPlan.minimum.map((item) => (
-                  <div
-                    key={item}
-                    style={{
-                      background: "var(--color-elevated)",
-                      border: "var(--border-default)",
-                      borderRadius: "var(--radius-md)",
-                      padding: "var(--space-xs) var(--space-sm)",
-                    }}
-                  >
-                    <p className="text-body">{item}</p>
-                  </div>
-                ))}
+          <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+            {evaluation.recommendedPlan.optimized.map((item) => (
+              <div
+                key={item}
+                style={{
+                  background: "var(--color-elevated)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "var(--space-xs) var(--space-sm)",
+                }}
+              >
+                <p className="text-body">{item}</p>
               </div>
-            </div>
-            <div>
-              <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                Plano otimizado
-              </p>
-              <div style={{ marginTop: "var(--space-sm)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-                {evaluation.recommendedPlan.optimized.map((item) => (
-                  <div
-                    key={item}
-                    style={{
-                      background: "var(--color-elevated)",
-                      border: "var(--border-default)",
-                      borderRadius: "var(--radius-md)",
-                      padding: "var(--space-xs) var(--space-sm)",
-                    }}
-                  >
-                    <p className="text-body">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 

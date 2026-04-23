@@ -17,8 +17,8 @@ export default function MainLayout({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen">
-      <header className="nav">
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      <header className="nav" style={{ flexShrink: 0 }}>
         <Link href="/" className="text-h3" style={{ display: "block" }}>
           Simulador de Feridas
         </Link>
@@ -48,7 +48,7 @@ export default function MainLayout({
         </nav>
       </header>
 
-      <div style={{ padding: "var(--space-lg) var(--space-2xl)" }}>
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "var(--space-lg) var(--space-2xl)" }}>
         {children}
       </div>
     </div>

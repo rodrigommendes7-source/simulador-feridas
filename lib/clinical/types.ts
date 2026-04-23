@@ -132,7 +132,6 @@ export type ApplicationId =
   | "ligadura"
   | "penso_impermeavel"
   | "terapia_compressiva"
-  | "alivio_pressao"
   | "sem_protecao";
 
 export type EvidenceReference = {

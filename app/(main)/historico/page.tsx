@@ -55,7 +55,7 @@ export default function HistoryPage() {
   const hasHistory = history.length > 0;
 
   return (
-    <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)" }}>
+    <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)", height: "100%" }}>
 
       {/* ── Cabeçalho ─────────────────────────────────────────────────────── */}
       <section

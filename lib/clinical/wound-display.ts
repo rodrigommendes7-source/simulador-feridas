@@ -32,16 +32,16 @@ export const WOUND_VARIABLE_DISPLAY_LABELS: Record<keyof WoundVariables, string>
 
 export const WOUND_VARIABLES_MAIN: readonly (keyof WoundVariables)[] = [
   "exsudado",
-  "infeccao",
+  "odor",
   "tecido",
-  "profundidade",
+  "pele_perilesional",
 ];
 
 export const WOUND_VARIABLES_EXTRA: readonly (keyof WoundVariables)[] = [
-  "odor",
+  "infeccao",
   "humidade",
+  "profundidade",
   "bordos",
-  "pele_perilesional",
   "dor",
   "hemorragia",
   "etiologia",

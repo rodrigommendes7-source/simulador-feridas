@@ -59,6 +59,7 @@ export function CaseObservationPanel({
                 src={session.template.imageSrc}
                 alt={session.template.imageAlt}
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 style={{
                   objectFit: session.template.id === "3" ? "contain" : "cover",
                   borderRadius: "var(--radius-lg)",

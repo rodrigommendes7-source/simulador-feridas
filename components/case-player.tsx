@@ -17,28 +17,10 @@ import {
   getPreviousBestScoreForCase,
 } from "@/lib/clinical";
 import {
-  WOUND_VARIABLE_DISPLAY_LABELS,
-  WOUND_VARIABLES_EXTRA,
-  WOUND_VARIABLES_MAIN,
-  getWoundVariableLabel,
-} from "@/lib/clinical/wound-display";
-import type { WoundVariables } from "@/lib/clinical";
-
-// Mapeia cada variável clínica à observação ou pergunta de diálogo que a desvenda
-const VARIABLE_UNLOCK_MAP: Record<keyof WoundVariables, { type: "observation" | "dialogue"; id: string }> = {
-  exsudado:          { type: "observation", id: "exsudado" },
-  infeccao:          { type: "observation", id: "tecidos" },
-  tecido:            { type: "observation", id: "tecidos" },
-  odor:              { type: "observation", id: "cheiro" },
-  humidade:          { type: "observation", id: "exsudado" },
-  profundidade:      { type: "observation", id: "dimensoes" },
-  bordos:            { type: "observation", id: "imagem" },
-  pele_perilesional: { type: "observation", id: "pele_perilesional" },
-  dor:               { type: "dialogue",    id: "dor" },
-  hemorragia:        { type: "observation", id: "imagem" },
-  etiologia:         { type: "dialogue",    id: "duracao" },
-  perfusao:          { type: "dialogue",    id: "mobilidade" },
-};
+  VISUAL_TISSUE_OPTIONS,
+  VISUAL_EXUDATE_OPTIONS,
+  VISUAL_EDGE_OPTIONS,
+} from "@/data/clinical/visualOptions";
 import { CaseDialoguePanel } from "@/components/case-player/case-dialogue-panel";
 import { CaseIntro } from "@/components/case-player/case-intro";
 import { CaseObservationPanel } from "@/components/case-player/case-observation-panel";
@@ -551,18 +533,30 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
               </div>
             </div>
 
-            {/* Variáveis clínicas — desbloqueadas progressivamente */}
-            {session.variant.woundVariables ? (() => {
-              const isUnlocked = (key: keyof WoundVariables) => {
-                if (reviewMode) return true;
-                const rule = VARIABLE_UNLOCK_MAP[key];
-                return rule.type === "observation"
-                  ? observationIds.includes(rule.id as ObservationId)
-                  : dialogueIds.includes(rule.id as DialogueId);
+            {/* Leitura visual — só aparece a partir do diálogo */}
+            {(step === "dialogo" || step === "tratamento") && (() => {
+              const tissueLabels = visualSubmission.tissues
+                .map((id) => VISUAL_TISSUE_OPTIONS.find((o) => o.id === id)?.label)
+                .filter(Boolean).join(", ") || "—";
+              const exudateLabels = visualSubmission.exudate
+                .map((id) => VISUAL_EXUDATE_OPTIONS.find((o) => o.id === id)?.label)
+                .filter(Boolean).join(", ") || "—";
+              const edgeLabels = visualSubmission.edges
+                .map((id) => VISUAL_EDGE_OPTIONS.find((o) => o.id === id)?.label)
+                .filter(Boolean).join(", ") || "—";
+              const odorLabels: Record<string, string> = {
+                ausente: "Ausente", ligeiro: "Ligeiro", moderado: "Moderado", fetido: "Fétido", presente: "Presente", intenso: "Intenso",
               };
-              const visibleMain  = WOUND_VARIABLES_MAIN.filter(isUnlocked);
-              const visibleExtra = reviewMode ? WOUND_VARIABLES_EXTRA.filter(isUnlocked) : [];
-              const anyVisible   = visibleMain.length > 0 || visibleExtra.length > 0;
+              const odorValue = observationIds.includes("cheiro")
+                ? (odorLabels[session.variant.woundState.odor] ?? session.variant.woundState.odor)
+                : "—";
+
+              const rows: { label: string; value: string }[] = [
+                { label: "Exsudado", value: exudateLabels },
+                { label: "Odor", value: odorValue },
+                { label: "Tecido", value: tissueLabels },
+                { label: "Pele perilesional", value: edgeLabels },
+              ];
 
               return (
                 <div
@@ -574,65 +568,42 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                   }}
                 >
                   <p className="text-label" style={{ color: "var(--color-warning)" }}>
-                    Variáveis clínicas
+                    A tua leitura
                   </p>
-                  {anyVisible ? (
-                    <div
-                      style={{
-                        marginTop: "var(--space-sm)",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "var(--space-xs)",
-                      }}
-                    >
-                      {[...visibleMain, ...visibleExtra].map((key) => {
-                        const value = session.variant.woundVariables![key] as number;
-                        return (
-                          <div
-                            key={key}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              gap: "var(--space-sm)",
-                              borderRadius: "var(--radius-md)",
-                              border: "var(--border-default)",
-                              background: "var(--color-elevated)",
-                              padding: "2px var(--space-sm)",
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: "var(--text-label)",
-                                color: "var(--color-text-secondary)",
-                              }}
-                            >
-                              {WOUND_VARIABLE_DISPLAY_LABELS[key]}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: "var(--text-label)",
-                                fontWeight: "var(--weight-medium)",
-                                color: "var(--color-text-primary)",
-                              }}
-                            >
-                              {getWoundVariableLabel(key, value)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p
-                      className="text-body"
-                      style={{ marginTop: "var(--space-xs)", color: "var(--color-text-disabled)" }}
-                    >
-                      Aparece à medida que observas e perguntas.
-                    </p>
-                  )}
+                  <div
+                    style={{
+                      marginTop: "var(--space-sm)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-xs)",
+                    }}
+                  >
+                    {rows.map(({ label, value }) => (
+                      <div
+                        key={label}
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          justifyContent: "space-between",
+                          gap: "var(--space-sm)",
+                          borderRadius: "var(--radius-md)",
+                          border: "var(--border-default)",
+                          background: "var(--color-elevated)",
+                          padding: "2px var(--space-sm)",
+                        }}
+                      >
+                        <span style={{ fontSize: "var(--text-label)", color: "var(--color-text-secondary)", flexShrink: 0 }}>
+                          {label}
+                        </span>
+                        <span style={{ fontSize: "var(--text-label)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)", textAlign: "right" }}>
+                          {value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               );
-            })() : null}
+            })()}
           </aside>
 
           {/* ── Área principal ──────────────────────────────────────────────── */}

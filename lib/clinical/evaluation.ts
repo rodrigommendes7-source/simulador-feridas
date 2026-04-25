@@ -506,7 +506,7 @@ function greedyBestSelection<T, K extends keyof AttemptInput>(
   // Falls back to no-item if all additions would hurt (negative marginal contribution).
   const currentSelection: T[] = [];
   let currentScore = getSectionRawScore(
-    buildSection(session, buildAttemptWithSelection(field, currentSelection as AttemptInput[K]))
+    buildSection(session, buildAttemptWithSelection(field, currentSelection as unknown as AttemptInput[K]))
   );
 
   while (true) {
@@ -517,7 +517,7 @@ function greedyBestSelection<T, K extends keyof AttemptInput>(
       if (currentSelection.includes(option)) continue;
       const candidate = [...currentSelection, option];
       const score = getSectionRawScore(
-        buildSection(session, buildAttemptWithSelection(field, candidate as AttemptInput[K]))
+        buildSection(session, buildAttemptWithSelection(field, candidate as unknown as AttemptInput[K]))
       );
       const gain = score - currentScore;
       if (gain > bestGain) {
@@ -543,7 +543,7 @@ function getBestRawScoreForSelections<T, K extends keyof AttemptInput>(
   session: CaseSession
 ) {
   const bestSelection = greedyBestSelection(options, field, buildSection, session);
-  const attempt = buildAttemptWithSelection(field, bestSelection as AttemptInput[K]);
+  const attempt = buildAttemptWithSelection(field, bestSelection as unknown as AttemptInput[K]);
   return Math.max(0, getSectionRawScore(buildSection(session, attempt)));
 }
 

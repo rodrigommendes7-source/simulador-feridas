@@ -210,7 +210,7 @@ const cases: CaseTemplate[] = [
         title: "Deiscência abdominal com infeção estabelecida e drenos",
         patientContext: "Utente de 62 anos com deiscência cirúrgica abdominal após laparotomia, com drenos de drenagem ativos e sinais de infeção estabelecida.",
         patientBanner: "Deiscência abdominal total com infeção estabelecida, tecido de granulação exposto, fibrina e drenos — © Medetec Medical Images (medetec.co.uk)",
-        woundState: { exudate: "abundante", infection: "local-infection-overt", tissue: "granulacao-fibrina", periwound: "fragil", odor: "moderado" },
+        woundState: { exudate: "abundante", infection: "local-infection-overt", tissue: "granulacao-fibrina", periwound: "fragil", odor: "presente" },
         woundVariables: { exsudado: 4, infeccao: 2, tecido: 3, odor: 2, humidade: 4, profundidade: 3, bordos: 2, pele_perilesional: 2, dor: 3, hemorragia: 0, etiologia: 6, perfusao: 1 },
         observationDetails: {
           imagem: { detail: "Abertura abdominal com leito avermelhado exposto, camada amarelada visível e dois tubos de drenagem em silicone. Sutura lateral parcialmente presente." },

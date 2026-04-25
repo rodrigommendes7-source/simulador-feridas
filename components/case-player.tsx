@@ -357,6 +357,8 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
               width: "14rem",
               flexShrink: 0,
               overflowY: "auto",
+              alignSelf: "stretch",
+              minHeight: 0,
               borderRight: "var(--border-default)",
               padding: "var(--space-sm)",
               display: "flex",
@@ -673,7 +675,6 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 <CaseVisualIdentification
                   submission={visualSubmission}
                   onChange={setVisualSubmission}
-                  onContinue={() => setStep("dialogo")}
                 />
               ) : step === "dialogo" ? (
                 <CaseDialoguePanel
@@ -727,6 +728,24 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                     className="btn btn-ghost"
                   >
                     Voltar ao resultado
+                  </button>
+                ) : null}
+                {!reviewMode && step === "observacao" ? (
+                  <button
+                    type="button"
+                    onClick={() => setStep("identificacao")}
+                    className="btn btn-primary"
+                  >
+                    Continuar para identificação
+                  </button>
+                ) : null}
+                {!reviewMode && step === "dialogo" ? (
+                  <button
+                    type="button"
+                    onClick={() => setStep("tratamento")}
+                    className="btn btn-primary"
+                  >
+                    Continuar para tratamento
                   </button>
                 ) : null}
                 {!reviewMode ? (

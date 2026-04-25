@@ -126,6 +126,8 @@ export function CaseObservationPanel({
           flexDirection: "column",
           gap: "var(--space-md)",
           overflowY: "auto",
+          minHeight: 0,
+          flex: 1,
         }}
       >
         <p className="text-label">Observação guiada</p>
@@ -134,7 +136,10 @@ export function CaseObservationPanel({
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
+            gridTemplateRows: "repeat(3, 1fr)",
             gap: "var(--space-sm)",
+            flex: 1,
+            minHeight: 0,
           }}
         >
           {session.template.observationDefinitions

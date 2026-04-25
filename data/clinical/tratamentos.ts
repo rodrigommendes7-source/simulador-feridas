@@ -785,7 +785,7 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     id: "octenilin-solucao",
     label: "Octenidina solução de lavagem",
     canonicalId: "octenilin-solucao",
-    equivalenceGroup: "cleanse-antiseptic-liquid",
+    equivalenceGroup: "cleanse-liquid",
     category: "Líquidos",
     subCategory: "Antisséptico de largo espectro",
     functions: ["cleanse", "control-bioburden"],

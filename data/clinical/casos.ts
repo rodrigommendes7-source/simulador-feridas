@@ -12,6 +12,7 @@ const observationDefinitions: ObservationDefinition[] = [
   { id: "exsudado", label: "Exsudado", priority: "essencial", prompt: "Ver exsudado", learningTopicIds: ["gestao-exsudado"] },
   { id: "cheiro", label: "Odor", priority: "adequado", prompt: "Ver odor", learningTopicIds: ["antimicrobianos"] },
   { id: "tecidos", label: "Tecidos", priority: "essencial", prompt: "Ver tecidos presentes", learningTopicIds: ["tecidos-e-leito", "desbridamento"] },
+  { id: "bordos", label: "Bordos", priority: "essencial", prompt: "Ver bordos da ferida", learningTopicIds: ["tecidos-e-leito"] },
   { id: "pele_perilesional", label: "Pele peri-ferida", priority: "essencial", prompt: "Ver pele peri-ferida", learningTopicIds: ["protecao-perilesional"] },
 ];
 
@@ -144,6 +145,7 @@ const cases: CaseTemplate[] = [
           exsudado: { detail: "Moderado, de tonalidade amarelada a turva." },
           cheiro: { detail: "Odor ligeiro presente." },
           tecidos: { detail: "Presença de tecido amarelado a acinzentado aderente no centro do leito. Alguma área de tecido mais vascularizado visível na periferia." },
+          bordos: { detail: "Bordos bem definidos, avermelhados e ligeiramente elevados em relação ao leito central." },
           pele_perilesional: { detail: "Pele circundante avermelhada, com aspeto húmido e fragilizado. Zona de vermelhidão visível ao redor da lesão." },
         },
         dialogueResponses: {
@@ -217,7 +219,8 @@ const cases: CaseTemplate[] = [
           dimensoes: { detail: "Abertura extensa: ~15 cm × 5 cm, com profundidade moderada a elevada." },
           exsudado: { detail: "Abundante, líquido turvo de coloração amarelada." },
           cheiro: { detail: "Odor moderado presente." },
-          tecidos: { detail: "Leito com tecido avermelhado exposto e camada amarelada aderente. Bordos da sutura visíveis lateralmente. Drenos de drenagem presentes." },
+          tecidos: { detail: "Leito com tecido avermelhado exposto e camada amarelada aderente. Drenos de drenagem presentes." },
+          bordos: { detail: "Bordos cirúrgicos parcialmente abertos com sutura lateral visível. Margens irregulares ao longo da abertura." },
           pele_perilesional: { detail: "Pele abdominal ao redor com coloração escurecida, ligeiramente inchada e frágil." },
         },
         dialogueResponses: {
@@ -294,6 +297,7 @@ const cases: CaseTemplate[] = [
           exsudado: { detail: "Moderado, líquido de coloração amarelada." },
           cheiro: { detail: "Odor ligeiro perceptível." },
           tecidos: { detail: "Leito preenchido por camada amarelada a acinzentada aderente. Sem tecido avermelhado visível no leito." },
+          bordos: { detail: "Bordos pouco definidos, com aspeto macerado e descamativo. Difícil distinguir a margem da ferida da pele circundante." },
           pele_perilesional: { detail: "Pele envolvente pálida, descamativa e húmida em toda a região interdigital e plantar." },
         },
         dialogueResponses: {
@@ -373,7 +377,8 @@ const cases: CaseTemplate[] = [
           dimensoes: { detail: "~4 cm × 3 cm; profundidade moderada com parte do leito coberta por crosta." },
           exsudado: { detail: "Moderado, líquido claro a ligeiramente amarelado sob a crosta periférica." },
           cheiro: { detail: "Sem odor marcado." },
-          tecidos: { detail: "Leito com zona central avermelhada e zona periférica com crosta castanha aderente. Bordos recortados e irregulares. Leito com aspeto pouco vascularizado." },
+          tecidos: { detail: "Leito com zona central avermelhada e zona periférica com crosta castanha aderente. Leito com aspeto pouco vascularizado." },
+          bordos: { detail: "Bordos recortados e irregulares, com aspeto 'punched-out'. Sem linha de epitelização visível." },
           pele_perilesional: { detail: "Pele ao redor muito seca, descamativa e avermelhada em toda a região do tornozelo e perna lateral." },
         },
         dialogueResponses: {
@@ -452,7 +457,8 @@ const cases: CaseTemplate[] = [
           dimensoes: { detail: "~6 cm × 4 cm, profundidade superficial." },
           exsudado: { detail: "Abundante, líquido turvo de tonalidade clara a esbranquiçada." },
           cheiro: { detail: "Odor intenso marcado." },
-          tecidos: { detail: "Leito maioritariamente preenchido por camada amarelada aderente. Pequena área de tecido avermelhado frágil visível. Sem sinal de cicatrização nos bordos." },
+          tecidos: { detail: "Leito maioritariamente preenchido por camada amarelada aderente. Pequena área de tecido avermelhado frágil visível." },
+          bordos: { detail: "Bordos irregulares sem linha de cicatrização. Pequenas lesões satélite visíveis nas proximidades." },
           pele_perilesional: { detail: "Pele ao redor pálida, com aspeto inchado e descamativo. Vermelhidão marcada." },
         },
         dialogueResponses: {
@@ -531,7 +537,8 @@ const cases: CaseTemplate[] = [
           dimensoes: { detail: "~10 cm × 6 cm, profundidade superficial." },
           exsudado: { detail: "Moderado, líquido claro com tonalidade rosada." },
           cheiro: { detail: "Sem odor." },
-          tecidos: { detail: "Tecido vermelho abundante que sobe acima dos bordos da lesão. Bordos sem sinal de cicatrização. Sangramento fácil ao toque." },
+          tecidos: { detail: "Tecido vermelho abundante que sobe acima dos bordos da lesão. Sangramento fácil ao toque." },
+          bordos: { detail: "Bordos completamente sobrepostos pelo tecido excessivo. Sem sinal de cicatrização ou epitelização nas margens." },
           pele_perilesional: { detail: "Pele ao redor pálida, ligeiramente inchada. Sem vermelhidão marcada." },
         },
         dialogueResponses: {
@@ -610,6 +617,7 @@ const cases: CaseTemplate[] = [
           exsudado: { detail: "Moderado, turvo nas margens abertas." },
           cheiro: { detail: "Odor desagradável marcado." },
           tecidos: { detail: "Zona central com tecido de coloração negra e aspeto seco. Zonas adjacentes com camada amarelada espessa e viscosa. Sem tecido avermelhado visível." },
+          bordos: { detail: "Bordos abertos, sem aproximação. Margens com tecido amarelado viscoso aderente. Sem linha de cicatrização." },
           pele_perilesional: { detail: "Pele ao redor muito avermelhada e inchada, estendendo-se além da margem da ferida. Com sensação de calor ao toque." },
         },
         dialogueResponses: {
@@ -688,6 +696,7 @@ const cases: CaseTemplate[] = [
           exsudado: { detail: "Moderado a abundante, líquido viscoso e turvo." },
           cheiro: { detail: "Intenso e desagradável." },
           tecidos: { detail: "Leito com mistura de zona escura seca, camada amarelada espessa e pequenas áreas avermelhadas irregulares. Sem sinal de cicatrização." },
+          bordos: { detail: "Bordos irregulares com transição abrupta entre a lesão e a pele circundante. Sem qualquer sinal de epitelização." },
           pele_perilesional: { detail: "Pele ao redor seca, com tonalidade castanha e aspeto frágil." },
         },
         dialogueResponses: {

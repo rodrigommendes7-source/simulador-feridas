@@ -114,6 +114,7 @@ export type ObservationId =
   | "exsudado"
   | "cheiro"
   | "tecidos"
+  | "bordos"
   | "pele_perilesional";
 
 export type DialogueId =

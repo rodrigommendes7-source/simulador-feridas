@@ -15,7 +15,6 @@ import type {
 type Props = {
   submission: VisualIdentificationSubmission;
   onChange: (next: VisualIdentificationSubmission) => void;
-  onContinue: () => void;
 };
 
 function toggle<T extends string>(arr: T[], value: T): T[] {
@@ -148,7 +147,7 @@ function CheckboxGroup<T extends string>({
   );
 }
 
-export function CaseVisualIdentification({ submission, onChange, onContinue }: Props) {
+export function CaseVisualIdentification({ submission, onChange }: Props) {
   return (
     <div
       style={{
@@ -199,14 +198,6 @@ export function CaseVisualIdentification({ submission, onChange, onContinue }: P
         onToggle={(id) => onChange({ ...submission, edges: toggle(submission.edges, id) })}
       />
 
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={onContinue}
-        style={{ alignSelf: "flex-end" }}
-      >
-        Continuar para diálogo
-      </button>
     </div>
   );
 }

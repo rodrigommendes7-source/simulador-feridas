@@ -160,7 +160,7 @@ const cases: CaseTemplate[] = [
         applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
           goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Sem limpeza adequada, a cobertura perde coerência clínica.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
-          goal("antisepsis", "Associar antissépsia local", "control-bioburden", "essencial", "A infeção local exige antissépsia antes da cobertura.", { treatmentFunctions: ["control-bioburden"] }, ["decisao-clinica", "antimicrobianos"]),
+          goal("antisepsis", "Associar antissépsia local", "control-bioburden", "essencial", "A infeção local exige antissépsia antes da cobertura.", { treatmentFunctions: ["antiseptic"] }, ["decisao-clinica", "antimicrobianos"]),
           goal("exudate", "Controlar o exsudado e proteger a periferia", "control-exudate", "essencial", "O exsudado é o problema dominante neste caso.", { treatmentFunctions: ["absorb"] }, ["gestao-exsudado"]),
           goal("periwound", "Proteger a pele peri-ferida", "protect-periwound", "essencial", "A pele adjacente frágil precisa de ser preservada para evitar maceração e trauma.", { treatmentFunctions: ["protect-periwound"] }, ["protecao-perilesional"]),
           goal("debridement", "Preparar o leito quando há fibrina", "debridement", "essencial", "A fibrina aderente bloqueia a progressão do leito e deve ser abordada.", { treatmentFunctions: ["debride"] }, ["desbridamento", "tecidos-e-leito"]),
@@ -233,8 +233,8 @@ const cases: CaseTemplate[] = [
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "silvercel", "aquacel-ag", "aquacel", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "betametasona"],
         applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
-          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Há necessidade de limpeza local antes do restante plano.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
-          goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia local ajuda a preparar o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao", "betadine-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
+          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Há necessidade de limpeza local antes do restante plano.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
+          goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia local ajuda a preparar o leito antes da cobertura.", { treatmentFunctions: ["antiseptic"] }, ["decisao-clinica", "antimicrobianos"]),
           goal("bioburden", "Controlar a carga microbiana", "control-bioburden", "essencial", "Os sinais do caso exigem leitura de infeção ou colonização crítica.", { treatmentIds: ["silvercel", "aquacel-ag"] }, ["antimicrobianos"]),
           goal("exudate", "Controlar o exsudado", "control-exudate", "essencial", "Sem absorção adequada, a pele peri-ferida degrada-se e a ferida perde controlo.", { treatmentIds: ["aquacel"] }, ["gestao-exsudado"]),
           goal("debridement", "Considerar desbridamento do tecido desvitalizado/fibrina", "debridement", "essencial", "Fibrina e tecido desvitalizado pedem preparação do leito contextual.", { treatmentFunctions: ["debride"] }, ["desbridamento"]),
@@ -309,8 +309,8 @@ const cases: CaseTemplate[] = [
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "silvercel", "aquacel-ag", "actisorb-silver", "vliwasorb", "aquacel", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "urgotul", "betametasona"],
         applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
-          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A limpeza local deve anteceder o restante plano.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
-          goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia ajuda a preparar o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao", "betadine-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
+          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A limpeza local deve anteceder o restante plano.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
+          goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia ajuda a preparar o leito antes da cobertura.", { treatmentFunctions: ["antiseptic"] }, ["decisao-clinica", "antimicrobianos"]),
           goal("bioburden", "Controlar a infeção local", "control-bioburden", "essencial", "A infeção local é um problema dominante do caso.", { treatmentIds: ["silvercel", "aquacel-ag"] }, ["antimicrobianos"]),
           goal("exudate", "Conter o exsudado abundante", "control-exudate", "essencial", "Sem absorção, o leito e a pele peri-ferida continuam a degradar-se.", { treatmentIds: ["aquacel", "vliwasorb"] }, ["gestao-exsudado"]),
           goal("debridement", "Preparar o leito perante tecido não viável", "debridement", "essencial", "A preparação do leito deve acompanhar o controlo de infeção.", { treatmentIds: ["colagenase"] }, ["desbridamento"]),
@@ -389,8 +389,8 @@ const cases: CaseTemplate[] = [
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "aquacel", "fibrosol", "allevyn", "urgotul", "colagenase", "hidrogel", "oxido-zinco", "atl", "protetor-spray", "betametasona"],
         applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
-          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A observação e a aplicação devem partir de um leito limpo.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
-          goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia adequada prepara o leito antes da cobertura.", { treatmentIds: ["octenilin-solucao"] }, ["decisao-clinica", "antimicrobianos"]),
+          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "A observação e a aplicação devem partir de um leito limpo.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
+          goal("antisepsis", "Associar antissépsia local", "control-bioburden", "adequado", "A antissépsia adequada prepara o leito antes da cobertura.", { treatmentFunctions: ["antiseptic"] }, ["decisao-clinica", "antimicrobianos"]),
           goal("debridement", "Preparar o leito se houver fibrina", "debridement", "essencial", "A fibrina muda a prioridade clínica do caso.", { treatmentIds: ["colagenase"] }, ["desbridamento"]),
           goal("exudate", "Escolher cobertura proporcional ao exsudado", "control-exudate", "essencial", "O plano deve acompanhar o nível de exsudado sem excessos.", { treatmentIds: ["aquacel", "fibrosol", "allevyn"] }, ["gestao-exsudado"]),
           goal("periwound", "Proteger a pele perilesional muito fragilizada", "protect-periwound", "essencial", "A pele perilesional descamativa e eritematosa exige proteção ativa para evitar alargamento da lesão.", { treatmentFunctions: ["protect-periwound"] }, ["protecao-perilesional"]),
@@ -468,8 +468,8 @@ const cases: CaseTemplate[] = [
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "aquacel-ag", "aquacel", "silvercel", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "betametasona"],
         applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
-          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Remoção de detritos e exsudado antes de qualquer cobertura.", { treatmentIds: ["cloreto-sodio"] }, ["decisao-clinica"]),
-          goal("antisepsis", "Controlar o bioburden local com antisséptico", "control-bioburden", "essencial", "Infeção local estabelecida — antissépsia local é obrigatória antes da cobertura.", { treatmentIds: ["octenilin-solucao"] }, ["antimicrobianos"]),
+          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Remoção de detritos e exsudado antes de qualquer cobertura.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
+          goal("antisepsis", "Controlar o bioburden local com antisséptico", "control-bioburden", "essencial", "Infeção local estabelecida — antissépsia local é obrigatória antes da cobertura.", { treatmentFunctions: ["antiseptic"] }, ["antimicrobianos"]),
           goal("debridement", "Desbridar a fibrina dominante", "debridement", "essencial", "A fibrina impede a progressão para granulação e mantém o bioburden elevado.", { treatmentIds: ["colagenase"] }, ["desbridamento", "tecidos-e-leito"]),
           goal("antimicrobial-cover", "Cobertura antimicrobiana com absorção", "control-exudate", "essencial", "Infeção local + exsudado abundante justificam cobertura com prata.", { treatmentIds: ["aquacel-ag", "silvercel"] }, ["antimicrobianos", "gestao-exsudado"]),
           goal("periwound", "Proteger a pele perilesional", "protect-periwound", "adequado", "Maceração e eczema agravam os bordos e impedem epitelização.", { treatmentIds: ["oxido-zinco", "protetor-spray"] }, ["protecao-perilesional"]),
@@ -630,7 +630,8 @@ const cases: CaseTemplate[] = [
           // A decisão de escalar é capturada pelo diálogo febre — sem matcher direto em GoalMatcher,
           // mas é reforçada como regra de avaliação (penalizar desbridamento autónomo).
           // O objetivo "controlo de bioburden" usa antimicrobiano como proxy clínico da decisão correta.
-          goal("cleanse-antisepsis", "Limpeza com antisséptico adequado", "control-bioburden", "essencial", "Controlo de bioburden antes de qualquer cobertura — o soro isolado é insuficiente com estes sinais.", { treatmentIds: ["octenilin-solucao"] }, ["antimicrobianos", "decisao-clinica"]),
+          goal("cleanse", "Fazer limpeza antes da cobertura", "cleanse-wound", "essencial", "Remoção de detritos antes de qualquer cobertura.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
+          goal("cleanse-antisepsis", "Associar antisséptico adequado", "control-bioburden", "essencial", "Controlo de bioburden antes de qualquer cobertura — o soro isolado é insuficiente com estes sinais.", { treatmentFunctions: ["antiseptic"] }, ["antimicrobianos", "decisao-clinica"]),
           goal("antimicrobial-cover", "Cobertura antimicrobiana local", "control-bioburden", "essencial", "Controlo de infeção local enquanto se aguarda avaliação médica e decisão de desbridamento.", { treatmentIds: ["aquacel-ag"] }, ["antimicrobianos"]),
           goal("periwound", "Proteger a pele perilesional eritematosa", "protect-periwound", "adequado", "Proteger sem aumentar a oclusão nem agravar o eritema.", { treatmentFunctions: ["protect-periwound"] }, ["protecao-perilesional"]),
         ],
@@ -706,7 +707,8 @@ const cases: CaseTemplate[] = [
         availableTreatments: ["cloreto-sodio", "octenilin-solucao", "betadine-solucao", "aquacel-ag", "aquacel", "silvercel", "allevyn", "colagenase", "hidrogel", "oxido-zinco", "protetor-spray", "betametasona"],
         applicationOptions: ["penso_rapido", "penso_simples", "ligadura", "penso_impermeavel", "terapia_compressiva", "sem_protecao"],
         clinicalTargets: [
-          goal("cleanse-gentle", "Limpeza suave com antisséptico", "control-bioburden", "essencial", "Redução de bioburden no esfacelo antes de qualquer cobertura. Limpeza suave — pele perilesional friável.", { treatmentIds: ["octenilin-solucao"] }, ["antimicrobianos", "decisao-clinica"]),
+          goal("cleanse-gentle", "Fazer limpeza suave antes da cobertura", "cleanse-wound", "essencial", "Limpeza suave — pele perilesional friável, não traumatizar.", { treatmentFunctions: ["cleanse"] }, ["decisao-clinica"]),
+          goal("antisepsis", "Associar antisséptico para controlo de bioburden", "control-bioburden", "essencial", "Redução de bioburden no esfacelo antes de qualquer cobertura.", { treatmentFunctions: ["antiseptic"] }, ["antimicrobianos", "decisao-clinica"]),
           goal("antimicrobial-cover", "Cobertura antimicrobiana sobre o esfacelo", "control-bioburden", "essencial", "Colonização crítica + exsudado abundante — cobertura com prata é apropriada como medida de controlo temporário.", { treatmentIds: ["aquacel-ag", "silvercel"] }, ["antimicrobianos", "gestao-exsudado"]),
           goal("periwound", "Proteger a pele perilesional friável", "protect-periwound", "adequado", "Pele seca e friável — cuidado com produtos que aumentem a humidade local.", { treatmentFunctions: ["protect-periwound"] }, ["protecao-perilesional"]),
         ],

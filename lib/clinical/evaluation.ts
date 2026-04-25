@@ -207,7 +207,7 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
       // Limpeza e antissépsia universais são sempre corretas — nunca penalizar
       const isUniversalCleanser =
         treatment.contraindications.length === 0 &&
-        (treatment.functions.includes("cleanse") || treatment.functions.includes("control-bioburden"));
+        (treatment.functions.includes("cleanse") || treatment.functions.includes("antiseptic"));
       if (isUniversalCleanser) {
         pushItem(
           section,

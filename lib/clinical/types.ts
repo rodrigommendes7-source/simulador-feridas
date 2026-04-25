@@ -82,6 +82,7 @@ export type MaterialFeedback = {
 
 export type TreatmentFunction =
   | "cleanse"
+  | "antiseptic"
   | "absorb"
   | "control-bioburden"
   | "debride"

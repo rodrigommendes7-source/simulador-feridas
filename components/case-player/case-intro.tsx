@@ -1,4 +1,5 @@
 import type { CaseSession } from "@/lib/clinical";
+import { InfoBanner } from "@/components/InfoBanner";
 
 export function CaseIntro({
   session,
@@ -55,11 +56,17 @@ export function CaseIntro({
         </p>
       </div>
 
+      <div style={{ marginTop: "var(--space-lg)", display: "flex", justifyContent: "center" }}>
+        <InfoBanner variant="info">
+          Ferramenta de treino clínico. Não substitui decisão clínica real nem é usada para classificação.
+        </InfoBanner>
+      </div>
+
       <button
         type="button"
         onClick={onStart}
         className="btn btn-primary"
-        style={{ marginTop: "var(--space-2xl)" }}
+        style={{ marginTop: "var(--space-lg)" }}
       >
         Iniciar caso
       </button>

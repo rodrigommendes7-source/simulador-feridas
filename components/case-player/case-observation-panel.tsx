@@ -54,15 +54,20 @@ export function CaseObservationPanel({
           }}
         >
           {imageSeen ? (
-            <Image
-              src={session.template.imageSrc}
-              alt={session.template.imageAlt}
-              fill
-              style={{
-                objectFit: session.template.id === "3" ? "contain" : "cover",
-                borderRadius: "var(--radius-lg)",
-              }}
-            />
+            <>
+              <Image
+                src={session.template.imageSrc}
+                alt={session.template.imageAlt}
+                fill
+                style={{
+                  objectFit: session.template.id === "3" ? "contain" : "cover",
+                  borderRadius: "var(--radius-lg)",
+                }}
+              />
+              <p style={{ position: "absolute", bottom: 0, left: 0, right: 0, margin: 0, padding: "4px var(--space-sm)", fontSize: "10px", color: "rgba(255,255,255,0.75)", background: "rgba(0,0,0,0.45)", textAlign: "right", borderBottomLeftRadius: "var(--radius-lg)", borderBottomRightRadius: "var(--radius-lg)" }}>
+                © Medetec Medical Images — medetec.co.uk
+              </p>
+            </>
           ) : (
             <button
               type="button"
@@ -129,7 +134,6 @@ export function CaseObservationPanel({
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: "var(--space-sm)",
-            flex: 1,
           }}
         >
           {session.template.observationDefinitions

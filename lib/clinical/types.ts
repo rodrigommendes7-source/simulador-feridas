@@ -310,6 +310,8 @@ export type CaseVariant = {
   woundState: WoundState;
   /** Variáveis clínicas numéricas — usadas no motor de avaliação por material */
   woundVariables?: WoundVariables;
+  /** Respostas corretas para a fase de Identificação Visual */
+  visualTargets: VisualIdentificationTargets;
   observationDetails: Record<ObservationId, ObservationDetail>;
   dialogueResponses: Record<DialogueId, string>;
   availableTreatments: string[];
@@ -351,6 +353,7 @@ export type CaseSession = {
 
 export type AttemptInput = {
   observationIds: ObservationId[];
+  visualSubmission: VisualIdentificationSubmission;
   dialogueIds: DialogueId[];
   treatmentIds: string[];
   applicationIds: ApplicationId[];
@@ -375,9 +378,50 @@ export type AttemptReview = {
   applicationStatus: Partial<Record<ApplicationId, ReviewStatus>>;
 };
 
+// ─── Identificação Visual ──────────────────────────────────────────────────
+
+export type VisualTissueOption =
+  | "granulacao"
+  | "fibrina"
+  | "necrose"
+  | "epitelial"
+  | "hipergranulacao";
+
+export type VisualExudateOption =
+  | "seroso"
+  | "hematico"
+  | "purulento";
+
+export type VisualEdgeOption =
+  | "maceracao"
+  | "rubor"
+  | "hiperqueratose"
+  | "pele-seca";
+
+export interface VisualOptionDefinition<T extends string> {
+  id: T;
+  label: string;
+  description?: string;
+}
+
+export interface VisualIdentificationTargets {
+  tissues: VisualTissueOption[];
+  exudate: VisualExudateOption[];
+  edges: VisualEdgeOption[];
+}
+
+export interface VisualIdentificationSubmission {
+  tissues: VisualTissueOption[];
+  exudate: VisualExudateOption[];
+  edges: VisualEdgeOption[];
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+
 export type EvaluationSection = {
   id:
     | "observation"
+    | "visual-identification"
     | "assessment"
     | "treatment-plan"
     | "application-technique";

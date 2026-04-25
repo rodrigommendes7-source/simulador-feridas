@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InfoBanner } from "@/components/InfoBanner";
 
 export default function HomePage() {
   return (
@@ -37,6 +38,18 @@ export default function HomePage() {
           Treino clínico interativo para estudantes de enfermagem. Observa, decide e recebe feedback
           imediato sobre o teu plano terapêutico.
         </p>
+      </div>
+
+      {/* Disclaimer pedagógico — centro do flow */}
+      <InfoBanner variant="info">
+        Ferramenta de treino clínico. Não substitui decisão clínica real nem é usada para classificação.
+      </InfoBanner>
+
+      {/* Aviso de privacidade — canto inferior direito, acima do footer */}
+      <div style={{ position: "fixed", bottom: "calc(var(--space-md) * 2 + 1.5rem)", right: "var(--space-lg)", zIndex: 50, maxWidth: "320px" }}>
+        <InfoBanner variant="success">
+          Os teus dados ficam guardados apenas no teu browser (localStorage). Nada é enviado para servidores externos.
+        </InfoBanner>
       </div>
 
       {/* Painel com os 3 cartões */}

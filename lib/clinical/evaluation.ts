@@ -17,6 +17,9 @@ import type {
   ReviewStatus,
   TreatmentDefinition,
   TreatmentFunction,
+  VisualTissueOption,
+  VisualExudateOption,
+  VisualEdgeOption,
 } from "./types.ts";
 
 const classificationWeights: Record<EvaluationClassification, number> = {
@@ -110,7 +113,7 @@ function treatmentMatchesGoal(
 }
 
 function buildObservationSection(session: CaseSession, attempt: AttemptInput) {
-  const section = createSection("observation", "Observação", 15);
+  const section = createSection("observation", "Observação", 5);
   const selected = new Set(attempt.observationIds);
 
   for (const definition of session.template.observationDefinitions) {
@@ -144,7 +147,7 @@ function buildObservationSection(session: CaseSession, attempt: AttemptInput) {
 }
 
 function buildAssessmentSection(session: CaseSession, attempt: AttemptInput) {
-  const section = createSection("assessment", "Avaliação e diálogo", 15);
+  const section = createSection("assessment", "Avaliação e diálogo", 10);
   const selected = new Set(attempt.dialogueIds);
 
   for (const prompt of session.template.dialoguePrompts) {
@@ -175,7 +178,7 @@ function buildAssessmentSection(session: CaseSession, attempt: AttemptInput) {
 }
 
 function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
-  const section = createSection("treatment-plan", "Plano terapêutico", 50);
+  const section = createSection("treatment-plan", "Plano terapêutico", 45);
   const { selected, duplicates } = uniqueCanonicalTreatments(attempt.treatmentIds);
   const specialRules = session.variant.evaluationRules.filter((rule) => rule.target === "treatment");
   const claimedGoalIds = new Set<string>();
@@ -293,6 +296,69 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
   return section;
 }
 
+function evaluateVisualCategory<T extends string>(
+  section: EvaluationSection,
+  categoryId: string,
+  categoryLabel: string,
+  expected: T[],
+  selected: T[],
+  learningTopicIds: string[]
+) {
+  const expectedSet = new Set(expected);
+  const selectedSet = new Set(selected);
+  const isCorrect =
+    expectedSet.size === selectedSet.size &&
+    [...expectedSet].every((item) => selectedSet.has(item));
+
+  if (isCorrect) {
+    pushItem(
+      section,
+      `visual-${categoryId}`,
+      categoryLabel,
+      "essencial",
+      expected.length === 0
+        ? `Identificaste corretamente que não há ${categoryLabel.toLowerCase()} relevante nesta ferida.`
+        : `Identificaste corretamente: ${expected.join(", ")}.`,
+      learningTopicIds
+    );
+  } else {
+    const missed = expected.filter((item) => !selectedSet.has(item));
+    const extra = [...selectedSet].filter((item) => !expectedSet.has(item as T));
+    const parts: string[] = [];
+    if (missed.length > 0) parts.push(`não identificaste: ${missed.join(", ")}`);
+    if (extra.length > 0) parts.push(`identificaste incorretamente: ${extra.join(", ")}`);
+    pushItem(
+      section,
+      `visual-${categoryId}`,
+      categoryLabel,
+      "inadequado",
+      `Identificação incorreta — ${parts.join("; ")}. Revê os tipos visíveis na imagem.`,
+      learningTopicIds
+    );
+  }
+}
+
+function buildVisualIdentificationSection(session: CaseSession, attempt: AttemptInput) {
+  const section = createSection("visual-identification", "Identificação visual", 25);
+  const targets = session.variant.visualTargets;
+  const submission = attempt.visualSubmission;
+
+  evaluateVisualCategory<VisualTissueOption>(
+    section, "tissues", "Tecidos",
+    targets.tissues, submission.tissues, ["tecidos-e-leito"]
+  );
+  evaluateVisualCategory<VisualExudateOption>(
+    section, "exudate", "Exsudado",
+    targets.exudate, submission.exudate, ["gestao-exsudado"]
+  );
+  evaluateVisualCategory<VisualEdgeOption>(
+    section, "edges", "Bordos e pele perilesional",
+    targets.edges, submission.edges, ["protecao-perilesional"]
+  );
+
+  return section;
+}
+
 function applicationMatchesGoal(
   applicationId: ApplicationId,
   matcher: { applicationIds?: ApplicationId[] }
@@ -322,7 +388,7 @@ function classifyApplicationByRules(
 }
 
 function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
-  const section = createSection("application-technique", "Técnica de aplicação", 20);
+  const section = createSection("application-technique", "Técnica de aplicação", 15);
   const selected = new Set(attempt.applicationIds);
   const specialRules = session.variant.evaluationRules.filter((rule) => rule.target === "application");
   const woundVars = (session.variant.woundVariables ?? {}) as Record<string, number>;
@@ -414,12 +480,15 @@ function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
   return section;
 }
 
+const EMPTY_VISUAL_SUBMISSION = { tissues: [], exudate: [], edges: [] };
+
 function buildAttemptWithSelection<K extends keyof AttemptInput>(
   field: K,
   selection: AttemptInput[K]
 ): AttemptInput {
   return {
     observationIds: [],
+    visualSubmission: EMPTY_VISUAL_SUBMISSION,
     dialogueIds: [],
     treatmentIds: [],
     applicationIds: [],
@@ -601,6 +670,11 @@ export function evaluateCaseAttempt(
         session
       )
     ),
+    // Visual identification: fixed attainableRaw = 3 × essencial weight (3 × 12 = 36)
+    finalizeSectionScore(
+      buildVisualIdentificationSection(session, attempt),
+      3 * 12
+    ),
     finalizeSectionScore(
       buildAssessmentSection(session, attempt),
       getBestRawScoreForSelections(
@@ -671,6 +745,11 @@ export function getIdealAttempt(session: CaseSession): AttemptInput {
       buildObservationSection,
       session
     ),
+    visualSubmission: {
+      tissues: [...session.variant.visualTargets.tissues],
+      exudate: [...session.variant.visualTargets.exudate],
+      edges: [...session.variant.visualTargets.edges],
+    },
     dialogueIds: getBestSelectionForSelections(
       session.template.dialoguePrompts.map((item) => item.id),
       "dialogueIds",

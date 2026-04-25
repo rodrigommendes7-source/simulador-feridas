@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
-import { getCaseSession, listCaseTemplates } from "./catalog.ts";
+import { listCaseTemplates } from "./catalog.ts";
 import { evaluateCaseAttempt, getIdealAttempt } from "./evaluation.ts";
 import type { AttemptInput } from "./types.ts";
 
 function buildEmptyAttempt(): AttemptInput {
   return {
     observationIds: [],
+    visualSubmission: { tissues: [], exudate: [], edges: [] },
     dialogueIds: [],
     treatmentIds: [],
     applicationIds: [],
@@ -54,26 +55,33 @@ function run() {
         `Expected ${template.id}/${variant.id} to allow a perfect score, got ${evaluation.score}.`
       );
 
+      // Sections: 0=observation, 1=visual-identification, 2=assessment, 3=treatment-plan, 4=application-technique
       const referenceAttempt = {
         observationIds: findBestSelection(
           template.observationDefinitions.map((item) => item.id),
           (attempt, selection) => ({ ...attempt, observationIds: selection }),
           (attempt) => evaluateCaseAttempt(session, attempt).sections[0]?.score ?? 0
         ),
+        // Visual identification: perfect submission = visual targets
+        visualSubmission: {
+          tissues: [...variant.visualTargets.tissues],
+          exudate: [...variant.visualTargets.exudate],
+          edges: [...variant.visualTargets.edges],
+        },
         dialogueIds: findBestSelection(
           template.dialoguePrompts.map((item) => item.id),
           (attempt, selection) => ({ ...attempt, dialogueIds: selection }),
-          (attempt) => evaluateCaseAttempt(session, attempt).sections[1]?.score ?? 0
+          (attempt) => evaluateCaseAttempt(session, attempt).sections[2]?.score ?? 0
         ),
         treatmentIds: findBestSelection(
           variant.availableTreatments,
           (attempt, selection) => ({ ...attempt, treatmentIds: selection }),
-          (attempt) => evaluateCaseAttempt(session, attempt).sections[2]?.score ?? 0
+          (attempt) => evaluateCaseAttempt(session, attempt).sections[3]?.score ?? 0
         ),
         applicationIds: findBestSelection(
           variant.applicationOptions,
           (attempt, selection) => ({ ...attempt, applicationIds: selection }),
-          (attempt) => evaluateCaseAttempt(session, attempt).sections[3]?.score ?? 0
+          (attempt) => evaluateCaseAttempt(session, attempt).sections[4]?.score ?? 0
         ),
       };
 

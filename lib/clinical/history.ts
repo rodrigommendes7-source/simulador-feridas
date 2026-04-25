@@ -173,6 +173,39 @@ export function clearAttemptHistory() {
   localStorage.removeItem(HISTORY_STORAGE_KEY);
 }
 
+export function exportHistoryAsJson(): void {
+  if (typeof window === "undefined") return;
+  const history = loadAttemptHistory();
+  const date = new Date().toISOString().slice(0, 10);
+  const blob = new Blob([JSON.stringify(history, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `progresso-feridas-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export type ImportResult = { ok: true; count: number } | { ok: false; error: string };
+
+export function importHistoryFromJson(raw: unknown): ImportResult {
+  if (typeof window === "undefined") return { ok: false, error: "Não disponível no servidor." };
+  if (!Array.isArray(raw)) return { ok: false, error: "O ficheiro não contém um array de tentativas." };
+
+  const REQUIRED: Array<keyof AttemptRecord> = ["version", "id", "templateId", "variantId", "caseTitle", "score", "timestamp"];
+  const valid = raw.filter((item): item is AttemptRecord => {
+    if (!item || typeof item !== "object") return false;
+    const r = item as Partial<AttemptRecord>;
+    return r.version === 2 && REQUIRED.every((f) => f in r);
+  });
+
+  if (valid.length === 0) {
+    return { ok: false, error: "Nenhum registo válido encontrado. Verifica se o ficheiro foi exportado nesta aplicação." };
+  }
+  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(valid));
+  return { ok: true, count: valid.length };
+}
+
 export function countAttemptsForCase(history: AttemptRecord[], templateId: string) {
   return history.filter((entry) => entry.templateId === templateId).length;
 }

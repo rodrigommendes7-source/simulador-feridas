@@ -33,6 +33,7 @@ function metricValue(value: number) {
 export default function HistoryPage() {
   const [history, setHistory] = useState<AttemptRecord[]>([]);
 
+
   useEffect(() => {
     startTransition(() => {
       setHistory(loadAttemptHistory());
@@ -72,27 +73,30 @@ export default function HistoryPage() {
             e um plano de estudo derivado do teu próprio histórico.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleClear}
-          disabled={!hasHistory}
-          style={{
-            background: "var(--color-error-subtle)",
-            border: "0.5px solid var(--color-error-border)",
-            borderRadius: "var(--radius-md)",
-            padding: "var(--space-sm) var(--space-md)",
-            fontSize: "var(--text-body)",
-            fontWeight: "var(--weight-medium)",
-            color: "var(--color-error)",
-            cursor: hasHistory ? "pointer" : "not-allowed",
-            opacity: hasHistory ? 1 : 0.4,
-          }}
-        >
-          Limpar histórico
-        </button>
+        <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", alignItems: "center" }}>
+          <button
+            type="button"
+            onClick={handleClear}
+            disabled={!hasHistory}
+            style={{
+              background: "var(--color-error-subtle)",
+              border: "0.5px solid var(--color-error-border)",
+              borderRadius: "var(--radius-md)",
+              padding: "var(--space-sm) var(--space-md)",
+              fontSize: "var(--text-body)",
+              fontWeight: "var(--weight-medium)",
+              color: "var(--color-error)",
+              cursor: hasHistory ? "pointer" : "not-allowed",
+              opacity: hasHistory ? 1 : 0.4,
+            }}
+          >
+            Limpar histórico
+          </button>
+        </div>
       </section>
 
-      {hasHistory ? (
+
+{hasHistory ? (
         <>
           {/* ── 4 Métricas ──────────────────────────────────────────────────── */}
           <section className="grid md:grid-cols-2 xl:grid-cols-4" style={{ gap: "var(--space-md)" }}>

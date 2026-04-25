@@ -44,8 +44,10 @@ import { CaseIntro } from "@/components/case-player/case-intro";
 import { CaseObservationPanel } from "@/components/case-player/case-observation-panel";
 import { CaseResultSummary } from "@/components/case-player/case-result-summary";
 import { CaseTreatmentPlanner } from "@/components/case-player/case-treatment-planner";
+import { CaseVisualIdentification } from "@/components/case-player/case-visual-identification";
+import type { VisualIdentificationSubmission } from "@/lib/clinical/types";
 
-type Step = "observacao" | "dialogo" | "tratamento" | "resultado";
+type Step = "observacao" | "identificacao" | "dialogo" | "tratamento" | "resultado";
 
 function resolveSession(templateId: string) {
   const history = loadAttemptHistory();
@@ -77,10 +79,9 @@ export function CasePlayer({ templateId }: { templateId: string }) {
     if (typeof window === "undefined") return false;
     return !localStorage.getItem("tutorial-visto");
   });
-  // Controla a expansão das variáveis clínicas secundárias no painel lateral
-  const [showExtraVars, setShowExtraVars] = useState(false);
-  const [startedAt, setStartedAt] = useState<number | null>(null);
+const [startedAt, setStartedAt] = useState<number | null>(null);
   const [observationIds, setObservationIds] = useState<ObservationId[]>([]);
+  const [visualSubmission, setVisualSubmission] = useState<VisualIdentificationSubmission>({ tissues: [], exudate: [], edges: [] });
   const [dialogueIds, setDialogueIds] = useState<DialogueId[]>([]);
   const [activeDialogueId, setActiveDialogueId] = useState<DialogueId | null>(null);
   const [treatmentIds, setTreatmentIds] = useState<string[]>([]);
@@ -90,17 +91,19 @@ export function CasePlayer({ templateId }: { templateId: string }) {
   const attempt = useMemo(
     () => ({
       observationIds,
+      visualSubmission,
       dialogueIds,
       treatmentIds,
       applicationIds,
     }),
-    [observationIds, dialogueIds, treatmentIds, applicationIds]
+    [observationIds, visualSubmission, dialogueIds, treatmentIds, applicationIds]
   );
 
   const evaluation = useMemo(() => evaluateCaseAttempt(session, attempt), [session, attempt]);
   const review = useMemo(() => buildAttemptReview(session, attempt), [session, attempt]);
 
   const completedObservation = observationIds.includes("imagem") && observationIds.length >= 3;
+  const completedVisualIdentification = step !== "observacao" || observationIds.includes("imagem");
   const completedDialogue = dialogueIds.length >= 2;
   const completedTreatment = treatmentIds.length >= 1;
   const completedApplication = applicationIds.length >= 1;
@@ -115,6 +118,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
     setReviewMode(false);
     setStartedAt(null);
     setObservationIds([]);
+    setVisualSubmission({ tissues: [], exudate: [], edges: [] });
     setDialogueIds([]);
     setActiveDialogueId(null);
     setTreatmentIds([]);
@@ -189,21 +193,23 @@ export function CasePlayer({ templateId }: { templateId: string }) {
     ? "Estás em modo de revisão. As escolhas corretas aparecem a verde, as erradas a vermelho e o que faltou selecionar aparece a azul claro."
     : step === "observacao"
       ? completedObservation
-        ? "Já tens observação mínima suficiente para sustentar a leitura do caso."
+        ? "Já tens observação mínima suficiente. Avança para identificar os tecidos e o exsudado visíveis."
         : observationIds.includes("imagem")
           ? "Agora confirma os achados-chave do leito para definires o problema dominante."
           : "Começa por observar a imagem e por recolher pelo menos dois achados clínicos essenciais."
-      : step === "dialogo"
-        ? completedDialogue
-          ? "Já recolheste dados suficientes para justificar a decisão terapêutica."
-          : dialogueIds.length === 0
-            ? "Explora primeiro a dor e o contexto funcional para enquadrar o risco e o conforto."
-            : "Falta consolidar o diálogo com mais uma pergunta clinicamente relevante."
-        : completedTreatment && completedApplication
-          ? "O plano e a técnica já estão completos para receberes o feedback final."
-          : completedTreatment
-            ? "Já tens materiais escolhidos, mas ainda falta definir a técnica de aplicação."
-            : "Escolhe um material principal e confirma como o vais aplicar de forma segura.";
+      : step === "identificacao"
+        ? "Com base na imagem, seleciona os tecidos, o exsudado e as características dos bordos que identificas."
+        : step === "dialogo"
+          ? completedDialogue
+            ? "Já recolheste dados suficientes para justificar a decisão terapêutica."
+            : dialogueIds.length === 0
+              ? "Explora primeiro a dor e o contexto funcional para enquadrar o risco e o conforto."
+              : "Falta consolidar o diálogo com mais uma pergunta clinicamente relevante."
+          : completedTreatment && completedApplication
+            ? "O plano e a técnica já estão completos para receberes o feedback final."
+            : completedTreatment
+              ? "Já tens materiais escolhidos, mas ainda falta definir a técnica de aplicação."
+              : "Escolhe um material principal e confirma como o vais aplicar de forma segura.";
 
   useEffect(() => {
     startTransition(() => {
@@ -216,6 +222,12 @@ export function CasePlayer({ templateId }: { templateId: string }) {
     });
   }, [templateId]);
 
+  const completedVisualStep =
+    visualSubmission.tissues.length > 0 ||
+    visualSubmission.exudate.length > 0 ||
+    visualSubmission.edges.length > 0 ||
+    step !== "observacao";
+
   const progressChecklist = [
     {
       label: "Observação mínima",
@@ -223,6 +235,13 @@ export function CasePlayer({ templateId }: { templateId: string }) {
       detail: completedObservation
         ? `${observationIds.length} achados observados`
         : "Revê a imagem e recolhe pelo menos três achados clínicos",
+    },
+    {
+      label: "Identificação visual",
+      done: completedVisualStep,
+      detail: completedVisualStep
+        ? "Tecidos, exsudado e bordos identificados"
+        : "Interpreta o que vês na imagem",
     },
     {
       label: "Avaliação e diálogo",
@@ -291,8 +310,8 @@ export function CasePlayer({ templateId }: { templateId: string }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
             {[
               { step: "1", title: "Observa a ferida", body: "Começa por rever a imagem clínica e recolhe os achados essenciais: exsudado, tecidos e pele perilesional." },
-              { step: "2", title: "Faz perguntas ao utente", body: "Usa o diálogo para completar a leitura clínica: dor, duração da lesão e mobilidade." },
-              { step: "3", title: "Define o plano terapêutico", body: "Escolhe os materiais e a técnica de aplicação. O foco é mais importante do que a quantidade." },
+              { step: "2", title: "Identifica o que vês", body: "Classifica os tecidos, o exsudado e as características dos bordos com base na imagem observada." },
+              { step: "3", title: "Faz perguntas e define o plano", body: "Usa o diálogo para completar a leitura clínica, depois escolhe materiais e técnica de aplicação." },
               { step: "4", title: "Recebe feedback detalhado", body: "Cada escolha é avaliada com base nos objetivos clínicos do caso e nos princípios de decisão." },
             ].map(({ step: s, title, body }) => (
               <div key={s} style={{ display: "flex", gap: "var(--space-md)" }}>
@@ -426,6 +445,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
               >
                 {([
                   ["observacao", "Observação"],
+                  ["identificacao", "Identificação"],
                   ["dialogo", "Diálogo"],
                   ["tratamento", "Tratamento"],
                 ] as [Step, string][]).map(([id, label]) => (
@@ -677,6 +697,12 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                   reviewStatusById={reviewMode ? review.observationStatus : undefined}
                   reviewMode={reviewMode}
                   onReveal={reviewMode ? () => undefined : revealObservation}
+                />
+              ) : step === "identificacao" ? (
+                <CaseVisualIdentification
+                  submission={visualSubmission}
+                  onChange={setVisualSubmission}
+                  onContinue={() => setStep("dialogo")}
                 />
               ) : step === "dialogo" ? (
                 <CaseDialoguePanel

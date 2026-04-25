@@ -2,6 +2,7 @@ import { caseTemplates } from "../../data/clinical/casos.ts";
 import { evidenceReferences } from "../../data/clinical/evidencia.ts";
 import { learningTopics } from "../../data/clinical/topicos-aprendizagem.ts";
 import { treatmentCatalog } from "../../data/clinical/tratamentos.ts";
+import { evaluateCaseAttempt, getIdealAttempt } from "./evaluation.ts";
 
 export type ValidationIssue = {
   level: "error" | "warning";
@@ -66,8 +67,13 @@ export function validateClinicalDomain() {
 
   for (const template of caseTemplates) {
     const variantIds = new Set<string>();
+    const applicationDefinitionIds = new Set(
+      template.applicationDefinitions.map((item) => item.id)
+    );
 
     for (const variant of template.variants) {
+      const scope = `case:${template.id}:${variant.id}`;
+
       if (variantIds.has(variant.id)) {
         issues.push({
           level: "error",
@@ -81,11 +87,24 @@ export function validateClinicalDomain() {
         if (!treatmentIds.has(treatmentId)) {
           issues.push({
             level: "error",
-            scope: `case:${template.id}:${variant.id}`,
+            scope,
             message: `Tratamento disponível não encontrado: "${treatmentId}".`,
           });
         }
       }
+
+      // applicationOptions têm de ter definição correspondente em applicationDefinitions
+      for (const applicationId of variant.applicationOptions) {
+        if (!applicationDefinitionIds.has(applicationId)) {
+          issues.push({
+            level: "error",
+            scope,
+            message: `applicationOptions refere técnica sem definição no template: "${applicationId}".`,
+          });
+        }
+      }
+
+      const variantApplicationOptions = new Set(variant.applicationOptions);
 
       for (const goal of variant.clinicalTargets) {
         for (const topicId of goal.learningTopicIds) {
@@ -93,7 +112,7 @@ export function validateClinicalDomain() {
           if (!topicIds.has(normalizedTopicId)) {
             issues.push({
               level: "error",
-              scope: `case:${template.id}:${variant.id}`,
+              scope,
               message: `Objetivo clínico referencia tema inexistente: "${topicId}".`,
             });
           }
@@ -103,8 +122,19 @@ export function validateClinicalDomain() {
           if (!variant.availableTreatments.includes(treatmentId)) {
             issues.push({
               level: "error",
-              scope: `case:${template.id}:${variant.id}`,
+              scope,
               message: `Objetivo clínico refere tratamento não disponível na variante: "${treatmentId}".`,
+            });
+          }
+        }
+
+        // matcher.applicationIds têm de estar em applicationOptions da variante
+        for (const applicationId of goal.matcher.applicationIds ?? []) {
+          if (!variantApplicationOptions.has(applicationId)) {
+            issues.push({
+              level: "error",
+              scope,
+              message: `Objetivo clínico refere técnica não disponível na variante: "${applicationId}".`,
             });
           }
         }
@@ -115,8 +145,17 @@ export function validateClinicalDomain() {
           if (rule.target === "treatment" && !variant.availableTreatments.includes(ruleId)) {
             issues.push({
               level: "error",
-              scope: `case:${template.id}:${variant.id}`,
+              scope,
               message: `Regra de avaliação refere tratamento não disponível: "${ruleId}".`,
+            });
+          }
+
+          // target === "application" tem de existir em applicationOptions da variante
+          if (rule.target === "application" && !variantApplicationOptions.has(ruleId as never)) {
+            issues.push({
+              level: "error",
+              scope,
+              message: `Regra de avaliação refere técnica não disponível: "${ruleId}".`,
             });
           }
         }
@@ -126,11 +165,38 @@ export function validateClinicalDomain() {
           if (!topicIds.has(normalizedTopicId)) {
             issues.push({
               level: "error",
-              scope: `case:${template.id}:${variant.id}`,
+              scope,
               message: `Regra de avaliação referencia tema inexistente: "${topicId}".`,
             });
           }
         }
+      }
+
+      // Simulação 100/100: cada variante tem de ser perfeitamente solucionável
+      try {
+        const session = { template, variant };
+        const idealAttempt = getIdealAttempt(session);
+        const evaluation = evaluateCaseAttempt(session, idealAttempt);
+
+        if (evaluation.score !== 100) {
+          const sectionDetail = evaluation.sections
+            .filter((section) => section.score < section.maxScore)
+            .map((section) => `${section.id}=${section.score}/${section.maxScore}`)
+            .join(", ");
+
+          issues.push({
+            level: "error",
+            scope,
+            message: `Variante não atinge 100/100 com tentativa ideal (score=${evaluation.score}; secções abaixo do máximo: ${sectionDetail || "nenhuma"}).`,
+          });
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        issues.push({
+          level: "error",
+          scope,
+          message: `Falha ao simular tentativa ideal: ${message}`,
+        });
       }
     }
   }

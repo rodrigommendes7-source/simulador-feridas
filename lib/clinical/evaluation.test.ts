@@ -47,14 +47,9 @@ function run() {
       const session = { template, variant };
 
       const idealAttempt = getIdealAttempt(session);
-      const evaluation = evaluateCaseAttempt(session, idealAttempt);
 
-      assert.equal(
-        evaluation.score,
-        100,
-        `Expected ${template.id}/${variant.id} to allow a perfect score, got ${evaluation.score}.`
-      );
-
+      // Verificação 100/100 está coberta em validation.ts (validate:data).
+      // Aqui validamos apenas que o helper getIdealAttempt corresponde à pesquisa exaustiva.
       // Sections: 0=observation, 1=visual-identification, 2=assessment, 3=treatment-plan, 4=application-technique
       const referenceAttempt = {
         observationIds: findBestSelection(

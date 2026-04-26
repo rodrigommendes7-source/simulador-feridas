@@ -333,7 +333,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
         </div>
       </div>
     )}
-    <main className="-mx-6 -my-4 flex h-[calc(100vh-52px)] overflow-hidden">
+    <main className="case-shell">
       {!started ? (
         <div className="h-full w-full overflow-y-auto">
           <CaseIntro session={session} onStart={startCase} />
@@ -352,20 +352,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
       ) : (
         <>
           {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-          <aside
-            style={{
-              width: "14rem",
-              flexShrink: 0,
-              overflowY: "auto",
-              alignSelf: "stretch",
-              minHeight: 0,
-              borderRight: "var(--border-default)",
-              padding: "var(--space-sm)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "var(--space-sm)",
-            }}
-          >
+          <aside className="case-sidebar">
             {/* Identidade do caso */}
             <div
               style={{
@@ -609,24 +596,9 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
           </aside>
 
           {/* ── Área principal ──────────────────────────────────────────────── */}
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: "var(--space-sm)",
-              overflow: "hidden",
-              padding: "var(--space-md)",
-            }}
-          >
+          <div className="case-main-area">
             {/* Banner contextual + guidance — linha única */}
-            <div
-              style={{
-                flexShrink: 0,
-                display: "flex",
-                gap: "var(--space-sm)",
-              }}
-            >
+            <div className="case-banner-row">
               <div
                 style={{
                   flex: 1,
@@ -662,7 +634,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
             </div>
 
             {/* Painel do passo atual */}
-            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+            <div className="case-active-panel">
               {step === "observacao" ? (
                 <CaseObservationPanel
                   session={session}
@@ -700,19 +672,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
             </div>
 
             {/* Barra de ações */}
-            <div
-              style={{
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "var(--space-md)",
-                background: "var(--color-surface)",
-                border: "var(--border-default)",
-                borderRadius: "var(--radius-lg)",
-                padding: "var(--space-xs) var(--space-md)",
-              }}
-            >
+            <div className="case-action-bar">
               <p style={{ fontSize: "var(--text-label)", color: "var(--color-text-secondary)" }}>
                 {reviewMode
                   ? "Navega pelas etapas para comparar a tua resolução."

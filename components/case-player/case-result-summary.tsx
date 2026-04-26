@@ -173,13 +173,7 @@ export function CaseResultSummary({
       </section>
 
       {/* ── 4 blocos de decisão ── */}
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "var(--space-md)",
-        }}
-      >
+      <section className="result-grid-2">
           {/* Decisões essenciais */}
         <div style={blockStyle("sky")}>
           <p className="text-label" style={{ color: blockLabelColor("sky") }}>Decisões essenciais</p>
@@ -241,9 +235,7 @@ export function CaseResultSummary({
       </section>
 
       {/* ── Plano recomendado + diferenças ── */}
-      <section
-        style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "var(--space-md)" }}
-      >
+      <section className="result-grid-2">
         <div className="card" style={{ padding: "var(--space-lg)" }}>
           <p className="text-label" style={{ color: "var(--color-warning)" }}>
             Plano otimizado
@@ -318,12 +310,8 @@ export function CaseResultSummary({
           </Link>
         </div>
         <div
-          style={{
-            marginTop: "var(--space-md)",
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "var(--space-sm)",
-          }}
+          className="result-grid-2"
+          style={{ marginTop: "var(--space-md)", gap: "var(--space-sm)" }}
         >
           {evaluation.learningRecommendations.map((recommendation) => (
             <Link

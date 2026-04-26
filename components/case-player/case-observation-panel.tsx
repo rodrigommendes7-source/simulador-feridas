@@ -29,14 +29,7 @@ export function CaseObservationPanel({
   const imageSeen = reviewMode || observationIds.includes("imagem");
 
   return (
-    <div
-      style={{
-        display: "grid",
-        height: "100%",
-        gap: "var(--space-md)",
-        gridTemplateColumns: "1.2fr 0.8fr",
-      }}
-    >
+    <div className="case-observation-grid">
       {/* Coluna esquerda — imagem */}
       <div
         className="card"
@@ -132,16 +125,7 @@ export function CaseObservationPanel({
       >
         <p className="text-label">Observação guiada</p>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gridTemplateRows: "repeat(3, 1fr)",
-            gap: "var(--space-sm)",
-            flex: 1,
-            minHeight: 0,
-          }}
-        >
+        <div className="case-observation-slots">
           {session.template.observationDefinitions
             .filter((def) => def.id !== "imagem")
             .map((def) => {

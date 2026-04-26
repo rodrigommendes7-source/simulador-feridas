@@ -36,14 +36,7 @@ export function CaseDialoguePanel({
   onAsk: (id: DialogueId) => void;
 }) {
   return (
-    <div
-      style={{
-        display: "grid",
-        height: "100%",
-        gap: "var(--space-md)",
-        gridTemplateColumns: "0.9fr 1.1fr",
-      }}
-    >
+    <div className="case-dialogue-grid">
       {/* Coluna esquerda — perguntas */}
       <div
         className="card"

@@ -15,11 +15,11 @@ export default function MainLayout({
         <MainNav />
       </header>
 
-      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "var(--space-lg) var(--space-2xl)" }}>
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "var(--page-padding-y) var(--page-padding-x)" }}>
         {children}
       </div>
 
-      <footer style={{ flexShrink: 0, borderTopWidth: "0.5px", borderTopStyle: "solid", borderTopColor: "var(--color-border)", padding: "var(--space-md) var(--space-2xl)", display: "flex", flexWrap: "wrap", gap: "var(--space-md)", alignItems: "center", justifyContent: "space-between" }}>
+      <footer style={{ flexShrink: 0, borderTopWidth: "0.5px", borderTopStyle: "solid", borderTopColor: "var(--color-border)", padding: "var(--space-md) var(--page-padding-x)", display: "flex", flexWrap: "wrap", gap: "var(--space-md)", alignItems: "center", justifyContent: "space-between" }}>
         <span className="text-label" style={{ color: "var(--color-text-tertiary)" }}>
           Simulador de Feridas · Uso pedagógico
         </span>

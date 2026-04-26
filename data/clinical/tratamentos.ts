@@ -901,10 +901,11 @@ export const treatmentCatalog: TreatmentDefinition[] = [
     nome_comercial: "Betnovate",
     substancia_ativa: "Betametasona pomada corticosteroide",
     categoria_clinica: "pomadas",
-    // Sempre incorreto no contexto de tratamento de feridas
+    // Incorreto em ferida genérica; parcial em dermatite de estase perilesional (pele_perilesional: 2)
     regras: {
       condicoes_ideais: { exsudado: [] },
-      contraindicacoes: [{ exsudado: [1, 2, 3, 4] }],
+      condicoes_parciais: { pele_perilesional: [2] },
+      contraindicacoes: [{ exsudado: [1, 2, 3, 4], pele_perilesional: [1, 3, 4] }],
     },
   },
 

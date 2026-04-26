@@ -565,6 +565,236 @@ body {
    LIGHT MODE
    ============================================================= */
 
+/* =============================================================
+   RESPONSIVO — Adaptações para tablet e telemóvel
+   Breakpoints alinhados com Tailwind v4:
+     - sm:  640px (telemóvel pequeno)
+     - md:  768px (telemóvel landscape / tablet pequeno)
+     - lg: 1024px (tablet / portátil pequeno)
+   ============================================================= */
+
+:root {
+  --page-padding-x: var(--space-2xl);
+  --page-padding-y: var(--space-lg);
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --page-padding-x: var(--space-lg);
+    --text-h1: 24px;
+    --text-h2: 19px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --page-padding-x: var(--space-md);
+    --page-padding-y: var(--space-md);
+    --text-h1: 22px;
+    --text-h2: 18px;
+    --text-h3: 15px;
+    --text-body: 14px;
+  }
+
+  .nav {
+    padding: 0 var(--space-md);
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--space-nav);
+    gap: var(--space-xs);
+    row-gap: var(--space-xs);
+  }
+
+  .nav-link {
+    padding: 4px 8px;
+    font-size: var(--text-label);
+  }
+}
+
+@media (max-width: 639px) {
+  :root {
+    --page-padding-x: var(--space-sm);
+  }
+
+  .nav {
+    padding: var(--space-xs) var(--space-sm);
+  }
+}
+
+
+/* =============================================================
+   CASE PLAYER — Layout responsivo
+   ============================================================= */
+
+.case-shell {
+  margin: calc(var(--page-padding-y) * -1) calc(var(--page-padding-x) * -1);
+  display: flex;
+  height: calc(100vh - var(--space-nav));
+  overflow: hidden;
+}
+
+.case-sidebar {
+  width: 14rem;
+  flex-shrink: 0;
+  overflow-y: auto;
+  align-self: stretch;
+  min-height: 0;
+  border-right: var(--border-default);
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.case-main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  overflow: hidden;
+  padding: var(--space-md);
+  min-width: 0;
+}
+
+.case-banner-row {
+  flex-shrink: 0;
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.case-active-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.case-action-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  background: var(--color-surface);
+  border: var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xs) var(--space-md);
+}
+
+/* Tablet — sidebar acima com 4 cards em grid 2×2 */
+@media (max-width: 1023px) {
+  .case-shell {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - var(--space-nav));
+    overflow: visible;
+  }
+  .case-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: var(--border-default);
+    overflow-y: visible;
+    align-self: auto;
+  }
+  .case-main-area {
+    overflow: visible;
+    padding: var(--space-sm) var(--space-md);
+    min-height: 60vh;
+  }
+  .case-active-panel {
+    overflow: visible;
+    min-height: 50vh;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .case-sidebar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-content: start;
+  }
+}
+
+/* Telemóvel — tudo em coluna */
+@media (max-width: 767px) {
+  .case-banner-row {
+    flex-direction: column;
+  }
+  .case-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+  .case-active-panel {
+    min-height: 40vh;
+  }
+}
+
+
+/* =============================================================
+   CASE PLAYER — Grids responsivos dos subcomponentes
+   ============================================================= */
+
+.case-observation-grid {
+  display: grid;
+  height: 100%;
+  gap: var(--space-md);
+  grid-template-columns: 1.2fr 0.8fr;
+}
+
+.case-dialogue-grid {
+  display: grid;
+  height: 100%;
+  gap: var(--space-md);
+  grid-template-columns: 0.9fr 1.1fr;
+}
+
+.case-treatment-grid {
+  display: grid;
+  height: 100%;
+  gap: var(--space-md);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  min-width: 0;
+}
+
+.case-observation-slots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, 1fr);
+  gap: var(--space-sm);
+  flex: 1;
+  min-height: 0;
+}
+
+.result-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 1023px) {
+  .case-observation-grid,
+  .case-dialogue-grid,
+  .case-treatment-grid {
+    height: auto;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .result-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 479px) {
+  .case-observation-slots {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+
 @media (prefers-color-scheme: light) {
   :root {
     --color-base:           #F4F6F9;

@@ -69,15 +69,7 @@ export function CaseTreatmentPlanner({
   }
 
   return (
-    <div
-      style={{
-        display: "grid",
-        height: "100%",
-        gap: "var(--space-md)",
-        gridTemplateColumns: "minmax(0, 1.15fr) minmax(0, 0.85fr)",
-        minWidth: 0,
-      }}
-    >
+    <div className="case-treatment-grid">
       {/* Coluna esquerda — catálogo */}
       <div
         className="card"

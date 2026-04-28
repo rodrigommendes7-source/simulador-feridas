@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import { validateClinicalDomain } from "@/lib/clinical";
 
 export default function DiagnosticoPage() {
+  redirect("/");
   const report = validateClinicalDomain();
   const errors = report.issues.filter((issue) => issue.level === "error");
   const warnings = report.issues.filter((issue) => issue.level === "warning");

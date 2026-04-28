@@ -14,7 +14,7 @@ export default function TermosPage() {
           Termos de Utilização
         </h1>
         <p className="text-body" style={{ marginTop: "var(--space-sm)", color: "var(--color-text-secondary)" }}>
-          Última atualização: junho de 2025 · Versão 1.0
+          Última atualização: abril de 2026 · Versão 1.1
         </p>
       </div>
 

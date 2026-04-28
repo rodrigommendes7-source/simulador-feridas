@@ -129,15 +129,14 @@ function buildObservationSection(session: CaseSession, attempt: AttemptInput) {
         `Observaste ${definition.label.toLowerCase()}: ${detail.detail}`,
         definition.learningTopicIds
       );
-    } else {
+    } else if (definition.priority === "essencial") {
+      // Itens essenciais não observados penalizam — adequados omitidos são silenciosos
       pushItem(
         section,
         definition.id,
         definition.label,
-        definition.priority === "essencial" ? "inadequado" : "redundante",
-        definition.priority === "essencial"
-          ? `Faltou observar ${definition.label.toLowerCase()}, o que limita a leitura clínica do caso.`
-          : `Podias ter explorado ${definition.label.toLowerCase()} para afinar o raciocínio clínico.`,
+        "inadequado",
+        `Faltou observar ${definition.label.toLowerCase()}, o que limita a leitura clínica do caso.`,
         definition.learningTopicIds
       );
     }
@@ -160,15 +159,14 @@ function buildAssessmentSection(session: CaseSession, attempt: AttemptInput) {
         `Perguntaste sobre ${prompt.label.toLowerCase().replace("perguntar sobre ", "")}: ${session.variant.dialogueResponses[prompt.id]}`,
         prompt.learningTopicIds
       );
-    } else {
+    } else if (prompt.priority === "essencial") {
+      // Perguntas essenciais omitidas penalizam — adequadas omitidas são silenciosas
       pushItem(
         section,
         prompt.id,
         prompt.label,
-        prompt.priority === "essencial" ? "inadequado" : "redundante",
-        prompt.priority === "essencial"
-          ? "Faltou recolher este dado clínico, que influencia a segurança do plano."
-          : "Explorar este ponto ajudaria a justificar melhor a decisão final.",
+        "inadequado",
+        "Faltou recolher este dado clínico, que influencia a segurança do plano.",
         prompt.learningTopicIds
       );
     }
@@ -456,11 +454,8 @@ function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
                   : "Técnica aplicável, mas existem opções mais indicadas para o estado atual da ferida.",
                 appDef.learningTopicIds);
             }
-          } else if (ruleClassification === "correto") {
-            pushItem(section, applicationId, label, "redundante",
-              "Esta técnica seria adequada mas não foi selecionada.",
-              appDef.learningTopicIds);
           }
+          // Técnica não selecionada e sem goal específico: silenciosa (não penaliza nem bonifica)
         }
       }
     }
@@ -554,6 +549,42 @@ function getBestSelectionForSelections<T, K extends keyof AttemptInput>(
   session: CaseSession
 ) {
   return greedyBestSelection(options, field, buildSection, session);
+}
+
+// Teto fixo baseado apenas nos goals essenciais — selecionar só os essenciais já dá 100/100
+function getEssentialRawCeiling(
+  session: CaseSession,
+  sectionId: EvaluationSection["id"]
+): number {
+  const ESSENTIAL_WEIGHT = classificationWeights.essencial; // 12
+
+  if (sectionId === "observation") {
+    const count = session.template.observationDefinitions.filter(
+      (d) => d.priority === "essencial"
+    ).length;
+    return count * ESSENTIAL_WEIGHT;
+  }
+  if (sectionId === "assessment") {
+    const count = session.template.dialoguePrompts.filter(
+      (d) => d.priority === "essencial"
+    ).length;
+    return count * ESSENTIAL_WEIGHT;
+  }
+  if (sectionId === "treatment-plan") {
+    const count = session.variant.clinicalTargets.filter(
+      (g) =>
+        g.priority === "essencial" &&
+        (g.matcher.treatmentIds !== undefined || g.matcher.treatmentFunctions !== undefined)
+    ).length;
+    return count * ESSENTIAL_WEIGHT;
+  }
+  if (sectionId === "application-technique") {
+    const count = session.variant.clinicalTargets.filter(
+      (g) => g.priority === "essencial" && g.matcher.applicationIds !== undefined
+    ).length;
+    return count * ESSENTIAL_WEIGHT;
+  }
+  return 0;
 }
 
 function toReviewStatus(classification: EvaluationClassification): ReviewStatus {
@@ -663,44 +694,24 @@ export function evaluateCaseAttempt(
   const sections = [
     finalizeSectionScore(
       buildObservationSection(session, attempt),
-      getBestRawScoreForSelections(
-        session.template.observationDefinitions.map((item) => item.id),
-        "observationIds",
-        buildObservationSection,
-        session
-      )
+      getEssentialRawCeiling(session, "observation")
     ),
-    // Visual identification: fixed attainableRaw = 3 × essencial weight (3 × 12 = 36)
+    // Visual identification: teto fixo = 3 categorias × peso essencial (3 × 12 = 36)
     finalizeSectionScore(
       buildVisualIdentificationSection(session, attempt),
       3 * 12
     ),
     finalizeSectionScore(
       buildAssessmentSection(session, attempt),
-      getBestRawScoreForSelections(
-        session.template.dialoguePrompts.map((item) => item.id),
-        "dialogueIds",
-        buildAssessmentSection,
-        session
-      )
+      getEssentialRawCeiling(session, "assessment")
     ),
     finalizeSectionScore(
       buildTreatmentSection(session, attempt),
-      getBestRawScoreForSelections(
-        session.variant.availableTreatments,
-        "treatmentIds",
-        buildTreatmentSection,
-        session
-      )
+      getEssentialRawCeiling(session, "treatment-plan")
     ),
     finalizeSectionScore(
       buildApplicationSection(session, attempt),
-      getBestRawScoreForSelections(
-        session.variant.applicationOptions,
-        "applicationIds",
-        buildApplicationSection,
-        session
-      )
+      getEssentialRawCeiling(session, "application-technique")
     ),
   ];
 

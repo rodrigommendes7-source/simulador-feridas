@@ -36,7 +36,18 @@
       "Bash(sed -i 's/\"hydrocolloid-thin\"/\"hidrocoloide-fino\"/g; s/\"hydrocolloid\"/\"hidrocoloide\"/g' data/clinical/tratamentos.ts)",
       "Bash(sed -i 's/\"foam-silver\"/\"espuma-prata\"/g; s/\"foam\"/\"espuma\"/g' data/clinical/tratamentos.ts)",
       "Bash(sed -i 's/\"odor-silver\"/\"carvao-prata\"/g' data/clinical/tratamentos.ts)",
-      "Bash(sed -i 's/\"iodine-dressing\"/\"aposito-iodado\"/g' data/clinical/tratamentos.ts)"
+      "Bash(sed -i 's/\"iodine-dressing\"/\"aposito-iodado\"/g' data/clinical/tratamentos.ts)",
+      "Bash(grep -v '^\\\\s*$')",
+      "Bash(sed 's/availableTreatments: //')",
+      "Bash(sed 's/\\\\[\"//g')",
+      "Bash(sed 's/treatmentIds: //')",
+      "Bash(node --experimental-strip-types --input-type=module)",
+      "Bash(grep -n \"^  {$\" c:/Users/rodri/simulador-feridas/data/clinical/topicos-aprendizagem.ts)",
+      "Bash(awk -F'\"' '$0 !~ /\\(commonMistakes|id: \"anti|id: \"exs|id: \"tiss|id: \"tipo|id: \"bordo|id: \"hiper|id: \"abor|id: \"sinai|id: \"octen|id: \"sepsis|id: \"diabe|id: \"inad|id: \"regra|id: \"puru\\)/ {print NR\": \"$2}')",
+      "Bash(node --experimental-strip-types --experimental-specifier-resolution=node scripts/validate-three-scenarios.mts)",
+      "Bash(node --experimental-strip-types --experimental-specifier-resolution=node lib/clinical/evaluation.test.ts)",
+      "Bash(node --experimental-strip-types --experimental-specifier-resolution=node -)",
+      "Bash(xargs grep *)"
     ]
   }
 }

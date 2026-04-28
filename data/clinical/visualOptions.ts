@@ -20,6 +20,7 @@ export const VISUAL_EXUDATE_OPTIONS: VisualOptionDefinition<VisualExudateOption>
 ];
 
 export const VISUAL_EDGE_OPTIONS: VisualOptionDefinition<VisualEdgeOption>[] = [
+  { id: "integra", label: "Pele íntegra", description: "Bordos e pele perilesional sem alterações visíveis." },
   { id: "maceracao", label: "Maceração", description: "Pele branca/amolecida por humidade excessiva." },
   { id: "rubor", label: "Rubor", description: "Eritema/vermelhidão dos bordos." },
   { id: "hiperqueratose", label: "Hiperqueratose", description: "Espessamento da pele junto aos bordos." },

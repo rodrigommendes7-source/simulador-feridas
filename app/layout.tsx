@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     "simulador clínico",
     "enfermagem",
     "aprendizagem clínica",
-    "universidade dos açores",
   ],
   authors: [{ name: "Rodrigo Marques Mendes" }],
   creator: "Rodrigo Marques Mendes",

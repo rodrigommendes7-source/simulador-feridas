@@ -127,7 +127,6 @@ export type DialogueId =
   | "mobilidade";
 
 export type ApplicationId =
-  | "compressao_forte"
   | "direto_seco"
   | "penso_rapido"
   | "penso_simples"
@@ -398,7 +397,8 @@ export type VisualEdgeOption =
   | "maceracao"
   | "rubor"
   | "hiperqueratose"
-  | "pele-seca";
+  | "pele-seca"
+  | "integra";
 
 export interface VisualOptionDefinition<T extends string> {
   id: T;

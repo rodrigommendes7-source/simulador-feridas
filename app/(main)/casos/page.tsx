@@ -17,6 +17,10 @@ const CASE_INTRO_PHRASES: Record<string, string> = {
   "2": "Aprofunda o reconhecimento de infeção e desbridamento.",
   "3": "Caso mais exigente — requer leitura de risco e decisão antimicrobiana.",
   "4": "Treino de proporcionalidade terapêutica e conforto ao penso.",
+  "5": "Aprofunda o controlo de bioburden e a proteção perilesional numa úlcera venosa inflamatória.",
+  "6": "Treina o reconhecimento e redução de hipergranulação.",
+  "7": "Caso avançado de infeção cirúrgica — controlo antimicrobiano e limites de autonomia.",
+  "8": "Queimadura profunda com biofilme — o caso mais exigente do simulador.",
 };
 
 function difficultyLabel(value: string) {

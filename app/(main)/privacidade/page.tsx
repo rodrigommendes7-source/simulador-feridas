@@ -14,7 +14,7 @@ export default function PrivacidadePage() {
           Política de Privacidade
         </h1>
         <p className="text-body" style={{ marginTop: "var(--space-sm)", color: "var(--color-text-secondary)" }}>
-          Última atualização: junho de 2025 · Versão 1.0
+          Última atualização: abril de 2026 · Versão 1.1
         </p>
       </div>
 
@@ -59,21 +59,14 @@ export default function PrivacidadePage() {
         </div>
 
         <div>
-          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>4. Exportação de dados pelo utilizador</h2>
-          <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
-            A plataforma oferece a funcionalidade de exportar o histórico de tentativas como ficheiro JSON, exclusivamente para uso pessoal do utilizador (por exemplo, para guardar o progresso ou transferir para outro dispositivo). Este ficheiro é gerado e descarregado diretamente no dispositivo do utilizador, sem qualquer intermediário ou servidor externo.
-          </p>
-        </div>
-
-        <div>
-          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>5. Cookies</h2>
+          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>4. Cookies</h2>
           <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
             Esta plataforma não utiliza cookies de sessão, de rastreamento, de análise nem de publicidade. O único mecanismo de persistência utilizado é o <em>localStorage</em>, descrito na secção anterior, que é diferente dos cookies e não é transmitido automaticamente em pedidos HTTP.
           </p>
         </div>
 
         <div>
-          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>6. Serviços de terceiros</h2>
+          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>5. Serviços de terceiros</h2>
           <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
             A plataforma pode carregar fontes tipográficas do Google Fonts (fonts.googleapis.com / fonts.gstatic.com), o que implica um pedido HTTP ao servidor da Google aquando do carregamento da página. Este pedido pode revelar o endereço IP do utilizador à Google, de acordo com a{" "}
             <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-info)", textDecoration: "underline" }}>Política de Privacidade da Google</a>.
@@ -82,7 +75,7 @@ export default function PrivacidadePage() {
         </div>
 
         <div>
-          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>7. Direitos do utilizador (RGPD)</h2>
+          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>6. Direitos do utilizador (RGPD)</h2>
           <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
             Dado que esta plataforma não recolhe nem processa dados pessoais identificáveis, os direitos de acesso, retificação, apagamento, portabilidade e oposição previstos no Regulamento Geral sobre a Proteção de Dados (RGPD) não são aplicáveis neste contexto.
           </p>
@@ -92,21 +85,21 @@ export default function PrivacidadePage() {
         </div>
 
         <div>
-          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>8. Segurança</h2>
+          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>7. Segurança</h2>
           <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
             A plataforma é servida exclusivamente via HTTPS. São aplicados cabeçalhos de segurança HTTP que incluem Content-Security-Policy, X-Frame-Options, X-Content-Type-Options e Referrer-Policy, com o objetivo de proteger os utilizadores contra ataques comuns de injeção e rastreamento.
           </p>
         </div>
 
         <div>
-          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>9. Alterações a esta política</h2>
+          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>8. Alterações a esta política</h2>
           <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
             Esta política pode ser atualizada para refletir alterações técnicas ou legais. A data de última atualização é sempre indicada no topo da página. O uso continuado da plataforma após uma atualização implica a aceitação da nova versão.
           </p>
         </div>
 
         <div>
-          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>10. Contacto</h2>
+          <h2 style={{ fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>9. Contacto</h2>
           <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
             Para questões relacionadas com privacidade ou proteção de dados, utilize o endereço de contacto disponível na página{" "}
             <Link href="/sobre" style={{ color: "var(--color-info)", textDecoration: "underline" }}>Sobre</Link>.

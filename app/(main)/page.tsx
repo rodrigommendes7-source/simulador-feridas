@@ -1,7 +1,25 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { InfoBanner } from "@/components/InfoBanner";
 
+const PRIVACY_BANNER_KEY = "privacy-banner-dismissed";
+
 export default function HomePage() {
+  const [showPrivacyBanner, setShowPrivacyBanner] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem(PRIVACY_BANNER_KEY)) {
+      setShowPrivacyBanner(true);
+    }
+  }, []);
+
+  function dismissPrivacyBanner() {
+    localStorage.setItem(PRIVACY_BANNER_KEY, "1");
+    setShowPrivacyBanner(false);
+  }
+
   return (
     <main
       style={{
@@ -45,12 +63,22 @@ export default function HomePage() {
         Ferramenta de treino clínico. Não substitui decisão clínica real nem é usada para classificação.
       </InfoBanner>
 
-      {/* Aviso de privacidade — canto inferior direito, acima do footer */}
-      <div style={{ position: "fixed", bottom: "calc(var(--space-md) * 2 + 1.5rem)", right: "var(--space-lg)", zIndex: 50, maxWidth: "320px" }}>
-        <InfoBanner variant="success">
-          Os teus dados ficam guardados apenas no teu browser (localStorage). Nada é enviado para servidores externos.
-        </InfoBanner>
-      </div>
+      {/* Aviso de privacidade — canto inferior direito, visível apenas na primeira visita */}
+      {showPrivacyBanner && (
+        <div style={{ position: "fixed", bottom: "calc(var(--space-md) * 2 + 1.5rem)", right: "var(--space-lg)", zIndex: 50, maxWidth: "320px", display: "flex", alignItems: "flex-start", gap: "var(--space-sm)" }}>
+          <InfoBanner variant="success">
+            Os teus dados ficam guardados apenas no teu browser (localStorage). Nada é enviado para servidores externos.
+          </InfoBanner>
+          <button
+            type="button"
+            onClick={dismissPrivacyBanner}
+            aria-label="Fechar aviso"
+            style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "var(--color-text-secondary)", fontSize: "var(--text-body)", lineHeight: 1, padding: "var(--space-xs)" }}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Painel com os 3 cartões */}
       <div

@@ -1,11 +1,13 @@
 import Link from "next/link";
 import {
   getTreatmentLabel,
+  listTreatments,
   type AttemptInput,
   type CaseEvaluation,
   type CaseSession,
   type EvaluationSection,
 } from "@/lib/clinical";
+import { evidenceReferences } from "@/data/clinical/evidencia";
 
 // ─── Helpers de estilo ────────────────────────────────────────────────────────
 
@@ -116,6 +118,44 @@ function SectionLabel({ color, children }: { color: BlockColor; children: React.
   );
 }
 
+// ─── Seleção de referências de evidência para o resultado ────────────────────
+
+function selectEvidenceForResult(
+  evaluation: CaseEvaluation,
+  attempt: AttemptInput
+): typeof evidenceReferences {
+  const allTreatments = listTreatments();
+  const evidenceIds = new Set<string>();
+
+  // 1) Prioridade: tratamentos do plano otimizado
+  for (const label of evaluation.recommendedPlan.optimized) {
+    const treatment = allTreatments.find((t) => t.label === label);
+    if (treatment) {
+      treatment.evidenceRefs.forEach((id) => evidenceIds.add(id));
+    }
+  }
+
+  // 2) Se ainda < 2 refs únicas, completar com tratamentos do utilizador bem classificados
+  if (evidenceIds.size < 2) {
+    const treatSection = evaluation.sections.find((s) => s.id === "treatment-plan");
+    if (treatSection) {
+      for (const item of treatSection.items) {
+        if (item.classification !== "essencial" && item.classification !== "adequado") continue;
+        if (!item.sourceId) continue;
+        const treatment = allTreatments.find((t) => t.id === item.sourceId);
+        if (treatment) {
+          treatment.evidenceRefs.forEach((id) => evidenceIds.add(id));
+        }
+      }
+    }
+  }
+
+  return Array.from(evidenceIds)
+    .map((id) => evidenceReferences.find((ref) => ref.id === id))
+    .filter((ref): ref is NonNullable<typeof ref> => Boolean(ref))
+    .slice(0, 2);
+}
+
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export function CaseResultSummary({
@@ -134,6 +174,7 @@ export function CaseResultSummary({
   onReset: () => void;
 }) {
   const { sections } = evaluation;
+  const relevantEvidence = selectEvidenceForResult(evaluation, attempt);
 
   // Itens corretos (essencial ou adequado) — aquilo que o aluno fez bem
   const correctObs = getItems(sections, "observation", "essencial", "adequado");
@@ -340,6 +381,35 @@ export function CaseResultSummary({
           </div>
         </div>
       </section>
+
+      {/* ── Evidência clínica relevante ── */}
+      {relevantEvidence.length > 0 && (
+        <section className="card" style={{ padding: "var(--space-lg)" }}>
+          <p className="text-label" style={{ color: "var(--color-info)" }}>Evidência clínica</p>
+          <p className="text-body" style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}>
+            Referências que sustentam as decisões deste caso.
+          </p>
+          <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+            {relevantEvidence.map((ref) => (
+              <a
+                key={ref.id}
+                href={ref.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card card-clickable"
+                style={{ padding: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)", textDecoration: "none" }}
+              >
+                <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)", fontSize: "var(--text-body)" }}>
+                  {ref.title}
+                </p>
+                <p className="text-body" style={{ color: "var(--color-text-secondary)" }}>
+                  {ref.summary}
+                </p>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Reforço recomendado ── */}
       {evaluation.learningRecommendations.length > 0 && (

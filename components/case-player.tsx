@@ -23,13 +23,15 @@ import {
 } from "@/data/clinical/visualOptions";
 import { CaseDialoguePanel } from "@/components/case-player/case-dialogue-panel";
 import { CaseIntro } from "@/components/case-player/case-intro";
+import { CaseJustificationPanel } from "@/components/case-player/case-justification-panel";
 import { CaseObservationPanel } from "@/components/case-player/case-observation-panel";
 import { CaseResultSummary } from "@/components/case-player/case-result-summary";
 import { CaseTreatmentPlanner } from "@/components/case-player/case-treatment-planner";
 import { CaseVisualIdentification } from "@/components/case-player/case-visual-identification";
-import type { VisualIdentificationSubmission } from "@/lib/clinical/types";
+import { generateAllJustificationQuestions } from "@/lib/clinical/justification-engine";
+import type { JustificationAnswer, TissuePin, VisualIdentificationSubmission } from "@/lib/clinical/types";
 
-type Step = "observacao" | "identificacao" | "dialogo" | "tratamento" | "resultado";
+type Step = "observacao" | "identificacao" | "dialogo" | "tratamento" | "justificacao" | "resultado";
 
 function resolveSession(templateId: string) {
   const history = loadAttemptHistory();
@@ -64,21 +66,25 @@ export function CasePlayer({ templateId }: { templateId: string }) {
 const [startedAt, setStartedAt] = useState<number | null>(null);
   const [observationIds, setObservationIds] = useState<ObservationId[]>([]);
   const [visualSubmission, setVisualSubmission] = useState<VisualIdentificationSubmission>({ tissues: [], exudate: [], edges: [] });
+  const [tissuePins, setTissuePins] = useState<TissuePin[]>([]);
   const [dialogueIds, setDialogueIds] = useState<DialogueId[]>([]);
   const [activeDialogueId, setActiveDialogueId] = useState<DialogueId | null>(null);
   const [treatmentIds, setTreatmentIds] = useState<string[]>([]);
   const [applicationIds, setApplicationIds] = useState<ApplicationId[]>([]);
+  const [justificationAnswers, setJustificationAnswers] = useState<JustificationAnswer[]>([]);
   const [previousBestScore, setPreviousBestScore] = useState<number | null>(null);
 
   const attempt = useMemo(
     () => ({
       observationIds,
       visualSubmission,
+      tissuePins,
       dialogueIds,
       treatmentIds,
       applicationIds,
+      justificationAnswers,
     }),
-    [observationIds, visualSubmission, dialogueIds, treatmentIds, applicationIds]
+    [observationIds, visualSubmission, tissuePins, dialogueIds, treatmentIds, applicationIds, justificationAnswers]
   );
 
   const evaluation = useMemo(() => evaluateCaseAttempt(session, attempt), [session, attempt]);
@@ -101,10 +107,12 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     setStartedAt(null);
     setObservationIds([]);
     setVisualSubmission({ tissues: [], exudate: [], edges: [] });
+    setTissuePins([]);
     setDialogueIds([]);
     setActiveDialogueId(null);
     setTreatmentIds([]);
     setApplicationIds([]);
+    setJustificationAnswers([]);
     setPreviousBestScore(null);
     if (nextSession) {
       setSession(nextSession);
@@ -143,8 +151,41 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     );
   }
 
-  function finishCase() {
+  function addTissuePin(pin: TissuePin) {
+    if (reviewMode) return;
+    setTissuePins((prev) => [...prev, pin]);
+  }
+
+  function removeTissuePin(id: string) {
+    if (reviewMode) return;
+    setTissuePins((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  const justificationQuestions = useMemo(
+    () => generateAllJustificationQuestions(treatmentIds, session.variant),
+    [treatmentIds, session.variant]
+  );
+
+  const allJustificationsAnswered =
+    justificationQuestions.length === 0 ||
+    justificationQuestions.every((q) =>
+      justificationAnswers.some((a) => a.treatmentId === q.treatmentId)
+    );
+
+  function answerJustification(treatmentId: string, optionId: string) {
+    setJustificationAnswers((prev) => {
+      const filtered = prev.filter((a) => a.treatmentId !== treatmentId);
+      return [...filtered, { treatmentId, selectedOptionId: optionId }];
+    });
+  }
+
+  function goToJustification() {
     if (!readyToSubmit) return;
+    setStep("justificacao");
+  }
+
+  function submitFinal() {
+    if (!allJustificationsAnswered) return;
 
     const history = loadAttemptHistory();
     const priorBestScore = getPreviousBestScoreForCase(history, session.template.id);
@@ -187,11 +228,15 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
             : dialogueIds.length === 0
               ? "Explora primeiro a dor e o contexto funcional para enquadrar o risco e o conforto."
               : "Falta consolidar o diálogo com mais uma pergunta clinicamente relevante."
-          : completedTreatment && completedApplication
-            ? "O plano e a técnica já estão completos para receberes o feedback final."
-            : completedTreatment
-              ? "Já tens materiais escolhidos, mas ainda falta definir a técnica de aplicação."
-              : "Escolhe um material principal e confirma como o vais aplicar de forma segura.";
+          : step === "justificacao"
+            ? allJustificationsAnswered
+              ? "Justificaste todos os materiais. Podes submeter o caso."
+              : "Indica a razão clínica principal para cada material que selecionaste."
+            : completedTreatment && completedApplication
+              ? "O plano e a técnica já estão completos para receberes o feedback final."
+              : completedTreatment
+                ? "Já tens materiais escolhidos, mas ainda falta definir a técnica de aplicação."
+                : "Escolhe um material principal e confirma como o vais aplicar de forma segura.";
 
   useEffect(() => {
     startTransition(() => {
@@ -419,6 +464,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                   ["identificacao", "Identificação"],
                   ["dialogo", "Diálogo"],
                   ["tratamento", "Tratamento"],
+                  ["justificacao", "Justificação"],
                 ] as [Step, string][]).map(([id, label]) => (
                   <button
                     key={id}
@@ -523,7 +569,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
             </div>
 
             {/* Leitura visual — só aparece a partir do diálogo */}
-            {(step === "dialogo" || step === "tratamento") && (() => {
+            {(step === "dialogo" || step === "tratamento" || step === "justificacao") && (() => {
               const tissueLabels = visualSubmission.tissues
                 .map((id) => VISUAL_TISSUE_OPTIONS.find((o) => o.id === id)?.label)
                 .filter(Boolean).join(", ") || "—";
@@ -647,6 +693,11 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 <CaseVisualIdentification
                   submission={visualSubmission}
                   onChange={setVisualSubmission}
+                  imageSrc={session.template.imageSrc}
+                  tissuePins={tissuePins}
+                  onAddPin={addTissuePin}
+                  onRemovePin={removeTissuePin}
+                  hasTissueZones={(session.variant.tissueZones?.length ?? 0) > 0}
                 />
               ) : step === "dialogo" ? (
                 <CaseDialoguePanel
@@ -656,6 +707,12 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                   reviewStatusById={reviewMode ? review.dialogueStatus : undefined}
                   reviewMode={reviewMode}
                   onAsk={askDialogue}
+                />
+              ) : step === "justificacao" ? (
+                <CaseJustificationPanel
+                  questions={justificationQuestions}
+                  answers={justificationAnswers}
+                  onAnswer={answerJustification}
                 />
               ) : (
                 <CaseTreatmentPlanner
@@ -699,6 +756,15 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                     Continuar para identificação
                   </button>
                 ) : null}
+                {!reviewMode && step === "identificacao" ? (
+                  <button
+                    type="button"
+                    onClick={() => setStep("dialogo")}
+                    className="btn btn-primary"
+                  >
+                    Continuar para diálogo
+                  </button>
+                ) : null}
                 {!reviewMode && step === "dialogo" ? (
                   <button
                     type="button"
@@ -708,10 +774,10 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                     Continuar para tratamento
                   </button>
                 ) : null}
-                {!reviewMode ? (
+                {!reviewMode && step === "tratamento" ? (
                   <button
                     type="button"
-                    onClick={finishCase}
+                    onClick={goToJustification}
                     disabled={!readyToSubmit}
                     className={readyToSubmit ? "btn btn-primary" : "btn"}
                     style={
@@ -725,7 +791,27 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                         : undefined
                     }
                   >
-                    Finalizar caso
+                    Avançar para justificação
+                  </button>
+                ) : null}
+                {!reviewMode && step === "justificacao" ? (
+                  <button
+                    type="button"
+                    onClick={submitFinal}
+                    disabled={!allJustificationsAnswered}
+                    className={allJustificationsAnswered ? "btn btn-primary" : "btn"}
+                    style={
+                      !allJustificationsAnswered
+                        ? {
+                            cursor: "not-allowed",
+                            opacity: 0.4,
+                            background: "var(--color-elevated)",
+                            color: "var(--color-text-secondary)",
+                          }
+                        : undefined
+                    }
+                  >
+                    Submeter caso
                   </button>
                 ) : null}
               </div>

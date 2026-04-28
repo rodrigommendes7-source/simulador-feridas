@@ -5,6 +5,8 @@ import {
   getTreatment,
   getTreatmentLabel,
 } from "./catalog.ts";
+import { generateAllJustificationQuestions, generateJustificationQuestion } from "./justification-engine.ts";
+import { evaluateAnnotation } from "./annotation-evaluator.ts";
 import type {
   AttemptReview,
   ApplicationId,
@@ -13,8 +15,10 @@ import type {
   CaseSession,
   EvaluationClassification,
   EvaluationSection,
+  JustificationAnswer,
   LearningRecommendation,
   ReviewStatus,
+  TissuePin,
   TreatmentDefinition,
   TreatmentFunction,
   VisualTissueOption,
@@ -27,6 +31,11 @@ const classificationWeights: Record<EvaluationClassification, number> = {
   adequado: 6,
   redundante: -3,
   inadequado: -8,
+};
+
+const classificationWeightsWithoutJustification: Partial<Record<EvaluationClassification, number>> = {
+  essencial: 6,
+  adequado: 3,
 };
 
 function normalizeLearningTopicId(topicId: string) {
@@ -60,10 +69,20 @@ function pushItem(
 }
 
 function getSectionRawScore(section: EvaluationSection) {
-  return section.items.reduce(
-    (acc, item) => acc + classificationWeights[item.classification],
-    0
-  );
+  return section.items.reduce((acc, item) => {
+    if (item.weightOverride !== undefined) {
+      const sign =
+        item.classification === "inadequado" ? -1
+        : item.classification === "redundante" ? -0.25
+        : 1;
+      return acc + item.weightOverride * sign;
+    }
+    if (item.justificationCorrect === false) {
+      const reducedWeight = classificationWeightsWithoutJustification[item.classification];
+      if (reducedWeight !== undefined) return acc + reducedWeight;
+    }
+    return acc + classificationWeights[item.classification];
+  }, 0);
 }
 
 function finalizeSectionScore(section: EvaluationSection, attainableRawMax: number) {
@@ -181,12 +200,39 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
   const specialRules = session.variant.evaluationRules.filter((rule) => rule.target === "treatment");
   const claimedGoalIds = new Set<string>();
 
+  function getJustificationStatus(treatmentId: string): boolean | null {
+    if (!attempt.justificationAnswers) return null;
+    const answer = attempt.justificationAnswers.find((a) => a.treatmentId === treatmentId);
+    if (!answer) return null;
+    const question = generateJustificationQuestion(treatmentId, session.variant);
+    if (!question) return null;
+    return answer.selectedOptionId === question.correctOptionId;
+  }
+
+  function pushTreatmentItem(
+    treatmentId: string,
+    label: string,
+    classification: EvaluationClassification,
+    reason: string,
+    topicIds: string[]
+  ) {
+    const justificationCorrect = getJustificationStatus(treatmentId);
+    section.items.push({
+      id: `${section.id}-${section.items.length + 1}`,
+      sourceId: treatmentId,
+      label,
+      classification,
+      explanation: reason,
+      learningTopicIds: topicIds,
+      justificationCorrect,
+    });
+  }
+
   for (const treatment of selected) {
     const forcedRule = specialRules.find((rule) => rule.appliesToIds.includes(treatment.id));
 
     if (forcedRule) {
-      pushItem(
-        section,
+      pushTreatmentItem(
         treatment.id,
         treatment.label,
         forcedRule.classification,
@@ -207,8 +253,7 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
         treatment.contraindications.length === 0 &&
         (treatment.functions.includes("cleanse") || treatment.functions.includes("antiseptic"));
       if (isUniversalCleanser) {
-        pushItem(
-          section,
+        pushTreatmentItem(
           treatment.id,
           treatment.label,
           "adequado",
@@ -217,8 +262,7 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
         );
         continue;
       }
-      pushItem(
-        section,
+      pushTreatmentItem(
         treatment.id,
         treatment.label,
         "redundante",
@@ -229,8 +273,7 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
     }
 
     if (availableGoals.length === 0) {
-      pushItem(
-        section,
+      pushTreatmentItem(
         treatment.id,
         treatment.label,
         "redundante",
@@ -243,8 +286,7 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
     const essentialGoal = availableGoals.find((goal) => goal.priority === "essencial");
     const chosenGoal = essentialGoal ?? availableGoals[0];
     claimedGoalIds.add(chosenGoal.id);
-    pushItem(
-      section,
+    pushTreatmentItem(
       treatment.id,
       treatment.label,
       chosenGoal.priority === "essencial" ? "essencial" : "adequado",
@@ -254,8 +296,7 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
   }
 
   for (const duplicateId of duplicates) {
-    pushItem(
-      section,
+    pushTreatmentItem(
       duplicateId,
       getTreatmentLabel(duplicateId),
       "redundante",
@@ -353,6 +394,40 @@ function buildVisualIdentificationSection(session: CaseSession, attempt: Attempt
     section, "edges", "Bordos e pele perilesional",
     targets.edges, submission.edges, ["protecao-perilesional"]
   );
+
+  const tissueZones = session.variant.tissueZones ?? [];
+  if (tissueZones.length > 0) {
+    const annotationEval = evaluateAnnotation(attempt.tissuePins ?? [], tissueZones);
+
+    // peso da anotação = soma dos pesos positivos dos items da checkbox (para 50/50)
+    const checkboxAttainable = section.items.reduce(
+      (acc, it) => acc + Math.max(0, classificationWeights[it.classification]),
+      0
+    );
+
+    const annotationClassification: EvaluationClassification =
+      annotationEval.score >= 0.85 ? "essencial"
+      : annotationEval.score >= 0.5 ? "adequado"
+      : annotationEval.score > 0 ? "redundante"
+      : "inadequado";
+
+    const explanation =
+      annotationEval.missedTypes.length > 0
+        ? `Tipos identificados na imagem: ${annotationEval.correctTypes.join(", ") || "nenhum"}. Em falta: ${annotationEval.missedTypes.join(", ")}.`
+        : annotationEval.pinsOutOfZones > 0
+        ? `Todos os tipos correctamente apontados, mas ${annotationEval.pinsOutOfZones} pin(s) fora das zonas esperadas.`
+        : "Todos os tecidos correctamente identificados na imagem.";
+
+    section.items.push({
+      id: `${section.id}-annotation`,
+      sourceId: undefined,
+      label: "Anotação dos tecidos na imagem",
+      classification: annotationClassification,
+      explanation,
+      learningTopicIds: ["tecidos-e-leito"],
+      weightOverride: annotationEval.score * checkboxAttainable,
+    });
+  }
 
   return section;
 }
@@ -749,6 +824,28 @@ export function evaluateCaseAttempt(
 }
 
 export function getIdealAttempt(session: CaseSession): AttemptInput {
+  const idealTreatmentIds = getBestSelectionForSelections(
+    session.variant.availableTreatments,
+    "treatmentIds",
+    buildTreatmentSection,
+    session
+  );
+
+  const idealJustificationAnswers: JustificationAnswer[] = generateAllJustificationQuestions(
+    idealTreatmentIds,
+    session.variant
+  ).map((q) => ({
+    treatmentId: q.treatmentId,
+    selectedOptionId: q.correctOptionId,
+  }));
+
+  const idealTissuePins: TissuePin[] = (session.variant.tissueZones ?? []).map((zone, i) => ({
+    id: `ideal-pin-${i}`,
+    tissueType: zone.tissueType,
+    x: zone.rect.x + zone.rect.w / 2,
+    y: zone.rect.y + zone.rect.h / 2,
+  }));
+
   return {
     observationIds: getBestSelectionForSelections(
       session.template.observationDefinitions.map((item) => item.id),
@@ -767,18 +864,15 @@ export function getIdealAttempt(session: CaseSession): AttemptInput {
       buildAssessmentSection,
       session
     ),
-    treatmentIds: getBestSelectionForSelections(
-      session.variant.availableTreatments,
-      "treatmentIds",
-      buildTreatmentSection,
-      session
-    ),
+    treatmentIds: idealTreatmentIds,
     applicationIds: getBestSelectionForSelections(
       session.variant.applicationOptions,
       "applicationIds",
       buildApplicationSection,
       session
     ),
+    justificationAnswers: idealJustificationAnswers,
+    tissuePins: idealTissuePins,
   };
 }
 

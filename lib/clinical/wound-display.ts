@@ -1,4 +1,4 @@
-import type { WoundVariables } from "./types.ts";
+import type { AnnotatableTissueType, WoundVariables } from "./types.ts";
 
 const WOUND_VARIABLE_LABELS: Record<keyof WoundVariables, Record<number, string>> = {
   exsudado:          { 1: "Sem exsudado", 2: "Leve", 3: "Moderado", 4: "Abundante" },
@@ -51,3 +51,23 @@ export const WOUND_VARIABLES_EXTRA: readonly (keyof WoundVariables)[] = [
 export function getWoundVariableLabel(key: keyof WoundVariables, value: number): string {
   return WOUND_VARIABLE_LABELS[key]?.[value] ?? String(value);
 }
+
+// ─── Anotação de tecidos ───────────────────────────────────────────────────
+
+/** Mapeia o valor de VisualTissueOption para AnnotatableTissueType */
+export const tissueValueToAnnotatableType: Record<string, AnnotatableTissueType | null> = {
+  necrose: "necrose",
+  fibrina: "fibrina",
+  granulacao: "granulacao",
+  epitelial: "epitelial",
+  hipergranulacao: "hipergranulacao",
+};
+
+/** Cores e labels para UI dos pins de anotação */
+export const annotatableTissueDisplay: Record<AnnotatableTissueType, { label: string; color: string }> = {
+  necrose:         { label: "Necrose",              color: "#1a1a1a" },
+  fibrina:         { label: "Fibrina / Esfacelo",   color: "#d4a574" },
+  granulacao:      { label: "Granulação",            color: "#c9434b" },
+  epitelial:       { label: "Epitelização",          color: "#f5b7b1" },
+  hipergranulacao: { label: "Hipergranulação",       color: "#7d2932" },
+};

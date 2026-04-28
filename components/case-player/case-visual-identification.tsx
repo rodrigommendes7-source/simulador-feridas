@@ -1,11 +1,18 @@
 "use client";
 
+import { useRef, useState } from "react";
 import {
   VISUAL_EDGE_OPTIONS,
   VISUAL_EXUDATE_OPTIONS,
   VISUAL_TISSUE_OPTIONS,
 } from "@/data/clinical/visualOptions";
+import {
+  annotatableTissueDisplay,
+  tissueValueToAnnotatableType,
+} from "@/lib/clinical/wound-display";
 import type {
+  AnnotatableTissueType,
+  TissuePin,
   VisualEdgeOption,
   VisualExudateOption,
   VisualIdentificationSubmission,
@@ -15,6 +22,11 @@ import type {
 type Props = {
   submission: VisualIdentificationSubmission;
   onChange: (next: VisualIdentificationSubmission) => void;
+  imageSrc: string;
+  tissuePins: TissuePin[];
+  onAddPin: (pin: TissuePin) => void;
+  onRemovePin: (pinId: string) => void;
+  hasTissueZones: boolean;
 };
 
 function toggle<T extends string>(arr: T[], value: T): T[] {
@@ -147,7 +159,35 @@ function CheckboxGroup<T extends string>({
   );
 }
 
-export function CaseVisualIdentification({ submission, onChange }: Props) {
+export function CaseVisualIdentification({
+  submission,
+  onChange,
+  imageSrc,
+  tissuePins,
+  onAddPin,
+  onRemovePin,
+  hasTissueZones,
+}: Props) {
+  const availableTypes: AnnotatableTissueType[] = submission.tissues
+    .map((id) => tissueValueToAnnotatableType[id])
+    .filter((t): t is AnnotatableTissueType => t !== null);
+
+  const [activeTissueType, setActiveTissueType] = useState<AnnotatableTissueType | null>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+
+  function handleImageClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (!activeTissueType || !imageRef.current) return;
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+    onAddPin({
+      id: `pin-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      tissueType: activeTissueType,
+      x,
+      y,
+    });
+  }
+
   return (
     <div
       style={{
@@ -197,6 +237,133 @@ export function CaseVisualIdentification({ submission, onChange }: Props) {
         selected={submission.edges}
         onToggle={(id) => onChange({ ...submission, edges: toggle(submission.edges, id) })}
       />
+
+      {hasTissueZones && availableTypes.length > 0 && (
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "var(--border-default)",
+            borderRadius: "var(--radius-lg)",
+            padding: "var(--space-lg)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-md)",
+          }}
+        >
+          <div>
+            <p
+              style={{
+                fontSize: "var(--text-body)",
+                fontWeight: "var(--weight-medium)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              Aponta na imagem
+            </p>
+            <p
+              className="text-body"
+              style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}
+            >
+              Seleciona um tipo de tecido e clica na imagem para o assinalar. Clica num pin para o remover.
+            </p>
+          </div>
+
+          {/* Selector de tipo activo */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-sm)" }}>
+            {availableTypes.map((type) => {
+              const display = annotatableTissueDisplay[type];
+              const isActive = activeTissueType === type;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setActiveTissueType(isActive ? null : type)}
+                  style={{
+                    padding: "var(--space-xs) var(--space-md)",
+                    borderRadius: "var(--radius-full)",
+                    border: isActive ? `0.5px solid ${display.color}` : "var(--border-default)",
+                    background: isActive ? display.color : "var(--color-elevated)",
+                    color: isActive ? "white" : "var(--color-text-primary)",
+                    cursor: "pointer",
+                    fontSize: "var(--text-body)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-xs)",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "0.6em",
+                      height: "0.6em",
+                      borderRadius: "50%",
+                      background: isActive ? "white" : display.color,
+                      flexShrink: 0,
+                    }}
+                  />
+                  {display.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Imagem com pins */}
+          <div
+            ref={imageRef}
+            onClick={handleImageClick}
+            style={{
+              position: "relative",
+              cursor: activeTissueType ? "crosshair" : "default",
+              userSelect: "none",
+            }}
+          >
+            <img
+              src={imageSrc}
+              alt="Imagem da ferida"
+              style={{ width: "100%", display: "block", borderRadius: "var(--radius-md)" }}
+              draggable={false}
+            />
+            {tissuePins.map((pin) => {
+              const display = annotatableTissueDisplay[pin.tissueType];
+              return (
+                <button
+                  key={pin.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemovePin(pin.id);
+                  }}
+                  title={`${display.label} — clicar para remover`}
+                  style={{
+                    position: "absolute",
+                    left: `${pin.x * 100}%`,
+                    top: `${pin.y * 100}%`,
+                    transform: "translate(-50%, -50%)",
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    background: display.color,
+                    border: "1.5px solid white",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.5)",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          <p
+            style={{
+              fontSize: "var(--text-label)",
+              color: "var(--color-text-secondary)",
+            }}
+          >
+            {tissuePins.length === 0
+              ? "Nenhum pin colocado ainda."
+              : `${tissuePins.length} pin(s) na imagem.`}
+          </p>
+        </div>
+      )}
 
     </div>
   );

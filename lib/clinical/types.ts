@@ -319,6 +319,10 @@ export type CaseVariant = {
   applicationOptions: ApplicationId[];
   clinicalTargets: CaseGoal[];
   evaluationRules: EvaluationRule[];
+  /** Zonas ground truth para anotação de tecidos. Se vazio/ausente, fase de anotação não aparece. */
+  tissueZones?: TissueZone[];
+  /** Override opcional das justificações geradas automaticamente, por treatmentId */
+  justificacoesOverride?: Record<string, JustificationOverride>;
   learningTopicIds: string[];
   recommendedPlan: {
     minimum: string[];
@@ -355,9 +359,11 @@ export type CaseSession = {
 export type AttemptInput = {
   observationIds: ObservationId[];
   visualSubmission: VisualIdentificationSubmission;
+  tissuePins?: TissuePin[];
   dialogueIds: DialogueId[];
   treatmentIds: string[];
   applicationIds: ApplicationId[];
+  justificationAnswers?: JustificationAnswer[];
 };
 
 export type EvaluationItem = {
@@ -367,6 +373,9 @@ export type EvaluationItem = {
   classification: EvaluationClassification;
   explanation: string;
   learningTopicIds: string[];
+  justificationCorrect?: boolean | null;
+  /** Peso explícito que sobrepõe classificationWeights para este item */
+  weightOverride?: number;
 };
 
 export type ReviewStatus = "correct" | "incorrect" | "missed" | null;
@@ -377,6 +386,63 @@ export type AttemptReview = {
   dialogueStatus: Partial<Record<DialogueId, ReviewStatus>>;
   treatmentStatus: Record<string, ReviewStatus>;
   applicationStatus: Partial<Record<ApplicationId, ReviewStatus>>;
+};
+
+// ─── Anotação de tecidos ───────────────────────────────────────────────────
+
+/** Tipo de tecido anotável — alinhado com os valores de VisualTissueOption */
+export type AnnotatableTissueType =
+  | "necrose"
+  | "fibrina"
+  | "granulacao"
+  | "epitelial"
+  | "hipergranulacao";
+
+/** Retângulo em coordenadas relativas à imagem (0-1) */
+export type RelativeRect = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+/** Zona ground truth para um tipo de tecido na imagem da variante */
+export type TissueZone = {
+  tissueType: AnnotatableTissueType;
+  rect: RelativeRect;
+};
+
+/** Pin colocado pelo aluno na imagem */
+export type TissuePin = {
+  id: string;
+  tissueType: AnnotatableTissueType;
+  x: number;
+  y: number;
+};
+
+// ─── Justificação clínica por escolha múltipla ───────────────────────────────
+
+export type JustificationOption = {
+  id: string;
+  text: string;
+};
+
+export type JustificationQuestion = {
+  treatmentId: string;
+  treatmentLabel: string;
+  options: JustificationOption[];
+  correctOptionId: string;
+  kind: "ideal-match" | "contraindicated" | "redundant" | "no-match";
+};
+
+export type JustificationOverride = {
+  options: JustificationOption[];
+  correctOptionId: string;
+};
+
+export type JustificationAnswer = {
+  treatmentId: string;
+  selectedOptionId: string;
 };
 
 // ─── Identificação Visual ──────────────────────────────────────────────────

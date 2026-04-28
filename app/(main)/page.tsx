@@ -21,13 +21,14 @@ export default function HomePage() {
   }
 
   return (
+    <>
     <main
       style={{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        height: "100%",
+        flex: 1,
         padding: "var(--space-2xl)",
         gap: "var(--space-2xl)",
       }}
@@ -168,5 +169,27 @@ export default function HomePage() {
         ))}
       </div>
     </main>
+
+    <footer style={{ flexShrink: 0, borderTopWidth: "0.5px", borderTopStyle: "solid", borderTopColor: "var(--color-border)", padding: "6px var(--page-padding-x)", display: "flex", flexWrap: "wrap", gap: "var(--space-sm)", alignItems: "center", justifyContent: "space-between" }}>
+      <span style={{ fontSize: "11px", color: "var(--color-text-tertiary)" }}>
+        Simulador de Feridas · Uso pedagógico
+      </span>
+      <nav style={{ display: "flex", gap: "var(--space-sm)" }}>
+        {[
+          { href: "/sobre", label: "Sobre" },
+          { href: "/termos", label: "Termos" },
+          { href: "/privacidade", label: "Privacidade" },
+        ].map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            style={{ fontSize: "11px", color: "var(--color-text-tertiary)", textDecoration: "none" }}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+    </footer>
+    </>
   );
 }

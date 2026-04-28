@@ -514,6 +514,8 @@ export type LearningRecommendation = {
 
 export type CaseEvaluation = {
   score: number;
+  justificationPenalty: number;
+  wrongJustificationsCount: number;
   sections: EvaluationSection[];
   reasoningSummary: {
     reading: string;

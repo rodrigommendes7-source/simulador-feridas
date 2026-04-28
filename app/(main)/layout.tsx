@@ -19,27 +19,7 @@ export default function MainLayout({
         {children}
       </div>
 
-      <footer style={{ flexShrink: 0, borderTopWidth: "0.5px", borderTopStyle: "solid", borderTopColor: "var(--color-border)", padding: "var(--space-md) var(--page-padding-x)", display: "flex", flexWrap: "wrap", gap: "var(--space-md)", alignItems: "center", justifyContent: "space-between" }}>
-        <span className="text-label" style={{ color: "var(--color-text-tertiary)" }}>
-          Simulador de Feridas · Uso pedagógico
-        </span>
-        <nav style={{ display: "flex", gap: "var(--space-md)" }}>
-          {[
-            { href: "/sobre", label: "Sobre" },
-            { href: "/termos", label: "Termos" },
-            { href: "/privacidade", label: "Privacidade" },
-          ].map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="text-label"
-              style={{ color: "var(--color-text-tertiary)", textDecoration: "none" }}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-      </footer>
+
     </div>
   );
 }

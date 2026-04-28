@@ -222,6 +222,11 @@ export function CaseResultSummary({
             <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-h1)", fontWeight: "var(--weight-medium)", color: "var(--color-accent)" }}>
               {evaluation.score}/100
             </p>
+            {evaluation.justificationPenalty > 0 && (
+              <p style={{ marginTop: "var(--space-xs)", fontSize: "var(--text-label)", color: "var(--color-warning, #d97706)" }}>
+                −{evaluation.justificationPenalty} pts por {evaluation.wrongJustificationsCount} justificação{evaluation.wrongJustificationsCount !== 1 ? "ões" : ""} incorreta{evaluation.wrongJustificationsCount !== 1 ? "s" : ""}
+              </p>
+            )}
             <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
               {scoreDeltaLabel(previousBestScore, evaluation.score)}
             </p>

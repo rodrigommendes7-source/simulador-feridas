@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:clinical": "node --experimental-strip-types --experimental-specifier-resolution=node lib/clinical/run-tests.ts",
-    "validate:data": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/validate-clinical-data.mts"
+    "validate:data": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/validate-clinical-data.mts",
+    "coverage:cases": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/coverage-report.mts"
   },
   "dependencies": {
     "next": "16.2.1",

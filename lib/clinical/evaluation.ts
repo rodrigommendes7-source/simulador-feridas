@@ -33,10 +33,6 @@ const classificationWeights: Record<EvaluationClassification, number> = {
   inadequado: -8,
 };
 
-const classificationWeightsWithoutJustification: Partial<Record<EvaluationClassification, number>> = {
-  essencial: 6,
-  adequado: 3,
-};
 
 function normalizeLearningTopicId(topicId: string) {
   return topicId === "materiais-desadequados" ? "decisao-clinica" : topicId;
@@ -76,10 +72,6 @@ function getSectionRawScore(section: EvaluationSection) {
         : item.classification === "redundante" ? -0.25
         : 1;
       return acc + item.weightOverride * sign;
-    }
-    if (item.justificationCorrect === false) {
-      const reducedWeight = classificationWeightsWithoutJustification[item.classification];
-      if (reducedWeight !== undefined) return acc + reducedWeight;
     }
     return acc + classificationWeights[item.classification];
   }, 0);
@@ -790,7 +782,13 @@ export function evaluateCaseAttempt(
     ),
   ];
 
-  const totalScore = Math.round(sections.reduce((acc, section) => acc + section.score, 0));
+  const rawTotalScore = Math.round(sections.reduce((acc, section) => acc + section.score, 0));
+
+  const wrongJustificationsCount = sections
+    .flatMap((s) => s.items)
+    .filter((item) => item.justificationCorrect === false).length;
+  const justificationPenalty = Math.min(30, wrongJustificationsCount * 10);
+  const totalScore = Math.max(0, rawTotalScore - justificationPenalty);
 
   const essential = summarizeByClassification(sections, "essencial");
   const correct = summarizeByClassification(sections, "adequado");
@@ -807,6 +805,8 @@ export function evaluateCaseAttempt(
 
   return {
     score: Math.max(0, Math.min(100, totalScore)),
+    justificationPenalty,
+    wrongJustificationsCount,
     sections,
     reasoningSummary: {
       reading: buildReading(session),

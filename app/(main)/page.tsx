@@ -170,8 +170,8 @@ export default function HomePage() {
       </div>
     </main>
 
-    <footer style={{ flexShrink: 0, borderTopWidth: "0.5px", borderTopStyle: "solid", borderTopColor: "var(--color-border)", padding: "6px var(--page-padding-x)", display: "flex", flexWrap: "wrap", gap: "var(--space-sm)", alignItems: "center", justifyContent: "space-between" }}>
-      <span style={{ fontSize: "11px", color: "var(--color-text-tertiary)" }}>
+    <footer style={{ flexShrink: 0, borderTopWidth: "0.5px", borderTopStyle: "solid", borderTopColor: "var(--color-border)", padding: "6px var(--page-padding-x)", margin: "0 calc(-1 * var(--page-padding-x)) calc(-1 * var(--page-padding-y))", display: "flex", flexWrap: "wrap", gap: "var(--space-sm)", alignItems: "center", justifyContent: "space-between" }}>
+      <span style={{ fontSize: "14px", color: "var(--color-text-tertiary)" }}>
         Simulador de Feridas · Uso pedagógico
       </span>
       <nav style={{ display: "flex", gap: "var(--space-sm)" }}>
@@ -183,7 +183,7 @@ export default function HomePage() {
           <Link
             key={href}
             href={href}
-            style={{ fontSize: "11px", color: "var(--color-text-tertiary)", textDecoration: "none" }}
+            style={{ fontSize: "12px", color: "var(--color-text-tertiary)", textDecoration: "none" }}
           >
             {label}
           </Link>

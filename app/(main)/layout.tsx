@@ -15,7 +15,7 @@ export default function MainLayout({
         <MainNav />
       </header>
 
-      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "var(--page-padding-y) var(--page-padding-x)" }}>
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "var(--page-padding-y) var(--page-padding-x)", display: "flex", flexDirection: "column" }}>
         {children}
       </div>
 

@@ -8,12 +8,10 @@ import {
 import type { AttemptRecord } from "./types.ts";
 
 const baseAttempt: AttemptRecord = {
-  version: 2,
+  version: 3,
   id: "attempt-1",
   templateId: "1",
-  variantId: "1A",
   caseTitle: "Lesao por pressao",
-  variantTitle: "Lesao por pressao com exsudado moderado",
   score: 58,
   previousBestScoreForCase: null,
   sectionScores: {
@@ -41,9 +39,7 @@ const attempts: AttemptRecord[] = [
     ...baseAttempt,
     id: "attempt-2",
     templateId: "2",
-    variantId: "2A",
     caseTitle: "Ferida cirurgica com deiscencia",
-    variantTitle: "Deiscencia com suspeita de infeccao local",
     score: 46,
     previousBestScoreForCase: null,
     learningRecommendations: ["antimicrobianos", "gestao-exsudado"],

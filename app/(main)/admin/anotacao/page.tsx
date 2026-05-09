@@ -18,16 +18,8 @@ const ALL_TYPES: AnnotatableTissueType[] = [
 ];
 
 export default function AdminAnotacaoPage() {
-  const allVariants = useMemo(
-    () =>
-      caseTemplates.flatMap((t) =>
-        t.variants.map((v) => ({ template: t, variant: v }))
-      ),
-    []
-  );
-
-  const [selectedVariantId, setSelectedVariantId] = useState(
-    allVariants[0]?.variant.id ?? ""
+  const [selectedCaseId, setSelectedCaseId] = useState(
+    caseTemplates[0]?.id ?? ""
   );
   const [activeType, setActiveType] = useState<AnnotatableTissueType>("fibrina");
   const [zones, setZones] = useState<TissueZone[]>([]);
@@ -35,7 +27,10 @@ export default function AdminAnotacaoPage() {
   const imageRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
 
-  const current = allVariants.find((v) => v.variant.id === selectedVariantId);
+  const current = useMemo(
+    () => caseTemplates.find((t) => t.id === selectedCaseId),
+    [selectedCaseId]
+  );
 
   function getRelativeCoords(
     e: React.MouseEvent
@@ -82,9 +77,9 @@ export default function AdminAnotacaoPage() {
     setZones((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function loadFromVariant() {
+  function loadFromTemplate() {
     if (!current) return;
-    setZones(current.variant.tissueZones ?? []);
+    setZones(current.tissueZones ?? []);
   }
 
   function copyJson() {
@@ -92,7 +87,7 @@ export default function AdminAnotacaoPage() {
     navigator.clipboard.writeText(json).catch(() => undefined);
   }
 
-  if (!current) return <div style={{ padding: "2rem" }}>Sem variantes disponíveis</div>;
+  if (!current) return <div style={{ padding: "2rem" }}>Sem casos disponíveis</div>;
 
   return (
     <main style={{ padding: "var(--space-xl)", maxWidth: "1200px", margin: "0 auto" }}>
@@ -117,12 +112,12 @@ export default function AdminAnotacaoPage() {
           style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}
         >
           Arrastar para desenhar uma zona → mudar tipo → desenhar próxima zona → copiar JSON →
-          colar no campo <code>tissueZones</code> da variante em{" "}
+          colar no campo <code>tissueZones</code> do caso em{" "}
           <code>data/clinical/casos.ts</code>.
         </p>
       </div>
 
-      {/* Selector de variante */}
+      {/* Selector de caso */}
       <div
         style={{
           display: "flex",
@@ -136,12 +131,12 @@ export default function AdminAnotacaoPage() {
           className="text-label"
           style={{ color: "var(--color-text-secondary)" }}
         >
-          Variante:
+          Caso:
         </label>
         <select
-          value={selectedVariantId}
+          value={selectedCaseId}
           onChange={(e) => {
-            setSelectedVariantId(e.target.value);
+            setSelectedCaseId(e.target.value);
             setZones([]);
           }}
           style={{
@@ -153,16 +148,16 @@ export default function AdminAnotacaoPage() {
             fontSize: "var(--text-body)",
           }}
         >
-          {allVariants.map(({ template, variant }) => (
-            <option key={variant.id} value={variant.id}>
-              Caso {template.sequence} · {template.shortTitle} — {variant.title}
+          {caseTemplates.map((t) => (
+            <option key={t.id} value={t.id}>
+              Caso {t.sequence} · {t.shortTitle} — {t.scenarioTitle}
             </option>
           ))}
         </select>
         <button
           type="button"
           className="btn btn-ghost"
-          onClick={loadFromVariant}
+          onClick={loadFromTemplate}
         >
           Carregar zonas existentes
         </button>
@@ -224,7 +219,7 @@ export default function AdminAnotacaoPage() {
         }}
       >
         <img
-          src={current.template.imageSrc}
+          src={current.imageSrc}
           alt="Ferida"
           style={{ width: "100%", display: "block" }}
           draggable={false}

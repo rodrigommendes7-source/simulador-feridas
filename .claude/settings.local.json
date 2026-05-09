@@ -47,7 +47,14 @@
       "Bash(node --experimental-strip-types --experimental-specifier-resolution=node scripts/validate-three-scenarios.mts)",
       "Bash(node --experimental-strip-types --experimental-specifier-resolution=node lib/clinical/evaluation.test.ts)",
       "Bash(node --experimental-strip-types --experimental-specifier-resolution=node -)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(node --experimental-strip-types --experimental-specifier-resolution=node scripts/diagnostico-completo.mts)",
+      "Bash(grep -v \"^\\(node\\\\|Reparsing\\\\|To eliminate\\\\|Use \\\\`node\\)\")",
+      "Bash(npx tsx *)",
+      "Bash(grep -n \"^\\\\s*},$\" data/clinical/casos.ts)",
+      "Bash(grep -n \"^\\\\s*],\\\\s*$\\\\|^\\\\s*\\\\],$\" data/clinical/casos.ts)",
+      "Bash(node -e ' *)",
+      "Bash(node)"
     ]
   }
 }

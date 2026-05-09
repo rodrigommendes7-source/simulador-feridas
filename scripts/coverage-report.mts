@@ -22,30 +22,28 @@ const DIFFICULTY_TARGETS: Record<string, { label: string; target: number }> = {
 
 const etiologiaCounts: Record<string, number> = {};
 const difficultyCounts: Record<string, number> = {};
-const variantsWithoutZones: string[] = [];
-const variantsWithoutVars: string[] = [];
-const variantsWithOverrides: string[] = [];
+const casesWithoutZones: string[] = [];
+const casesWithoutVars: string[] = [];
+const casesWithOverrides: string[] = [];
 
 for (const template of caseTemplates) {
-  difficultyCounts[template.difficulty] = (difficultyCounts[template.difficulty] ?? 0) + template.variants.length;
+  difficultyCounts[template.difficulty] = (difficultyCounts[template.difficulty] ?? 0) + 1;
 
-  for (const variant of template.variants) {
-    const etiologia = variant.woundVariables?.etiologia?.toString() ?? "?";
-    etiologiaCounts[etiologia] = (etiologiaCounts[etiologia] ?? 0) + 1;
+  const etiologia = template.woundVariables?.etiologia?.toString() ?? "?";
+  etiologiaCounts[etiologia] = (etiologiaCounts[etiologia] ?? 0) + 1;
 
-    if (!variant.tissueZones || variant.tissueZones.length === 0) {
-      variantsWithoutZones.push(`Caso ${template.sequence} · ${variant.id}`);
-    }
-    if (!variant.woundVariables) {
-      variantsWithoutVars.push(`Caso ${template.sequence} · ${variant.id}`);
-    }
-    if (variant.justificacoesOverride && Object.keys(variant.justificacoesOverride).length > 0) {
-      variantsWithOverrides.push(`Caso ${template.sequence} · ${variant.id} (${Object.keys(variant.justificacoesOverride).length} overrides)`);
-    }
+  if (!template.tissueZones || template.tissueZones.length === 0) {
+    casesWithoutZones.push(`Caso ${template.sequence} · ${template.id}`);
+  }
+  if (!template.woundVariables) {
+    casesWithoutVars.push(`Caso ${template.sequence} · ${template.id}`);
+  }
+  if (template.justificacoesOverride && Object.keys(template.justificacoesOverride).length > 0) {
+    casesWithOverrides.push(`Caso ${template.sequence} · ${template.id} (${Object.keys(template.justificacoesOverride).length} overrides)`);
   }
 }
 
-const totalVariants = caseTemplates.reduce((acc, t) => acc + t.variants.length, 0);
+const totalCases = caseTemplates.length;
 
 // ─── Print ───────────────────────────────────────────────────────────────────
 
@@ -58,66 +56,31 @@ function bar(current: number, target: number, width = 20): string {
 
 console.log("\n╔══════════════════════════════════════════════════════╗");
 console.log("║        COBERTURA DE CASOS CLÍNICOS                  ║");
-console.log("╚══════════════════════════════════════════════════════╝");
-
-console.log(`\nTotal de variantes: ${totalVariants} | Casos: ${caseTemplates.length}\n`);
-
-// Etiologia
-console.log("── Etiologia ─────────────────────────────────────────");
-const totalEtiologiaTarget = Object.values(ETIOLOGIA_TARGETS).reduce((a, e) => a + e.target, 0);
-for (const [key, { label, target }] of Object.entries(ETIOLOGIA_TARGETS)) {
-  const count = etiologiaCounts[key] ?? 0;
-  const status = count >= target ? "✓" : count >= Math.ceil(target / 2) ? "~" : "✗";
-  console.log(`  ${status} ${label.padEnd(12)} ${bar(count, target)}`);
-}
-const totalEtiologiaActual = Object.values(etiologiaCounts).reduce((a, b) => a + b, 0);
-console.log(`\n  Total etiologia: ${totalEtiologiaActual}/${totalEtiologiaTarget}`);
-
-// Difficulty
-console.log("\n── Dificuldade ───────────────────────────────────────");
+console.log(`╠══════════════════════════════════════════════════════╣`);
+console.log(`║  Total de casos: ${String(totalCases).padEnd(34)}║`);
+console.log("╠══════════════════════════════════════════════════════╣");
+console.log("║  Por dificuldade:                                    ║");
 for (const [key, { label, target }] of Object.entries(DIFFICULTY_TARGETS)) {
   const count = difficultyCounts[key] ?? 0;
-  const status = count >= target ? "✓" : count >= Math.ceil(target / 2) ? "~" : "✗";
-  console.log(`  ${status} ${label.padEnd(14)} ${bar(count, target)}`);
+  console.log(`║    ${label.padEnd(14)} ${bar(count, target).padEnd(35)}║`);
 }
-
-// Data health
-console.log("\n── Saúde dos dados ───────────────────────────────────");
-
-if (variantsWithoutZones.length === 0) {
-  console.log("  ✓ Todas as variantes têm tissueZones");
-} else {
-  console.log(`  ✗ Sem tissueZones (${variantsWithoutZones.length}):`);
-  variantsWithoutZones.forEach((v) => console.log(`      - ${v}`));
+console.log("╠══════════════════════════════════════════════════════╣");
+console.log("║  Por etiologia (woundVariables.etiologia):           ║");
+for (const [key, { label, target }] of Object.entries(ETIOLOGIA_TARGETS)) {
+  const count = etiologiaCounts[key] ?? 0;
+  console.log(`║    ${label.padEnd(14)} ${bar(count, target).padEnd(35)}║`);
 }
-
-if (variantsWithoutVars.length === 0) {
-  console.log("  ✓ Todas as variantes têm woundVariables");
-} else {
-  console.log(`  ✗ Sem woundVariables (${variantsWithoutVars.length}):`);
-  variantsWithoutVars.forEach((v) => console.log(`      - ${v}`));
+console.log("╠══════════════════════════════════════════════════════╣");
+console.log(`║  Casos sem tissueZones: ${String(casesWithoutZones.length).padEnd(28)}║`);
+for (const name of casesWithoutZones) {
+  console.log(`║    • ${name.padEnd(48)}║`);
 }
-
-if (variantsWithOverrides.length === 0) {
-  console.log("  ✓ Nenhuma variante tem justificacoesOverride");
-} else {
-  console.log(`  ~ Com justificacoesOverride (${variantsWithOverrides.length}):`);
-  variantsWithOverrides.forEach((v) => console.log(`      - ${v}`));
+console.log(`║  Casos sem woundVariables: ${String(casesWithoutVars.length).padEnd(25)}║`);
+for (const name of casesWithoutVars) {
+  console.log(`║    • ${name.padEnd(48)}║`);
 }
-
-// Priority list
-console.log("\n── Prioridades (etiologias com maior défice) ─────────");
-const priorities = Object.entries(ETIOLOGIA_TARGETS)
-  .map(([key, { label, target }]) => ({ label, deficit: target - (etiologiaCounts[key] ?? 0) }))
-  .filter((e) => e.deficit > 0)
-  .sort((a, b) => b.deficit - a.deficit);
-
-if (priorities.length === 0) {
-  console.log("  ✓ Todos os targets de etiologia atingidos!");
-} else {
-  priorities.forEach((e, i) => {
-    console.log(`  ${i + 1}. ${e.label.padEnd(12)} faltam ${e.deficit} variante${e.deficit !== 1 ? "s" : ""}`);
-  });
+console.log(`║  Casos com justificacoesOverride: ${String(casesWithOverrides.length).padEnd(18)}║`);
+for (const name of casesWithOverrides) {
+  console.log(`║    • ${name.padEnd(48)}║`);
 }
-
-console.log("");
+console.log("╚══════════════════════════════════════════════════════╝\n");

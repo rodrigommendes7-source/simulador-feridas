@@ -97,10 +97,12 @@ export type ClinicalIntent =
   | "control-bioburden"
   | "debridement"
   | "protect-periwound"
+  | "protect-skin"
   | "manage-odor"
   | "offload-pressure"
   | "atraumatic-cover"
   | "cleanse-wound"
+  | "venous-compression"
   | "escalate-medical";
 
 export type EvaluationClassification =
@@ -276,7 +278,15 @@ export type EvaluationRule = {
 };
 
 export type WoundState = {
-  exudate: "baixo" | "moderado" | "abundante";
+  /**
+   * Escala de exsudado (5 níveis — Lev-Tov et al., 2025 / WRAHPS):
+   * - nenhum:    penso seco após uso
+   * - escasso:   vestígios no penso (< 25% da cobertura)
+   * - ligeiro:   < 50% da cobertura impregnada
+   * - moderado:  50–75% da cobertura impregnada
+   * - abundante: > 75% da cobertura impregnada (ou saturação)
+   */
+  exudate: "nenhum" | "escasso" | "ligeiro" | "moderado" | "abundante";
   /**
    * Alinhado com IWII Wound Infection Continuum 2022.
    * - contamination: micro-organismos presentes, sem multiplicação
@@ -303,38 +313,12 @@ export type ObservationDetail = {
   priority?: "essencial" | "adequado";
 };
 
-export type CaseVariant = {
-  id: string;
-  title: string;
-  patientContext: string;
-  patientBanner: string;
-  woundState: WoundState;
-  /** Variáveis clínicas numéricas — usadas no motor de avaliação por material */
-  woundVariables?: WoundVariables;
-  /** Respostas corretas para a fase de Identificação Visual */
-  visualTargets: VisualIdentificationTargets;
-  observationDetails: Record<ObservationId, ObservationDetail>;
-  dialogueResponses: Record<DialogueId, string>;
-  availableTreatments: string[];
-  applicationOptions: ApplicationId[];
-  clinicalTargets: CaseGoal[];
-  evaluationRules: EvaluationRule[];
-  /** Zonas ground truth para anotação de tecidos. Se vazio/ausente, fase de anotação não aparece. */
-  tissueZones?: TissueZone[];
-  /** Override opcional das justificações geradas automaticamente, por treatmentId */
-  justificacoesOverride?: Record<string, JustificationOverride>;
-  learningTopicIds: string[];
-  recommendedPlan: {
-    minimum: string[];
-    optimized: string[];
-  };
-};
-
 export type CaseTemplate = {
   id: string;
   slug: string;
   shortTitle: string;
   title: string;
+  scenarioTitle: string;
   description: string;
   competencies: string;
   difficulty: "introdutorio" | "intermedio" | "avancado";
@@ -348,12 +332,26 @@ export type CaseTemplate = {
   observationDefinitions: ObservationDefinition[];
   dialoguePrompts: DialoguePrompt[];
   applicationDefinitions: ApplicationOption[];
-  variants: CaseVariant[];
-};
-
-export type CaseSession = {
-  template: CaseTemplate;
-  variant: CaseVariant;
+  patientContext: string;
+  patientBanner: string;
+  woundState: WoundState;
+  woundVariables?: WoundVariables;
+  visualTargets: VisualIdentificationTargets;
+  observationDetails: Record<ObservationId, ObservationDetail>;
+  dialogueResponses: Record<DialogueId, string>;
+  availableTreatments: string[];
+  applicationOptions: ApplicationId[];
+  clinicalTargets: CaseGoal[];
+  evaluationRules: EvaluationRule[];
+  tissueZones?: TissueZone[];
+  justificacoesOverride?: Record<string, JustificationOverride>;
+  imageUrlAfter?: string;
+  evolutionCaption?: string;
+  learningTopicIds: string[];
+  recommendedPlan: {
+    minimum: string[];
+    optimized: string[];
+  };
 };
 
 export type AttemptInput = {
@@ -530,12 +528,10 @@ export type CaseEvaluation = {
 };
 
 export type AttemptRecord = {
-  version: 2;
+  version: 3;
   id: string;
   templateId: string;
-  variantId: string;
   caseTitle: string;
-  variantTitle: string;
   score: number;
   previousBestScoreForCase: number | null;
   sectionScores: Record<string, number>;

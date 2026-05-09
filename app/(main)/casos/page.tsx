@@ -21,6 +21,30 @@ const CASE_INTRO_PHRASES: Record<string, string> = {
   "6": "Treina o reconhecimento e redução de hipergranulação.",
   "7": "Caso avançado de infeção cirúrgica — controlo antimicrobiano e limites de autonomia.",
   "8": "Queimadura profunda com biofilme — o caso mais exigente do simulador.",
+  "9": "Úlcera diabética — perfusão comprometida e limites do desbridamento.",
+  "10": "Skin tear em pele geriátrica — cobertura atraumática e proteção do flap.",
+  "11": "Ferida iatrogénica em granulação — cobertura proporcional sem agressividade.",
+  "12": "Úlcera venosa inflamada — compressão, bioburden e proteção perilesional.",
+  "13": "Úlcera arterial isquémica — decisão de não desbridar sem revascularização.",
+  "14": "Úlcera venosa infectada — antimicrobiano local e compressão.",
+  "15": "Pé diabético com isquémia — encaminhamento urgente e limites clínicos.",
+  "16": "UPP calcâneo precoce — proteção e alívio de pressão.",
+  "17": "UPP sacra com necrose — desbridamento enzimático e antimicrobiano.",
+  "18": "UPP com cavidade — preenchimento e cobertura secundária.",
+  "19": "Queimadura superficial — cobertura não aderente e controlo de exsudado.",
+  "20": "Queimadura extensa — decisão antimicrobiana e referenciação.",
+  "21": "Deiscência abdominal em cicatrização — manter plano sem intervenção desnecessária.",
+  "22": "Úlcera venosa recidivante — vigilância de hipergranulação e compressão.",
+  "23": "Sinus pilonidal estagnado — biofilme, cavidade e cuidados de região difícil.",
+  "24": "Úlcera de etiologia incerta — investigar antes de comprimir.",
+  "25": "Úlcera diabética com biofilme — antimicrobiano tópico e plano integrado.",
+  "26": "Deiscência esternal — gestão de cavidade cirúrgica profunda.",
+  "27": "Ferida traumática em cicatrização — proporcionalidade e continuidade do plano.",
+  "28": "Ferida ortopédica estagnada — reavaliação e gestão de hemorragia ligeira.",
+  "29": "Lesão purpúrica meningocócica — não desbridar, cobertura permeável.",
+  "30": "Fistula enterocutânea — proteção da pele e gestão de débito.",
+  "31": "Úlcera venosa com dermatite de contacto — identificar e parar o tópico ofensivo.",
+  "32": "Necrose digital isquémica — não desbridar, referir para cirurgia vascular.",
 };
 
 function difficultyLabel(value: string) {
@@ -52,7 +76,8 @@ export default function CasesPage() {
   );
 
   const continueTarget = useMemo(() => getContinueLearningTarget(history), [history]);
-  const randomCase = useMemo(() => getRandomCase(), []);
+  const [randomCase, setRandomCase] = useState<ReturnType<typeof getRandomCase> | null>(null);
+  useEffect(() => { setRandomCase(getRandomCase()); }, []);
 
   return (
     <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)", height: "100%" }}>

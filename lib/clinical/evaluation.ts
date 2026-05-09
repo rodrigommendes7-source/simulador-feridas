@@ -12,7 +12,7 @@ import type {
   ApplicationId,
   AttemptInput,
   CaseEvaluation,
-  CaseSession,
+  CaseTemplate,
   EvaluationClassification,
   EvaluationSection,
   JustificationAnswer,
@@ -123,12 +123,12 @@ function treatmentMatchesGoal(
   return false;
 }
 
-function buildObservationSection(session: CaseSession, attempt: AttemptInput) {
+function buildObservationSection(template: CaseTemplate, attempt: AttemptInput) {
   const section = createSection("observation", "Observação", 5);
   const selected = new Set(attempt.observationIds);
 
-  for (const definition of session.template.observationDefinitions) {
-    const detail = session.variant.observationDetails[definition.id];
+  for (const definition of template.observationDefinitions) {
+    const detail = template.observationDetails[definition.id];
     if (!detail) continue;
 
     if (selected.has(definition.id)) {
@@ -156,18 +156,18 @@ function buildObservationSection(session: CaseSession, attempt: AttemptInput) {
   return section;
 }
 
-function buildAssessmentSection(session: CaseSession, attempt: AttemptInput) {
+function buildAssessmentSection(template: CaseTemplate, attempt: AttemptInput) {
   const section = createSection("assessment", "Avaliação e diálogo", 10);
   const selected = new Set(attempt.dialogueIds);
 
-  for (const prompt of session.template.dialoguePrompts) {
+  for (const prompt of template.dialoguePrompts) {
     if (selected.has(prompt.id)) {
       pushItem(
         section,
         prompt.id,
         prompt.label,
         prompt.priority === "essencial" ? "essencial" : "adequado",
-        `Perguntaste sobre ${prompt.label.toLowerCase().replace("perguntar sobre ", "")}: ${session.variant.dialogueResponses[prompt.id]}`,
+        `Perguntaste sobre ${prompt.label.toLowerCase().replace("perguntar sobre ", "")}: ${template.dialogueResponses[prompt.id]}`,
         prompt.learningTopicIds
       );
     } else if (prompt.priority === "essencial") {
@@ -186,17 +186,17 @@ function buildAssessmentSection(session: CaseSession, attempt: AttemptInput) {
   return section;
 }
 
-function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
+function buildTreatmentSection(template: CaseTemplate, attempt: AttemptInput) {
   const section = createSection("treatment-plan", "Plano terapêutico", 45);
   const { selected, duplicates } = uniqueCanonicalTreatments(attempt.treatmentIds);
-  const specialRules = session.variant.evaluationRules.filter((rule) => rule.target === "treatment");
+  const specialRules = template.evaluationRules.filter((rule) => rule.target === "treatment");
   const claimedGoalIds = new Set<string>();
 
   function getJustificationStatus(treatmentId: string): boolean | null {
     if (!attempt.justificationAnswers) return null;
     const answer = attempt.justificationAnswers.find((a) => a.treatmentId === treatmentId);
     if (!answer) return null;
-    const question = generateJustificationQuestion(treatmentId, session.variant);
+    const question = generateJustificationQuestion(treatmentId, template);
     if (!question) return null;
     return answer.selectedOptionId === question.correctOptionId;
   }
@@ -234,7 +234,7 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
       continue;
     }
 
-    const matchedGoals = session.variant.clinicalTargets.filter((goal) =>
+    const matchedGoals = template.clinicalTargets.filter((goal) =>
       treatmentMatchesGoal(treatment, goal.matcher)
     );
     const availableGoals = matchedGoals.filter((goal) => !claimedGoalIds.has(goal.id));
@@ -297,7 +297,7 @@ function buildTreatmentSection(session: CaseSession, attempt: AttemptInput) {
     );
   }
 
-  for (const goal of session.variant.clinicalTargets.filter(
+  for (const goal of template.clinicalTargets.filter(
     (item) => item.matcher.treatmentIds || item.matcher.treatmentFunctions
   )) {
     const fulfilled = selected.some((treatment) => treatmentMatchesGoal(treatment, goal.matcher));
@@ -369,9 +369,9 @@ function evaluateVisualCategory<T extends string>(
   }
 }
 
-function buildVisualIdentificationSection(session: CaseSession, attempt: AttemptInput) {
+function buildVisualIdentificationSection(template: CaseTemplate, attempt: AttemptInput) {
   const section = createSection("visual-identification", "Identificação visual", 25);
-  const targets = session.variant.visualTargets;
+  const targets = template.visualTargets;
   const submission = attempt.visualSubmission;
 
   evaluateVisualCategory<VisualTissueOption>(
@@ -387,7 +387,7 @@ function buildVisualIdentificationSection(session: CaseSession, attempt: Attempt
     targets.edges, submission.edges, ["protecao-perilesional"]
   );
 
-  const tissueZones = session.variant.tissueZones ?? [];
+  const tissueZones = template.tissueZones ?? [];
   if (tissueZones.length > 0) {
     const annotationEval = evaluateAnnotation(attempt.tissuePins ?? [], tissueZones);
 
@@ -452,14 +452,14 @@ function classifyApplicationByRules(
   return "parcial";
 }
 
-function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
+function buildApplicationSection(template: CaseTemplate, attempt: AttemptInput) {
   const section = createSection("application-technique", "Técnica de aplicação", 15);
   const selected = new Set(attempt.applicationIds);
-  const specialRules = session.variant.evaluationRules.filter((rule) => rule.target === "application");
-  const woundVars = (session.variant.woundVariables ?? {}) as Record<string, number>;
+  const specialRules = template.evaluationRules.filter((rule) => rule.target === "application");
+  const woundVars = (template.woundVariables ?? {}) as Record<string, number>;
 
-  for (const applicationId of session.variant.applicationOptions) {
-    const label = getApplicationLabel(session.template, applicationId);
+  for (const applicationId of template.applicationOptions) {
+    const label = getApplicationLabel(template, applicationId);
     const specialRule = specialRules.find((rule) => rule.appliesToIds.includes(applicationId));
 
     if (selected.has(applicationId) && specialRule) {
@@ -474,7 +474,7 @@ function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
       continue;
     }
 
-    const matchingGoal = session.variant.clinicalTargets.find((goal) =>
+    const matchingGoal = template.clinicalTargets.find((goal) =>
       applicationMatchesGoal(applicationId, goal.matcher)
     );
 
@@ -504,7 +504,7 @@ function buildApplicationSection(session: CaseSession, attempt: AttemptInput) {
 
     // Sem goal específico: avaliar pela regras da applicationDefinition (condicoes_ideais/contraindicacoes)
     if (!matchingGoal) {
-      const appDef = session.template.applicationDefinitions.find((d) => d.id === applicationId);
+      const appDef = template.applicationDefinitions.find((d) => d.id === applicationId);
       if (appDef) {
         const ruleClassification = classifyApplicationByRules(appDef as Parameters<typeof classifyApplicationByRules>[0], woundVars);
         if (ruleClassification !== null) {
@@ -561,14 +561,14 @@ function buildAttemptWithSelection<K extends keyof AttemptInput>(
 function greedyBestSelection<T, K extends keyof AttemptInput>(
   options: readonly T[],
   field: K,
-  buildSection: (session: CaseSession, attempt: AttemptInput) => EvaluationSection,
-  session: CaseSession
+  buildSection: (template: CaseTemplate, attempt: AttemptInput) => EvaluationSection,
+  template: CaseTemplate
 ): T[] {
   // Greedy forward: repeatedly add the option that most improves the score.
   // Falls back to no-item if all additions would hurt (negative marginal contribution).
   const currentSelection: T[] = [];
   let currentScore = getSectionRawScore(
-    buildSection(session, buildAttemptWithSelection(field, currentSelection as unknown as AttemptInput[K]))
+    buildSection(template, buildAttemptWithSelection(field, currentSelection as unknown as AttemptInput[K]))
   );
 
   while (true) {
@@ -579,7 +579,7 @@ function greedyBestSelection<T, K extends keyof AttemptInput>(
       if (currentSelection.includes(option)) continue;
       const candidate = [...currentSelection, option];
       const score = getSectionRawScore(
-        buildSection(session, buildAttemptWithSelection(field, candidate as unknown as AttemptInput[K]))
+        buildSection(template, buildAttemptWithSelection(field, candidate as unknown as AttemptInput[K]))
       );
       const gain = score - currentScore;
       if (gain > bestGain) {
@@ -601,44 +601,44 @@ function greedyBestSelection<T, K extends keyof AttemptInput>(
 function getBestRawScoreForSelections<T, K extends keyof AttemptInput>(
   options: readonly T[],
   field: K,
-  buildSection: (session: CaseSession, attempt: AttemptInput) => EvaluationSection,
-  session: CaseSession
+  buildSection: (template: CaseTemplate, attempt: AttemptInput) => EvaluationSection,
+  template: CaseTemplate
 ) {
-  const bestSelection = greedyBestSelection(options, field, buildSection, session);
+  const bestSelection = greedyBestSelection(options, field, buildSection, template);
   const attempt = buildAttemptWithSelection(field, bestSelection as unknown as AttemptInput[K]);
-  return Math.max(0, getSectionRawScore(buildSection(session, attempt)));
+  return Math.max(0, getSectionRawScore(buildSection(template, attempt)));
 }
 
 function getBestSelectionForSelections<T, K extends keyof AttemptInput>(
   options: readonly T[],
   field: K,
-  buildSection: (session: CaseSession, attempt: AttemptInput) => EvaluationSection,
-  session: CaseSession
+  buildSection: (template: CaseTemplate, attempt: AttemptInput) => EvaluationSection,
+  template: CaseTemplate
 ) {
-  return greedyBestSelection(options, field, buildSection, session);
+  return greedyBestSelection(options, field, buildSection, template);
 }
 
 // Teto fixo baseado apenas nos goals essenciais — selecionar só os essenciais já dá 100/100
 function getEssentialRawCeiling(
-  session: CaseSession,
+  template: CaseTemplate,
   sectionId: EvaluationSection["id"]
 ): number {
   const ESSENTIAL_WEIGHT = classificationWeights.essencial; // 12
 
   if (sectionId === "observation") {
-    const count = session.template.observationDefinitions.filter(
+    const count = template.observationDefinitions.filter(
       (d) => d.priority === "essencial"
     ).length;
     return count * ESSENTIAL_WEIGHT;
   }
   if (sectionId === "assessment") {
-    const count = session.template.dialoguePrompts.filter(
+    const count = template.dialoguePrompts.filter(
       (d) => d.priority === "essencial"
     ).length;
     return count * ESSENTIAL_WEIGHT;
   }
   if (sectionId === "treatment-plan") {
-    const count = session.variant.clinicalTargets.filter(
+    const count = template.clinicalTargets.filter(
       (g) =>
         g.priority === "essencial" &&
         (g.matcher.treatmentIds !== undefined || g.matcher.treatmentFunctions !== undefined)
@@ -646,7 +646,7 @@ function getEssentialRawCeiling(
     return count * ESSENTIAL_WEIGHT;
   }
   if (sectionId === "application-technique") {
-    const count = session.variant.clinicalTargets.filter(
+    const count = template.clinicalTargets.filter(
       (g) => g.priority === "essencial" && g.matcher.applicationIds !== undefined
     ).length;
     return count * ESSENTIAL_WEIGHT;
@@ -716,28 +716,28 @@ function summarizeByClassification(
     .slice(0, 5);
 }
 
-function buildRecommendedPlanDifferences(session: CaseSession, attempt: AttemptInput) {
+function buildRecommendedPlanDifferences(template: CaseTemplate, attempt: AttemptInput) {
   const selectedLabels = new Set(attempt.treatmentIds.map((item) => getTreatmentLabel(item)));
   const applicationLabels = new Set(
-    attempt.applicationIds.map((item) => getApplicationLabel(session.template, item))
+    attempt.applicationIds.map((item) => getApplicationLabel(template, item))
   );
 
   const differences = [
-    ...session.variant.recommendedPlan.minimum,
-    ...session.variant.recommendedPlan.optimized,
+    ...template.recommendedPlan.minimum,
+    ...template.recommendedPlan.optimized,
   ]
     .filter((label, index, arr) => arr.indexOf(label) === index)
     .filter((label) => !selectedLabels.has(label) && !applicationLabels.has(label));
 
   return {
-    minimum: session.variant.recommendedPlan.minimum,
-    optimized: session.variant.recommendedPlan.optimized,
+    minimum: template.recommendedPlan.minimum,
+    optimized: template.recommendedPlan.optimized,
     differences,
   };
 }
 
-function buildReading(session: CaseSession) {
-  const { woundState } = session.variant;
+function buildReading(template: CaseTemplate) {
+  const { woundState } = template;
   const infectionLabel: Record<typeof woundState.infection, string> = {
     "contamination": "contaminação (sem sinais clínicos)",
     "colonization": "colonização (sem resposta do hospedeiro)",
@@ -755,30 +755,30 @@ function sectionPercentage(section: EvaluationSection) {
 }
 
 export function evaluateCaseAttempt(
-  session: CaseSession,
+  template: CaseTemplate,
   attempt: AttemptInput
 ): CaseEvaluation {
   const sections = [
     finalizeSectionScore(
-      buildObservationSection(session, attempt),
-      getEssentialRawCeiling(session, "observation")
+      buildObservationSection(template, attempt),
+      getEssentialRawCeiling(template, "observation")
     ),
     // Visual identification: teto fixo = 3 categorias × peso essencial (3 × 12 = 36)
     finalizeSectionScore(
-      buildVisualIdentificationSection(session, attempt),
+      buildVisualIdentificationSection(template, attempt),
       3 * 12
     ),
     finalizeSectionScore(
-      buildAssessmentSection(session, attempt),
-      getEssentialRawCeiling(session, "assessment")
+      buildAssessmentSection(template, attempt),
+      getEssentialRawCeiling(template, "assessment")
     ),
     finalizeSectionScore(
-      buildTreatmentSection(session, attempt),
-      getEssentialRawCeiling(session, "treatment-plan")
+      buildTreatmentSection(template, attempt),
+      getEssentialRawCeiling(template, "treatment-plan")
     ),
     finalizeSectionScore(
-      buildApplicationSection(session, attempt),
-      getEssentialRawCeiling(session, "application-technique")
+      buildApplicationSection(template, attempt),
+      getEssentialRawCeiling(template, "application-technique")
     ),
   ];
 
@@ -809,7 +809,7 @@ export function evaluateCaseAttempt(
     wrongJustificationsCount,
     sections,
     reasoningSummary: {
-      reading: buildReading(session),
+      reading: buildReading(template),
       essential,
       correct,
       redundant,
@@ -818,28 +818,28 @@ export function evaluateCaseAttempt(
         ? `Reforça o tema "${getLearningTopic(weakestTopic)?.title}" para corrigires o domínio mais frágil desta tentativa.`
         : "Mantém um plano focado no problema dominante e reavalia a resposta clínica.",
     },
-    recommendedPlan: buildRecommendedPlanDifferences(session, attempt),
+    recommendedPlan: buildRecommendedPlanDifferences(template, attempt),
     learningRecommendations,
   };
 }
 
-export function getIdealAttempt(session: CaseSession): AttemptInput {
+export function getIdealAttempt(template: CaseTemplate): AttemptInput {
   const idealTreatmentIds = getBestSelectionForSelections(
-    session.variant.availableTreatments,
+    template.availableTreatments,
     "treatmentIds",
     buildTreatmentSection,
-    session
+    template
   );
 
   const idealJustificationAnswers: JustificationAnswer[] = generateAllJustificationQuestions(
     idealTreatmentIds,
-    session.variant
+    template
   ).map((q) => ({
     treatmentId: q.treatmentId,
     selectedOptionId: q.correctOptionId,
   }));
 
-  const idealTissuePins: TissuePin[] = (session.variant.tissueZones ?? []).map((zone, i) => ({
+  const idealTissuePins: TissuePin[] = (template.tissueZones ?? []).map((zone, i) => ({
     id: `ideal-pin-${i}`,
     tissueType: zone.tissueType,
     x: zone.rect.x + zone.rect.w / 2,
@@ -848,28 +848,28 @@ export function getIdealAttempt(session: CaseSession): AttemptInput {
 
   return {
     observationIds: getBestSelectionForSelections(
-      session.template.observationDefinitions.map((item) => item.id),
+      template.observationDefinitions.map((item) => item.id),
       "observationIds",
       buildObservationSection,
-      session
+      template
     ),
     visualSubmission: {
-      tissues: [...session.variant.visualTargets.tissues],
-      exudate: [...session.variant.visualTargets.exudate],
-      edges: [...session.variant.visualTargets.edges],
+      tissues: [...template.visualTargets.tissues],
+      exudate: [...template.visualTargets.exudate],
+      edges: [...template.visualTargets.edges],
     },
     dialogueIds: getBestSelectionForSelections(
-      session.template.dialoguePrompts.map((item) => item.id),
+      template.dialoguePrompts.map((item) => item.id),
       "dialogueIds",
       buildAssessmentSection,
-      session
+      template
     ),
     treatmentIds: idealTreatmentIds,
     applicationIds: getBestSelectionForSelections(
-      session.variant.applicationOptions,
+      template.applicationOptions,
       "applicationIds",
       buildApplicationSection,
-      session
+      template
     ),
     justificationAnswers: idealJustificationAnswers,
     tissuePins: idealTissuePins,
@@ -877,11 +877,11 @@ export function getIdealAttempt(session: CaseSession): AttemptInput {
 }
 
 export function buildAttemptReview(
-  session: CaseSession,
+  template: CaseTemplate,
   attempt: AttemptInput
 ): AttemptReview {
-  const idealAttempt = getIdealAttempt(session);
-  const evaluation = evaluateCaseAttempt(session, attempt);
+  const idealAttempt = getIdealAttempt(template);
+  const evaluation = evaluateCaseAttempt(template, attempt);
   const selectedStatuses = new Map<string, ReviewStatus>();
 
   for (const section of evaluation.sections) {
@@ -897,25 +897,25 @@ export function buildAttemptReview(
   return {
     idealAttempt,
     observationStatus: buildStatusMap(
-      session.template.observationDefinitions.map((item) => item.id),
+      template.observationDefinitions.map((item) => item.id),
       attempt.observationIds,
       idealAttempt.observationIds,
       selectedStatuses
     ),
     dialogueStatus: buildStatusMap(
-      session.template.dialoguePrompts.map((item) => item.id),
+      template.dialoguePrompts.map((item) => item.id),
       attempt.dialogueIds,
       idealAttempt.dialogueIds,
       selectedStatuses
     ),
     treatmentStatus: buildStatusMap(
-      session.variant.availableTreatments,
+      template.availableTreatments,
       attempt.treatmentIds,
       idealAttempt.treatmentIds,
       selectedStatuses
     ),
     applicationStatus: buildStatusMap(
-      session.variant.applicationOptions,
+      template.applicationOptions,
       attempt.applicationIds,
       idealAttempt.applicationIds,
       selectedStatuses

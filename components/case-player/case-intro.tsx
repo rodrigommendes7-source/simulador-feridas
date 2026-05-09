@@ -1,11 +1,11 @@
-import type { CaseSession } from "@/lib/clinical";
+import type { CaseTemplate } from "@/lib/clinical";
 import { InfoBanner } from "@/components/InfoBanner";
 
 export function CaseIntro({
-  session,
+  template,
   onStart,
 }: {
-  session: CaseSession;
+  template: CaseTemplate;
   onStart: () => void;
 }) {
   return (
@@ -29,13 +29,13 @@ export function CaseIntro({
           color: "var(--color-text-primary)",
         }}
       >
-        {session.template.shortTitle} · {session.template.title}
+        {template.shortTitle} · {template.title}
       </h1>
       <p
         className="text-body"
         style={{ marginTop: "var(--space-md)", maxWidth: "40rem", margin: "var(--space-md) auto 0" }}
       >
-        {session.template.introSummary}
+        {template.introSummary}
       </p>
 
       <div className="card" style={{ textAlign: "left", marginTop: "var(--space-lg)" }}>
@@ -43,7 +43,7 @@ export function CaseIntro({
           Contexto clínico
         </p>
         <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
-          {session.variant.patientContext}
+          {template.patientContext}
         </p>
       </div>
 
@@ -52,7 +52,7 @@ export function CaseIntro({
           Objetivo
         </p>
         <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
-          {session.template.objective}
+          {template.objective}
         </p>
       </div>
 

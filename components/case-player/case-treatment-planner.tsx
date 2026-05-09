@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ApplicationId, CaseSession, ReviewStatus } from "@/lib/clinical";
+import type { ApplicationId, CaseTemplate, ReviewStatus } from "@/lib/clinical";
 import { getTreatment, listTreatments } from "@/lib/clinical";
 
 function reviewCardStyle(status: ReviewStatus, selected: boolean): React.CSSProperties {
@@ -23,7 +23,7 @@ function reviewCardStyle(status: ReviewStatus, selected: boolean): React.CSSProp
 }
 
 export function CaseTreatmentPlanner({
-  session,
+  template,
   treatmentIds,
   applicationIds,
   treatmentStatusById,
@@ -32,7 +32,7 @@ export function CaseTreatmentPlanner({
   onToggleTreatment,
   onToggleApplication,
 }: {
-  session: CaseSession;
+  template: CaseTemplate;
   treatmentIds: string[];
   applicationIds: ApplicationId[];
   treatmentStatusById?: Record<string, ReviewStatus>;
@@ -323,8 +323,8 @@ export function CaseTreatmentPlanner({
               gap: "var(--space-sm)",
             }}
           >
-            {session.variant.applicationOptions.map((applicationId) => {
-              const definition = session.template.applicationDefinitions.find(
+            {template.applicationOptions.map((applicationId) => {
+              const definition = template.applicationDefinitions.find(
                 (item) => item.id === applicationId
               );
               const selected = applicationIds.includes(applicationId);

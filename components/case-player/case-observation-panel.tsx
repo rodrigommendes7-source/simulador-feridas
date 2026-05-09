@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { CaseSession, ObservationId, ReviewStatus } from "@/lib/clinical";
+import type { CaseTemplate, ObservationId, ReviewStatus } from "@/lib/clinical";
 
 
 function reviewDetailStyle(status: ReviewStatus | null): React.CSSProperties {
@@ -14,13 +14,13 @@ function reviewDetailStyle(status: ReviewStatus | null): React.CSSProperties {
 }
 
 export function CaseObservationPanel({
-  session,
+  template,
   observationIds,
   reviewStatusById,
   reviewMode = false,
   onReveal,
 }: {
-  session: CaseSession;
+  template: CaseTemplate;
   observationIds: ObservationId[];
   reviewStatusById?: Partial<Record<ObservationId, ReviewStatus>>;
   reviewMode?: boolean;
@@ -49,12 +49,12 @@ export function CaseObservationPanel({
           {imageSeen ? (
             <>
               <Image
-                src={session.template.imageSrc}
-                alt={session.template.imageAlt}
+                src={template.imageSrc}
+                alt={template.imageAlt}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 style={{
-                  objectFit: session.template.id === "3" ? "contain" : "cover",
+                  objectFit: template.id === "3" ? "contain" : "cover",
                   borderRadius: "var(--radius-lg)",
                 }}
               />
@@ -126,14 +126,14 @@ export function CaseObservationPanel({
         <p className="text-label">Observação guiada</p>
 
         <div className="case-observation-slots">
-          {session.template.observationDefinitions
+          {template.observationDefinitions
             .filter((def) => def.id !== "imagem")
             .map((def) => {
               const revealed =
                 observationIds.includes(def.id) ||
                 reviewStatusById?.[def.id] === "missed";
               const status = reviewStatusById?.[def.id] ?? null;
-              const detail = session.variant.observationDetails[def.id];
+              const detail = template.observationDetails[def.id];
 
               if (revealed && detail) {
                 return (

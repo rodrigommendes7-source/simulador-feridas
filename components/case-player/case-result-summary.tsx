@@ -4,7 +4,7 @@ import {
   listTreatments,
   type AttemptInput,
   type CaseEvaluation,
-  type CaseSession,
+  type CaseTemplate,
   type EvaluationSection,
 } from "@/lib/clinical";
 import { evidenceReferences } from "@/data/clinical/evidencia";
@@ -159,14 +159,14 @@ function selectEvidenceForResult(
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export function CaseResultSummary({
-  session,
+  template,
   evaluation,
   attempt,
   previousBestScore,
   onReview,
   onReset,
 }: {
-  session: CaseSession;
+  template: CaseTemplate;
   evaluation: CaseEvaluation;
   attempt: AttemptInput;
   previousBestScore: number | null;
@@ -207,7 +207,7 @@ export function CaseResultSummary({
       <section className="card" style={{ padding: "var(--space-2xl)" }}>
         <p className="text-label" style={{ color: "var(--color-accent)" }}>Leitura clínica do caso</p>
         <h2 style={{ marginTop: "var(--space-sm)", fontSize: "var(--text-h1)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-          {session.template.shortTitle} · {session.template.title}
+          {template.shortTitle} · {template.title}
         </h2>
         <p className="text-body" style={{ marginTop: "var(--space-md)", maxWidth: "64rem" }}>
           {evaluation.reasoningSummary.reading}
@@ -386,6 +386,35 @@ export function CaseResultSummary({
           </div>
         </div>
       </section>
+
+      {/* ── Evolução esperada (par antes/depois) ── */}
+      {template.imageUrlAfter && (
+        <section className="card" style={{ padding: "var(--space-lg)" }}>
+          <p className="text-label" style={{ color: "var(--color-success)" }}>Evolução esperada</p>
+          <p className="text-body" style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}>
+            Com tratamento adequado, a evolução esperada desta ferida é a seguinte.
+          </p>
+          <div style={{ marginTop: "var(--space-md)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-md)" }}>
+            <figure style={{ margin: 0 }}>
+              <img src={template.imageSrc} alt="Estado inicial" style={{ width: "100%", borderRadius: "var(--radius-md)", display: "block" }} />
+              <figcaption style={{ marginTop: "var(--space-xs)", fontSize: "var(--text-label)", color: "var(--color-text-secondary)", textAlign: "center" }}>
+                Antes
+              </figcaption>
+            </figure>
+            <figure style={{ margin: 0 }}>
+              <img src={template.imageUrlAfter} alt="Estado pós-tratamento" style={{ width: "100%", borderRadius: "var(--radius-md)", display: "block" }} />
+              <figcaption style={{ marginTop: "var(--space-xs)", fontSize: "var(--text-label)", color: "var(--color-text-secondary)", textAlign: "center" }}>
+                Depois
+              </figcaption>
+            </figure>
+          </div>
+          {template.evolutionCaption && (
+            <p className="text-body" style={{ marginTop: "var(--space-md)", color: "var(--color-text-primary)", fontStyle: "italic" }}>
+              {template.evolutionCaption}
+            </p>
+          )}
+        </section>
+      )}
 
       {/* ── Evidência clínica relevante ── */}
       {relevantEvidence.length > 0 && (

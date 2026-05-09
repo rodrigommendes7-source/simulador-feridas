@@ -327,9 +327,6 @@ export default function HistoryPage() {
                   <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "var(--space-md)" }}>
                     <div>
                       <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{entry.caseTitle}</p>
-                      <p className="text-caption" style={{ marginTop: "2px", textTransform: "uppercase", letterSpacing: "var(--tracking-label)" }}>
-                        {entry.variantTitle}
-                      </p>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <p

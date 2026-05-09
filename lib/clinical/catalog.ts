@@ -4,9 +4,7 @@ import { learningTopics } from "../../data/clinical/topicos-aprendizagem.ts";
 import { treatmentCatalog } from "../../data/clinical/tratamentos.ts";
 import type {
   ApplicationId,
-  CaseSession,
   CaseTemplate,
-  CaseVariant,
   EvidenceReference,
   LearningTopic,
   TreatmentDefinition,
@@ -65,20 +63,6 @@ export function getEvidenceForTreatment(treatmentId: string): EvidenceReference[
     .filter((item): item is EvidenceReference => Boolean(item));
 }
 
-export function getCaseVariant(templateId: string, variantId: string): CaseVariant | undefined {
-  return getCaseTemplate(templateId)?.variants.find((variant) => variant.id === variantId);
-}
-
-export function getCaseSession(templateId: string, variantId?: string): CaseSession | undefined {
-  const template = getCaseTemplate(templateId);
-  if (!template) return undefined;
-  const variant = variantId
-    ? template.variants.find((item) => item.id === variantId)
-    : template.variants[0];
-
-  if (!variant) return undefined;
-  return { template, variant };
-}
 
 export function getTreatmentLabel(treatmentId: string) {
   return getTreatment(treatmentId)?.label ?? treatmentId;
@@ -89,12 +73,6 @@ export function getApplicationLabel(template: CaseTemplate, applicationId: Appli
     template.applicationDefinitions.find((item) => item.id === applicationId)?.label ??
     applicationId
   );
-}
-
-export function buildVariantRotation(templateId: string, previousVariantCount: number) {
-  const template = getCaseTemplate(templateId);
-  if (!template || template.variants.length === 0) return undefined;
-  return template.variants[previousVariantCount % template.variants.length];
 }
 
 export function getTemplateLearningTopicIds(templateId: string) {
@@ -115,14 +93,12 @@ export function getTemplateLearningTopicIds(templateId: string) {
     for (const topicId of application.learningTopicIds) topicIds.add(topicId);
   }
 
-  for (const variant of template.variants) {
-    for (const topicId of variant.learningTopicIds) topicIds.add(topicId);
-    for (const goal of variant.clinicalTargets) {
-      for (const topicId of goal.learningTopicIds) topicIds.add(topicId);
-    }
-    for (const rule of variant.evaluationRules) {
-      for (const topicId of rule.learningTopicIds) topicIds.add(topicId);
-    }
+  for (const topicId of template.learningTopicIds) topicIds.add(topicId);
+  for (const goal of template.clinicalTargets) {
+    for (const topicId of goal.learningTopicIds) topicIds.add(topicId);
+  }
+  for (const rule of template.evaluationRules) {
+    for (const topicId of rule.learningTopicIds) topicIds.add(topicId);
   }
 
   return Array.from(topicIds);

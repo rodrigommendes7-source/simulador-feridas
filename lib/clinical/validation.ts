@@ -66,138 +66,124 @@ export function validateClinicalDomain() {
   }
 
   for (const template of caseTemplates) {
-    const variantIds = new Set<string>();
+    const scope = `case:${template.id}`;
     const applicationDefinitionIds = new Set(
       template.applicationDefinitions.map((item) => item.id)
     );
 
-    for (const variant of template.variants) {
-      const scope = `case:${template.id}:${variant.id}`;
-
-      if (variantIds.has(variant.id)) {
-        issues.push({
-          level: "error",
-          scope: `case:${template.id}`,
-          message: `Variante duplicada: "${variant.id}".`,
-        });
-      }
-      variantIds.add(variant.id);
-
-      for (const treatmentId of variant.availableTreatments) {
-        if (!treatmentIds.has(treatmentId)) {
-          issues.push({
-            level: "error",
-            scope,
-            message: `Tratamento disponível não encontrado: "${treatmentId}".`,
-          });
-        }
-      }
-
-      // applicationOptions têm de ter definição correspondente em applicationDefinitions
-      for (const applicationId of variant.applicationOptions) {
-        if (!applicationDefinitionIds.has(applicationId)) {
-          issues.push({
-            level: "error",
-            scope,
-            message: `applicationOptions refere técnica sem definição no template: "${applicationId}".`,
-          });
-        }
-      }
-
-      const variantApplicationOptions = new Set(variant.applicationOptions);
-
-      for (const goal of variant.clinicalTargets) {
-        for (const topicId of goal.learningTopicIds) {
-          const normalizedTopicId = normalizeTopicId(topicId);
-          if (!topicIds.has(normalizedTopicId)) {
-            issues.push({
-              level: "error",
-              scope,
-              message: `Objetivo clínico referencia tema inexistente: "${topicId}".`,
-            });
-          }
-        }
-
-        for (const treatmentId of goal.matcher.treatmentIds ?? []) {
-          if (!variant.availableTreatments.includes(treatmentId)) {
-            issues.push({
-              level: "error",
-              scope,
-              message: `Objetivo clínico refere tratamento não disponível na variante: "${treatmentId}".`,
-            });
-          }
-        }
-
-        // matcher.applicationIds têm de estar em applicationOptions da variante
-        for (const applicationId of goal.matcher.applicationIds ?? []) {
-          if (!variantApplicationOptions.has(applicationId)) {
-            issues.push({
-              level: "error",
-              scope,
-              message: `Objetivo clínico refere técnica não disponível na variante: "${applicationId}".`,
-            });
-          }
-        }
-      }
-
-      for (const rule of variant.evaluationRules) {
-        for (const ruleId of rule.appliesToIds) {
-          if (rule.target === "treatment" && !variant.availableTreatments.includes(ruleId)) {
-            issues.push({
-              level: "error",
-              scope,
-              message: `Regra de avaliação refere tratamento não disponível: "${ruleId}".`,
-            });
-          }
-
-          // target === "application" tem de existir em applicationOptions da variante
-          if (rule.target === "application" && !variantApplicationOptions.has(ruleId as never)) {
-            issues.push({
-              level: "error",
-              scope,
-              message: `Regra de avaliação refere técnica não disponível: "${ruleId}".`,
-            });
-          }
-        }
-
-        for (const topicId of rule.learningTopicIds) {
-          const normalizedTopicId = normalizeTopicId(topicId);
-          if (!topicIds.has(normalizedTopicId)) {
-            issues.push({
-              level: "error",
-              scope,
-              message: `Regra de avaliação referencia tema inexistente: "${topicId}".`,
-            });
-          }
-        }
-      }
-
-      // Simulação 100/100: cada variante tem de ser perfeitamente solucionável
-      try {
-        const session = { template, variant };
-        const idealAttempt = getIdealAttempt(session);
-        const evaluation = evaluateCaseAttempt(session, idealAttempt);
-
-        if (evaluation.score !== 100) {
-          const sectionDetail = evaluation.sections
-            .filter((section) => section.score < section.maxScore)
-            .map((section) => `${section.id}=${section.score}/${section.maxScore}`)
-            .join(", ");
-
-          issues.push({
-            level: "error",
-            scope,
-            message: `Variante não atinge 100/100 com tentativa ideal (score=${evaluation.score}; secções abaixo do máximo: ${sectionDetail || "nenhuma"}).`,
-          });
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
+    for (const treatmentId of template.availableTreatments) {
+      if (!treatmentIds.has(treatmentId)) {
         issues.push({
           level: "error",
           scope,
-          message: `Falha ao simular tentativa ideal: ${message}`,
+          message: `Tratamento disponível não encontrado: "${treatmentId}".`,
         });
       }
+    }
+
+    // applicationOptions têm de ter definição correspondente em applicationDefinitions
+    for (const applicationId of template.applicationOptions) {
+      if (!applicationDefinitionIds.has(applicationId)) {
+        issues.push({
+          level: "error",
+          scope,
+          message: `applicationOptions refere técnica sem definição no template: "${applicationId}".`,
+        });
+      }
+    }
+
+    const templateApplicationOptions = new Set(template.applicationOptions);
+
+    for (const goal of template.clinicalTargets) {
+      for (const topicId of goal.learningTopicIds) {
+        const normalizedTopicId = normalizeTopicId(topicId);
+        if (!topicIds.has(normalizedTopicId)) {
+          issues.push({
+            level: "error",
+            scope,
+            message: `Objetivo clínico referencia tema inexistente: "${topicId}".`,
+          });
+        }
+      }
+
+      for (const treatmentId of goal.matcher.treatmentIds ?? []) {
+        if (!template.availableTreatments.includes(treatmentId)) {
+          issues.push({
+            level: "error",
+            scope,
+            message: `Objetivo clínico refere tratamento não disponível no caso: "${treatmentId}".`,
+          });
+        }
+      }
+
+      // matcher.applicationIds têm de estar em applicationOptions do template
+      for (const applicationId of goal.matcher.applicationIds ?? []) {
+        if (!templateApplicationOptions.has(applicationId)) {
+          issues.push({
+            level: "error",
+            scope,
+            message: `Objetivo clínico refere técnica não disponível no caso: "${applicationId}".`,
+          });
+        }
+      }
+    }
+
+    for (const rule of template.evaluationRules) {
+      for (const ruleId of rule.appliesToIds) {
+        if (rule.target === "treatment" && !template.availableTreatments.includes(ruleId)) {
+          issues.push({
+            level: "error",
+            scope,
+            message: `Regra de avaliação refere tratamento não disponível: "${ruleId}".`,
+          });
+        }
+
+        // target === "application" tem de existir em applicationOptions do template
+        if (rule.target === "application" && !templateApplicationOptions.has(ruleId as never)) {
+          issues.push({
+            level: "error",
+            scope,
+            message: `Regra de avaliação refere técnica não disponível: "${ruleId}".`,
+          });
+        }
+      }
+
+      for (const topicId of rule.learningTopicIds) {
+        const normalizedTopicId = normalizeTopicId(topicId);
+        if (!topicIds.has(normalizedTopicId)) {
+          issues.push({
+            level: "error",
+            scope,
+            message: `Regra de avaliação referencia tema inexistente: "${topicId}".`,
+          });
+        }
+      }
+    }
+
+    // Simulação 100/100: o caso tem de ser perfeitamente solucionável
+    try {
+      const idealAttempt = getIdealAttempt(template);
+      const evaluation = evaluateCaseAttempt(template, idealAttempt);
+
+      if (evaluation.score !== 100) {
+        const sectionDetail = evaluation.sections
+          .filter((section) => section.score < section.maxScore)
+          .map((section) => `${section.id}=${section.score}/${section.maxScore}`)
+          .join(", ");
+
+        issues.push({
+          level: "error",
+          scope,
+          message: `Caso não atinge 100/100 com tentativa ideal (score=${evaluation.score}; secções abaixo do máximo: ${sectionDetail || "nenhuma"}).`,
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      issues.push({
+        level: "error",
+        scope,
+        message: `Falha ao simular tentativa ideal: ${message}`,
+      });
     }
   }
 

@@ -4,10 +4,7 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import {
   buildAttemptRecord,
   buildAttemptReview,
-  buildVariantRotation,
-  countAttemptsForCase,
   evaluateCaseAttempt,
-  getCaseSession,
   getCaseTemplate,
   type ApplicationId,
   type DialogueId,
@@ -33,28 +30,12 @@ import type { JustificationAnswer, TissuePin, VisualIdentificationSubmission } f
 
 type Step = "observacao" | "identificacao" | "dialogo" | "tratamento" | "justificacao" | "resultado";
 
-function resolveSession(templateId: string) {
-  const history = loadAttemptHistory();
-  const attemptCount = countAttemptsForCase(history, templateId);
-  const rotatedVariant = buildVariantRotation(templateId, attemptCount);
-
-  return getCaseSession(templateId, rotatedVariant?.id) ?? getCaseSession(templateId);
-}
-
 export function CasePlayer({ templateId }: { templateId: string }) {
   const template = getCaseTemplate(templateId);
 
   if (!template) {
     throw new Error(`Case template not found: ${templateId}`);
   }
-
-  const [session, setSession] = useState(() => {
-    const resolvedSession = getCaseSession(templateId);
-    if (!resolvedSession) {
-      throw new Error(`Case template has no variant: ${templateId}`);
-    }
-    return resolvedSession;
-  });
 
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState<Step>("observacao");
@@ -87,8 +68,8 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     [observationIds, visualSubmission, tissuePins, dialogueIds, treatmentIds, applicationIds, justificationAnswers]
   );
 
-  const evaluation = useMemo(() => evaluateCaseAttempt(session, attempt), [session, attempt]);
-  const review = useMemo(() => buildAttemptReview(session, attempt), [session, attempt]);
+  const evaluation = useMemo(() => evaluateCaseAttempt(template!, attempt), [attempt]);
+  const review = useMemo(() => buildAttemptReview(template!, attempt), [attempt]);
 
   const completedObservation = observationIds.includes("imagem") && observationIds.length >= 3;
   const completedVisualIdentification = step !== "observacao" || observationIds.includes("imagem");
@@ -99,8 +80,6 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     completedObservation && completedDialogue && completedTreatment && completedApplication;
 
   function resetCase() {
-    const nextSession = resolveSession(templateId);
-
     setStarted(false);
     setStep("observacao");
     setReviewMode(false);
@@ -114,9 +93,6 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     setApplicationIds([]);
     setJustificationAnswers([]);
     setPreviousBestScore(null);
-    if (nextSession) {
-      setSession(nextSession);
-    }
   }
 
   function startCase() {
@@ -162,8 +138,8 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
   }
 
   const justificationQuestions = useMemo(
-    () => generateAllJustificationQuestions(treatmentIds, session.variant),
-    [treatmentIds, session.variant]
+    () => generateAllJustificationQuestions(treatmentIds, template),
+    [treatmentIds]
   );
 
   const allJustificationsAnswered =
@@ -188,14 +164,13 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     if (!allJustificationsAnswered) return;
 
     const history = loadAttemptHistory();
-    const priorBestScore = getPreviousBestScoreForCase(history, session.template.id);
+    const priorBestScore = getPreviousBestScoreForCase(history, template!.id);
 
     saveAttemptRecord(
       buildAttemptRecord({
         evaluation,
         history,
-        templateId: session.template.id,
-        variantId: session.variant.id,
+        templateId: template!.id,
         attempt,
         durationSeconds: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
       })
@@ -237,17 +212,6 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
               : completedTreatment
                 ? "Já tens materiais escolhidos, mas ainda falta definir a técnica de aplicação."
                 : "Escolhe um material principal e confirma como o vais aplicar de forma segura.";
-
-  useEffect(() => {
-    startTransition(() => {
-      const resolvedSession = resolveSession(templateId);
-      if (resolvedSession) {
-        setSession((current) =>
-          current.variant.id === resolvedSession.variant.id ? current : resolvedSession
-        );
-      }
-    });
-  }, [templateId]);
 
   const completedVisualStep =
     visualSubmission.tissues.length > 0 ||
@@ -381,12 +345,12 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     <main className="case-shell">
       {!started ? (
         <div className="h-full w-full overflow-y-auto">
-          <CaseIntro session={session} onStart={startCase} />
+          <CaseIntro template={template} onStart={startCase} />
         </div>
       ) : step === "resultado" ? (
         <div className="h-full w-full overflow-y-auto">
           <CaseResultSummary
-            session={session}
+            template={template}
             evaluation={evaluation}
             attempt={attempt}
             previousBestScore={previousBestScore}
@@ -418,13 +382,13 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                   color: "var(--color-text-primary)",
                 }}
               >
-                {session.template.shortTitle}
+                {template.shortTitle}
               </h1>
               <p
                 className="text-body"
                 style={{ marginTop: "2px", color: "var(--color-text-secondary)" }}
               >
-                {session.template.title}
+                {template.title}
               </p>
               <div
                 style={{
@@ -434,8 +398,8 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                   gap: "var(--space-xs)",
                 }}
               >
-                <span className="badge badge-info">{session.template.difficulty}</span>
-                <span className="badge badge-info">{session.template.estimatedMinutes} min</span>
+                <span className="badge badge-info">{template.difficulty}</span>
+                <span className="badge badge-info">{template.estimatedMinutes} min</span>
               </div>
             </div>
 
@@ -583,7 +547,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 ausente: "Ausente", ligeiro: "Ligeiro", moderado: "Moderado", fetido: "Fétido", presente: "Presente", intenso: "Intenso",
               };
               const odorValue = observationIds.includes("cheiro")
-                ? (odorLabels[session.variant.woundState.odor] ?? session.variant.woundState.odor)
+                ? (odorLabels[template.woundState.odor] ?? template.woundState.odor)
                 : "—";
 
               const rows: { label: string; value: string }[] = [
@@ -658,7 +622,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 }}
               >
                 <span className="text-label" style={{ color: "var(--color-info)", flexShrink: 0 }}>Contexto</span>
-                <span style={{ fontSize: "var(--text-label)", color: "var(--color-text-secondary)" }}>{session.variant.patientBanner}</span>
+                <span style={{ fontSize: "var(--text-label)", color: "var(--color-text-secondary)" }}>{template.patientBanner}</span>
               </div>
               <div
                 style={{
@@ -683,7 +647,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
             <div className="case-active-panel">
               {step === "observacao" ? (
                 <CaseObservationPanel
-                  session={session}
+                  template={template}
                   observationIds={observationIds}
                   reviewStatusById={reviewMode ? review.observationStatus : undefined}
                   reviewMode={reviewMode}
@@ -693,15 +657,15 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 <CaseVisualIdentification
                   submission={visualSubmission}
                   onChange={setVisualSubmission}
-                  imageSrc={session.template.imageSrc}
+                  imageSrc={template.imageSrc}
                   tissuePins={tissuePins}
                   onAddPin={addTissuePin}
                   onRemovePin={removeTissuePin}
-                  hasTissueZones={(session.variant.tissueZones?.length ?? 0) > 0}
+                  hasTissueZones={(template.tissueZones?.length ?? 0) > 0}
                 />
               ) : step === "dialogo" ? (
                 <CaseDialoguePanel
-                  session={session}
+                  template={template}
                   dialogueIds={dialogueIds}
                   activeDialogueId={activeDialogueId}
                   reviewStatusById={reviewMode ? review.dialogueStatus : undefined}
@@ -716,7 +680,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 />
               ) : (
                 <CaseTreatmentPlanner
-                  session={session}
+                  template={template}
                   treatmentIds={treatmentIds}
                   applicationIds={applicationIds}
                   treatmentStatusById={reviewMode ? review.treatmentStatus : undefined}

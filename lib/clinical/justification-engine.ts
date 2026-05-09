@@ -3,7 +3,7 @@ import type {
   JustificationQuestion,
   TreatmentDefinition,
   WoundVariables,
-  CaseVariant,
+  CaseTemplate,
 } from "./types.ts";
 import { getTreatment, listTreatments } from "./catalog.ts";
 import {
@@ -147,7 +147,7 @@ function buildDistractors(
 
 export function generateJustificationQuestion(
   treatmentId: string,
-  variant: CaseVariant
+  variant: CaseTemplate
 ): JustificationQuestion | null {
   const treatment = getTreatment(treatmentId);
   if (!treatment) return null;
@@ -201,7 +201,7 @@ export function generateJustificationQuestion(
 
 export function generateAllJustificationQuestions(
   treatmentIds: string[],
-  variant: CaseVariant
+  variant: CaseTemplate
 ): JustificationQuestion[] {
   const questions: JustificationQuestion[] = [];
   for (const id of treatmentIds) {

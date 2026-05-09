@@ -1,4 +1,4 @@
-import type { CaseSession, DialogueId, ReviewStatus } from "@/lib/clinical";
+import type { CaseTemplate, DialogueId, ReviewStatus } from "@/lib/clinical";
 
 function reviewButtonStyle(status: ReviewStatus, selected: boolean): React.CSSProperties {
   const base: React.CSSProperties = {
@@ -21,14 +21,14 @@ function reviewButtonStyle(status: ReviewStatus, selected: boolean): React.CSSPr
 }
 
 export function CaseDialoguePanel({
-  session,
+  template,
   dialogueIds,
   activeDialogueId,
   reviewStatusById,
   reviewMode = false,
   onAsk,
 }: {
-  session: CaseSession;
+  template: CaseTemplate;
   dialogueIds: DialogueId[];
   activeDialogueId: DialogueId | null;
   reviewStatusById?: Partial<Record<DialogueId, ReviewStatus>>;
@@ -60,7 +60,7 @@ export function CaseDialoguePanel({
             overflowY: "auto",
           }}
         >
-          {session.template.dialoguePrompts.map((prompt) => {
+          {template.dialoguePrompts.map((prompt) => {
             const asked = dialogueIds.includes(prompt.id);
             const status = reviewStatusById?.[prompt.id] ?? null;
             return (
@@ -119,7 +119,7 @@ export function CaseDialoguePanel({
                   color: "var(--color-text-primary)",
                 }}
               >
-                {session.template.dialoguePrompts.find((p) => p.id === activeDialogueId)?.question}
+                {template.dialoguePrompts.find((p) => p.id === activeDialogueId)?.question}
               </p>
             </div>
             <div
@@ -139,7 +139,7 @@ export function CaseDialoguePanel({
                   color: "var(--color-text-primary)",
                 }}
               >
-                {session.variant.dialogueResponses[activeDialogueId]}
+                {template.dialogueResponses[activeDialogueId]}
               </p>
             </div>
           </div>

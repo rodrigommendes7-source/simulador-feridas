@@ -1,7 +1,6 @@
 import {
   getCaseTemplate,
   getCaseTitle,
-  getCaseVariant,
   getLearningTopic,
   getTemplateLearningTopicIds,
   listCaseTemplates,
@@ -65,12 +64,10 @@ function migrateLegacyEntries(raw: unknown): AttemptRecord[] {
   return raw.map((item, index) => {
     const legacy = item as LegacyEntry;
     return {
-      version: 2,
+      version: 3,
       id: legacy.id ?? `legacy-${index}`,
       templateId: parseLegacyTemplateId(legacy.casoId),
-      variantId: "legacy",
       caseTitle: legacy.casoTitulo ?? "Caso legado",
-      variantTitle: "Tentativa anterior",
       score: Number(legacy.pontuacao) || 0,
       previousBestScoreForCase: null,
       sectionScores: {},
@@ -92,16 +89,14 @@ function migrateLegacyEntries(raw: unknown): AttemptRecord[] {
 
 function normalizeRecord(item: unknown): AttemptRecord | null {
   if (!item || typeof item !== "object") return null;
-  const record = item as Partial<AttemptRecord>;
-  if (record.version !== 2) return null;
+  const record = item as Partial<AttemptRecord> & { version?: unknown; variantId?: unknown; variantTitle?: unknown };
+  if (record.version !== 3 && record.version !== 2) return null;
 
   return {
-    version: 2,
+    version: 3,
     id: typeof record.id === "string" ? record.id : createAttemptId(),
     templateId: typeof record.templateId === "string" ? record.templateId : "unknown",
-    variantId: typeof record.variantId === "string" ? record.variantId : "unknown",
     caseTitle: typeof record.caseTitle === "string" ? record.caseTitle : "Caso",
-    variantTitle: typeof record.variantTitle === "string" ? record.variantTitle : "Caso",
     score: typeof record.score === "number" ? record.score : 0,
     previousBestScoreForCase:
       typeof record.previousBestScoreForCase === "number" ? record.previousBestScoreForCase : null,
@@ -150,7 +145,7 @@ export function loadAttemptHistory(): AttemptRecord[] {
     return [];
   }
 
-  if (Array.isArray(parsed) && parsed.every((item) => (item as AttemptRecord).version === 2)) {
+  if (Array.isArray(parsed) && parsed.every((item) => (item as AttemptRecord).version === 3 || (item as { version?: unknown }).version === 2)) {
     return parsed
       .map((item) => normalizeRecord(item))
       .filter((item): item is AttemptRecord => Boolean(item));
@@ -192,11 +187,11 @@ export function importHistoryFromJson(raw: unknown): ImportResult {
   if (typeof window === "undefined") return { ok: false, error: "Não disponível no servidor." };
   if (!Array.isArray(raw)) return { ok: false, error: "O ficheiro não contém um array de tentativas." };
 
-  const REQUIRED: Array<keyof AttemptRecord> = ["version", "id", "templateId", "variantId", "caseTitle", "score", "timestamp"];
+  const REQUIRED: Array<keyof AttemptRecord> = ["version", "id", "templateId", "caseTitle", "score", "timestamp"];
   const valid = raw.filter((item): item is AttemptRecord => {
     if (!item || typeof item !== "object") return false;
-    const r = item as Partial<AttemptRecord>;
-    return r.version === 2 && REQUIRED.every((f) => f in r);
+    const r = item as Partial<AttemptRecord> & { version?: unknown };
+    return (r.version === 3 || r.version === 2) && REQUIRED.every((f) => f in r);
   });
 
   if (valid.length === 0) {
@@ -286,12 +281,10 @@ export function buildAttemptRecord(params: {
   evaluation: CaseEvaluation;
   history: AttemptRecord[];
   templateId: string;
-  variantId: string;
   durationSeconds: number;
   attempt: AttemptInput;
 }): AttemptRecord {
   const template = getCaseTemplate(params.templateId);
-  const variant = getCaseVariant(params.templateId, params.variantId);
   const inadequateItems = params.evaluation.sections
     .flatMap((section) => section.items)
     .filter((item) => item.classification === "inadequado" || item.classification === "redundante");
@@ -310,12 +303,10 @@ export function buildAttemptRecord(params: {
   const syntheticHistory = [
     ...params.history,
     {
-      version: 2,
+      version: 3,
       id: "preview",
       templateId: params.templateId,
-      variantId: params.variantId,
       caseTitle: template?.title ?? params.templateId,
-      variantTitle: variant?.title ?? params.variantId,
       score: params.evaluation.score,
       previousBestScoreForCase: getBestScoreBefore(params.history, params.templateId),
       sectionScores: Object.fromEntries(
@@ -337,12 +328,10 @@ export function buildAttemptRecord(params: {
   ];
 
   return {
-    version: 2,
+    version: 3,
     id: createAttemptId(),
     templateId: params.templateId,
-    variantId: params.variantId,
     caseTitle: template?.title ?? params.templateId,
-    variantTitle: variant?.title ?? template?.title ?? params.variantId,
     score: params.evaluation.score,
     previousBestScoreForCase: getBestScoreBefore(params.history, params.templateId),
     sectionScores: Object.fromEntries(

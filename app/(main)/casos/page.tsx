@@ -62,10 +62,12 @@ function difficultyBadgeClass(value: string) {
 export default function CasesPage() {
   const cases = listCaseTemplates().filter((item) => item.status === "disponivel");
   const [history, setHistory] = useState<AttemptRecord[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
 
   useEffect(() => {
     startTransition(() => {
       setHistory(loadAttemptHistory());
+      setHistoryLoaded(true);
     });
   }, []);
 
@@ -111,7 +113,7 @@ export default function CasesPage() {
           href={continueTarget ? `/casos/${continueTarget.nextCaseId}` : "/casos/1"}
           className={continueTarget ? "btn btn-primary btn-lg" : "btn btn-secondary btn-lg"}
         >
-          {continueTarget ? "Continuar aprendizagem" : "Iniciar primeiro caso"}
+          {continueTarget ? "Continuar a aprender" : "Iniciar primeiro caso"}
         </Link>
         <Link
           href={randomCase ? `/casos/${randomCase.id}` : "/casos"}
@@ -186,7 +188,12 @@ export default function CasesPage() {
                   marginTop: "auto",
                 }}
               >
-                {progress.hasCompleted ? (
+                {!historyLoaded ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+                    <div className="skeleton" style={{ height: "14px", width: "70%" }} />
+                    <div className="skeleton" style={{ height: "12px", width: "50%" }} />
+                  </div>
+                ) : progress.hasCompleted ? (
                   <>
                     <p
                       style={{
@@ -199,7 +206,7 @@ export default function CasesPage() {
                       Melhor {progress.bestScore}/100 · Média {progress.averageScore}/100
                     </p>
                     <p className="text-body mt-2">
-                      {progress.attempts} tentativa(s) registada(s).
+                      {progress.attempts} {progress.attempts === 1 ? "tentativa registada" : "tentativas registadas"}.
                     </p>
                   </>
                 ) : (

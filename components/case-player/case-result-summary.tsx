@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import {
   getTreatmentLabel,
   listTreatments,
@@ -156,6 +159,29 @@ function selectEvidenceForResult(
     .slice(0, 2);
 }
 
+// ─── Hook de contagem animada ─────────────────────────────────────────────────
+
+function useAnimatedScore(target: number, durationMs = 900): number {
+  const [display, setDisplay] = useState(0);
+  const raf = useRef<number | null>(null);
+
+  useEffect(() => {
+    const start = performance.now();
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / durationMs, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * target));
+      if (progress < 1) raf.current = requestAnimationFrame(tick);
+    }
+    raf.current = requestAnimationFrame(tick);
+    return () => { if (raf.current) cancelAnimationFrame(raf.current); };
+  }, [target, durationMs]);
+
+  return display;
+}
+
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export function CaseResultSummary({
@@ -175,6 +201,7 @@ export function CaseResultSummary({
 }) {
   const { sections } = evaluation;
   const relevantEvidence = selectEvidenceForResult(evaluation, attempt);
+  const animatedScore = useAnimatedScore(evaluation.score);
 
   // Itens corretos (essencial ou adequado) — aquilo que o aluno fez bem
   const correctObs = getItems(sections, "observation", "essencial", "adequado");
@@ -220,7 +247,7 @@ export function CaseResultSummary({
         <div style={{ marginTop: "var(--space-md)", display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-md)" }}>
           <div>
             <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-h1)", fontWeight: "var(--weight-medium)", color: "var(--color-accent)" }}>
-              {evaluation.score}/100
+              {animatedScore}/100
             </p>
             {evaluation.justificationPenalty > 0 && (
               <p style={{ marginTop: "var(--space-xs)", fontSize: "var(--text-label)", color: "var(--color-warning, #d97706)" }}>

@@ -125,10 +125,19 @@
   /* -----------------------------------------------------------
      TRANSIÇÕES
   ----------------------------------------------------------- */
-  --transition-fast:     150ms ease;                   /* Hover de botões e links */
-  --transition-normal:   200ms ease-out;               /* Aparecer/desaparecer */
-  --transition-progress: 400ms ease-out;               /* Barras de progresso */
-  --transition-press:    120ms ease;                   /* Clique de botão */
+  --transition-fast:     150ms ease;                          /* Hover de botões e links */
+  --transition-normal:   200ms ease-out;                      /* Aparecer/desaparecer */
+  --transition-progress: 600ms cubic-bezier(0.16, 1, 0.3, 1); /* Barras de progresso */
+  --transition-press:    120ms ease;                          /* Clique de botão */
+  --transition-enter:    280ms cubic-bezier(0.16, 1, 0.3, 1); /* Entrada de elementos */
+  --transition-hover:    180ms ease-out;                      /* Hover com lift */
+
+  /* -----------------------------------------------------------
+     SOMBRAS — elevação
+  ----------------------------------------------------------- */
+  --shadow-sm:       0 1px 3px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.10);
+  --shadow-md:       0 4px 12px rgba(0,0,0,0.28), 0 2px 4px rgba(0,0,0,0.12);
+  --shadow-lifted:   0 8px 24px rgba(0,0,0,0.32), 0 2px 8px rgba(0,0,0,0.14);
 }
 
 
@@ -230,13 +239,30 @@ body {
   cursor: pointer;
   border-radius: var(--radius-md);
   padding: 8px 16px;
-  transition: background var(--transition-fast), opacity var(--transition-fast), transform var(--transition-press);
+  transition:
+    background var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-press),
+    box-shadow var(--transition-hover);
   text-decoration: none;
   white-space: nowrap;
 }
 
+.btn:hover {
+  box-shadow: var(--shadow-sm);
+}
+
 .btn:active {
   transform: scale(0.97);
+  box-shadow: none;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
 }
 
 /* Primário — âmbar */
@@ -357,12 +383,15 @@ body {
   border: var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-hover),
+    box-shadow var(--transition-hover);
 }
 
-.card:hover {
+.card:not(.card-clickable):hover {
   border-color: var(--color-border);
-  background: var(--color-elevated);
 }
 
 /* Card com acento lateral (ativo / selecionado / recomendado) */
@@ -371,9 +400,21 @@ body {
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 
-/* Card clicável */
+/* Card clicável — lift no hover */
 .card-clickable {
   cursor: pointer;
+}
+
+.card-clickable:hover {
+  border-color: var(--color-border);
+  background: var(--color-elevated);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lifted);
+}
+
+.card-clickable:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
 

@@ -54,7 +54,9 @@
       "Bash(grep -n \"^\\\\s*},$\" data/clinical/casos.ts)",
       "Bash(grep -n \"^\\\\s*],\\\\s*$\\\\|^\\\\s*\\\\],$\" data/clinical/casos.ts)",
       "Bash(node -e ' *)",
-      "Bash(node)"
+      "Bash(node)",
+      "Bash(Select-String -Path 'c:\\\\Users\\\\rodri\\\\simulador-feridas\\\\data\\\\clinical\\\\casos.ts' -Pattern 'id: \"caso\\(\\\\d+\\)\"')",
+      "Bash(Measure-Object)"
     ]
   }
 }

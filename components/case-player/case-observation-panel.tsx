@@ -104,7 +104,7 @@ export function CaseObservationPanel({
             </p>
             <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
               Verde: observação correta. Vermelho: escolha desnecessária ou errada. Azul claro:
-              faltou selecionar.
+              não foi selecionado.
             </p>
           </div>
         ) : null}
@@ -139,6 +139,7 @@ export function CaseObservationPanel({
                 return (
                   <div
                     key={def.id}
+                    className="reveal-enter"
                     style={{
                       ...reviewDetailStyle(status),
                       display: "flex",

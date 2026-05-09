@@ -26,4 +26,161 @@ a {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
+  box-shadow: 0 0 0 4px var(--color-accent-subtle);
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+/* ── Animações de página e entrada ──────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Páginas aparecem suavemente */
+  main > * {
+    animation: slideUp var(--transition-enter) both;
+  }
+  /* Cada filho com delay escalonado para dar sensação de cascade */
+  main > *:nth-child(1) { animation-delay: 0ms; }
+  main > *:nth-child(2) { animation-delay: 40ms; }
+  main > *:nth-child(3) { animation-delay: 80ms; }
+  main > *:nth-child(4) { animation-delay: 120ms; }
+}
+
+/* ── Skeleton loader ────────────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-elevated) 25%,
+    var(--color-border-subtle) 50%,
+    var(--color-elevated) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: var(--radius-md);
+}
+
+/* ── Modal overlay ──────────────────────────────────────────────── */
+
+.modal-overlay {
+  animation: fadeIn 180ms ease both;
+}
+
+.modal-content {
+  animation: scaleIn var(--transition-enter) both;
+}
+
+/* ── Reveal de conteúdo (ex: observações reveladas) ────────────── */
+
+.reveal-enter {
+  animation: slideUp var(--transition-enter) both;
+}
+
+/* ── Toast de confirmação ───────────────────────────────────────── */
+
+.toast {
+  position: fixed;
+  bottom: var(--space-2xl);
+  right: var(--space-2xl);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-md);
+  animation: slideUp var(--transition-enter) both;
+  pointer-events: none;
+}
+
+.toast-success {
+  background: var(--color-success-subtle);
+  border: 0.5px solid var(--color-success-border);
+  color: var(--color-success);
+}
+
+/* ── Botão de submit desativado com tooltip nativo ──────────────── */
+
+.btn-submit-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ── Step nav item no sidebar ───────────────────────────────────── */
+
+.step-nav-btn {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.step-nav-btn-active {
+  border: 0.5px solid var(--color-accent);
+  background: var(--color-elevated);
+  color: var(--color-accent);
+  font-weight: var(--weight-medium);
+}
+
+.step-nav-btn-done {
+  border: 0.5px solid var(--color-success-border);
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+.step-nav-btn-idle {
+  border: var(--border-default);
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.step-nav-btn-idle:hover {
+  background: var(--color-elevated);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+/* ── Progress item no sidebar ───────────────────────────────────── */
+
+.progress-item {
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.progress-item-done {
+  border: 0.5px solid var(--color-success-border);
+  background: var(--color-success-subtle);
+}
+
+.progress-item-pending {
+  border: var(--border-default);
+  background: var(--color-elevated);
 }

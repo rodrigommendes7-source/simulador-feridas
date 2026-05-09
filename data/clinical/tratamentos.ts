@@ -1145,22 +1145,22 @@ export const treatmentCatalog: TreatmentDefinition[] = [
   //    o estudante pode escolher para aquele caso específico. É o "menu" do
   //    seletor de materiais no CaseTreatmentPlanner.
   //
-  // 2. clinicalTargets (CaseVariant) — define os objetivos clínicos da variante
+  // 2. clinicalTargets (CaseTemplate) — define os objetivos clínicos do caso
   //    (ex: controlar infeção, absorver exsudado). Cada objetivo referencia
   //    treatmentIds com as escolhas corretas/parciais esperadas.
   //    O motor de avaliação (evaluation.ts) compara o plano do estudante
   //    com estes objetivos para calcular a pontuação.
   //
-  // 3. evaluationRules (CaseVariant) — regras de penalização ou bónus para
+  // 3. evaluationRules (CaseTemplate) — regras de penalização ou bónus para
   //    materiais específicos (ex: penalizar uso de álcool etílico). Permitem
   //    refinar a avaliação além dos objetivos.
   //
   // Fluxo:
   //   CaseTemplate.availableTreatments
   //     → mostra opções ao estudante
-  //   CaseVariant.clinicalTargets[].treatmentIds
+  //   CaseTemplate.clinicalTargets[].treatmentIds
   //     → define o que é correto/parcial/incorreto
-  //   CaseVariant.evaluationRules[]
+  //   CaseTemplate.evaluationRules[]
   //     → aplica penalizações ou bónus adicionais
   //
   // Para adicionar um material a um caso:

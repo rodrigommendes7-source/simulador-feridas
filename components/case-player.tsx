@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import {
   buildAttemptRecord,
   buildAttemptReview,
@@ -33,10 +33,6 @@ type Step = "observacao" | "identificacao" | "dialogo" | "tratamento" | "justifi
 export function CasePlayer({ templateId }: { templateId: string }) {
   const template = getCaseTemplate(templateId);
 
-  if (!template) {
-    throw new Error(`Case template not found: ${templateId}`);
-  }
-
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState<Step>("observacao");
   const [reviewMode, setReviewMode] = useState(false);
@@ -44,7 +40,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
     if (typeof window === "undefined") return false;
     return !localStorage.getItem("tutorial-visto");
   });
-const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const [observationIds, setObservationIds] = useState<ObservationId[]>([]);
   const [visualSubmission, setVisualSubmission] = useState<VisualIdentificationSubmission>({ tissues: [], exudate: [], edges: [] });
   const [tissuePins, setTissuePins] = useState<TissuePin[]>([]);
@@ -54,6 +50,8 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
   const [applicationIds, setApplicationIds] = useState<ApplicationId[]>([]);
   const [justificationAnswers, setJustificationAnswers] = useState<JustificationAnswer[]>([]);
   const [previousBestScore, setPreviousBestScore] = useState<number | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const attempt = useMemo(
     () => ({
@@ -68,8 +66,21 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     [observationIds, visualSubmission, tissuePins, dialogueIds, treatmentIds, applicationIds, justificationAnswers]
   );
 
-  const evaluation = useMemo(() => evaluateCaseAttempt(template!, attempt), [attempt]);
-  const review = useMemo(() => buildAttemptReview(template!, attempt), [attempt]);
+  // Todos os hooks têm de ser chamados antes de qualquer early return
+  const evaluation = useMemo(
+    () => template ? evaluateCaseAttempt(template, attempt) : null,
+    [template, attempt]
+  );
+  const review = useMemo(
+    () => template ? buildAttemptReview(template, attempt) : null,
+    [template, attempt]
+  );
+
+  if (!template) throw new Error(`Case template not found: ${templateId}`);
+  // Narrowing explícito para uso em closures — useMemo retorna null só se template é undefined (já guardado acima)
+  const safeTemplate = template;
+  const safeEvaluation = evaluation as NonNullable<typeof evaluation>;
+  const safeReview = review as NonNullable<typeof review>;
 
   const completedObservation = observationIds.includes("imagem") && observationIds.length >= 3;
   const completedVisualIdentification = step !== "observacao" || observationIds.includes("imagem");
@@ -164,13 +175,13 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     if (!allJustificationsAnswered) return;
 
     const history = loadAttemptHistory();
-    const priorBestScore = getPreviousBestScoreForCase(history, template!.id);
+    const priorBestScore = getPreviousBestScoreForCase(history, safeTemplate.id);
 
     saveAttemptRecord(
       buildAttemptRecord({
-        evaluation,
+        evaluation: safeEvaluation,
         history,
-        templateId: template!.id,
+        templateId: safeTemplate.id,
         attempt,
         durationSeconds: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
       })
@@ -179,16 +190,19 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     setPreviousBestScore(priorBestScore);
     setReviewMode(false);
     setStep("resultado");
+    setShowToast(true);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setShowToast(false), 3000);
   }
 
   function openReview() {
     setReviewMode(true);
     setStep("observacao");
-    setActiveDialogueId(dialogueIds[0] ?? review.idealAttempt.dialogueIds[0] ?? null);
+    setActiveDialogueId(dialogueIds[0] ?? safeReview.idealAttempt.dialogueIds[0] ?? null);
   }
 
   const stageGuidance = reviewMode
-    ? "Estás em modo de revisão. As escolhas corretas aparecem a verde, as erradas a vermelho e o que faltou selecionar aparece a azul claro."
+    ? "Estás em modo de revisão. As escolhas corretas aparecem a verde, as incorretas a vermelho e as que faltaram a azul claro."
     : step === "observacao"
       ? completedObservation
         ? "Já tens observação mínima suficiente. Avança para identificar os tecidos e o exsudado visíveis."
@@ -266,6 +280,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
     <>
     {showTutorial && (
       <div
+        className="modal-overlay"
         style={{
           position: "fixed",
           inset: 0,
@@ -279,6 +294,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
         onClick={dismissTutorial}
       >
         <div
+          className="modal-content"
           style={{
             background: "var(--color-surface)",
             border: "var(--border-default)",
@@ -289,6 +305,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
             display: "flex",
             flexDirection: "column",
             gap: "var(--space-lg)",
+            boxShadow: "var(--shadow-lifted)",
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -351,7 +368,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
         <div className="h-full w-full overflow-y-auto">
           <CaseResultSummary
             template={template}
-            evaluation={evaluation}
+            evaluation={safeEvaluation}
             attempt={attempt}
             previousBestScore={previousBestScore}
             onReview={openReview}
@@ -424,46 +441,76 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 }}
               >
                 {([
-                  ["observacao", "Observação"],
-                  ["identificacao", "Identificação"],
-                  ["dialogo", "Diálogo"],
-                  ["tratamento", "Tratamento"],
-                  ["justificacao", "Justificação"],
-                ] as [Step, string][]).map(([id, label]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setStep(id)}
-                    style={
-                      step === id
-                        ? {
-                            width: "100%",
-                            textAlign: "left",
-                            padding: "var(--space-xs) var(--space-sm)",
-                            borderRadius: "var(--radius-md)",
-                            border: "0.5px solid var(--color-accent)",
-                            background: "var(--color-elevated)",
-                            color: "var(--color-accent)",
-                            fontWeight: "var(--weight-medium)",
-                            fontSize: "var(--text-body)",
-                            cursor: "pointer",
-                          }
-                        : {
-                            width: "100%",
-                            textAlign: "left",
-                            padding: "var(--space-xs) var(--space-sm)",
-                            borderRadius: "var(--radius-md)",
-                            border: "var(--border-default)",
-                            background: "transparent",
-                            color: "var(--color-text-secondary)",
-                            fontSize: "var(--text-body)",
-                            cursor: "pointer",
-                          }
-                    }
-                  >
-                    {label}
-                  </button>
-                ))}
+                  ["observacao", "Observação", completedObservation],
+                  ["identificacao", "Identificação", completedVisualStep],
+                  ["dialogo", "Diálogo", completedDialogue],
+                  ["tratamento", "Tratamento", completedTreatment && completedApplication],
+                  ["justificacao", "Justificação", allJustificationsAnswered],
+                ] as [Step, string, boolean][]).map(([id, label, done]) => {
+                  const isActive = step === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setStep(id)}
+                      style={
+                        isActive
+                          ? {
+                              width: "100%",
+                              textAlign: "left",
+                              padding: "var(--space-xs) var(--space-sm)",
+                              borderRadius: "var(--radius-md)",
+                              border: "0.5px solid var(--color-accent)",
+                              background: "var(--color-elevated)",
+                              color: "var(--color-accent)",
+                              fontWeight: "var(--weight-medium)",
+                              fontSize: "var(--text-body)",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "var(--space-xs)",
+                            }
+                          : done
+                            ? {
+                                width: "100%",
+                                textAlign: "left",
+                                padding: "var(--space-xs) var(--space-sm)",
+                                borderRadius: "var(--radius-md)",
+                                border: "0.5px solid var(--color-success-border)",
+                                background: "var(--color-success-subtle)",
+                                color: "var(--color-success)",
+                                fontSize: "var(--text-body)",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "var(--space-xs)",
+                                transition: "border-color var(--transition-fast), background var(--transition-fast)",
+                              }
+                            : {
+                                width: "100%",
+                                textAlign: "left",
+                                padding: "var(--space-xs) var(--space-sm)",
+                                borderRadius: "var(--radius-md)",
+                                border: "var(--border-default)",
+                                background: "transparent",
+                                color: "var(--color-text-secondary)",
+                                fontSize: "var(--text-body)",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "var(--space-xs)",
+                              }
+                      }
+                    >
+                      {done && !isActive ? (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+                          <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      ) : null}
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -490,41 +537,12 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 {progressChecklist.map((item) => (
                   <div
                     key={item.label}
-                    style={
-                      item.done
-                        ? {
-                            borderRadius: "var(--radius-md)",
-                            border: "0.5px solid var(--color-success-border)",
-                            background: "var(--color-success-subtle)",
-                            padding: "var(--space-xs) var(--space-sm)",
-                          }
-                        : {
-                            borderRadius: "var(--radius-md)",
-                            border: "var(--border-default)",
-                            background: "var(--color-elevated)",
-                            padding: "var(--space-xs) var(--space-sm)",
-                          }
-                    }
+                    className={`progress-item ${item.done ? "progress-item-done" : "progress-item-pending"}`}
                   >
-                    <p
-                      style={{
-                        fontSize: "var(--text-label)",
-                        fontWeight: "var(--weight-medium)",
-                        color: "var(--color-text-primary)",
-                        textTransform: "uppercase",
-                        letterSpacing: "var(--tracking-label)",
-                      }}
-                    >
+                    <p className="text-label" style={{ color: item.done ? "var(--color-success)" : "var(--color-text-primary)" }}>
                       {item.label}
                     </p>
-                    <p
-                      style={{
-                        marginTop: "1px",
-                        fontSize: "var(--text-label)",
-                        color: "var(--color-text-secondary)",
-                        lineHeight: 1.4,
-                      }}
-                    >
+                    <p style={{ marginTop: "1px", fontSize: "var(--text-label)", color: "var(--color-text-secondary)", lineHeight: 1.4 }}>
                       {item.detail}
                     </p>
                   </div>
@@ -649,7 +667,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                 <CaseObservationPanel
                   template={template}
                   observationIds={observationIds}
-                  reviewStatusById={reviewMode ? review.observationStatus : undefined}
+                  reviewStatusById={reviewMode ? safeReview.observationStatus : undefined}
                   reviewMode={reviewMode}
                   onReveal={reviewMode ? () => undefined : revealObservation}
                 />
@@ -668,7 +686,7 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                   template={template}
                   dialogueIds={dialogueIds}
                   activeDialogueId={activeDialogueId}
-                  reviewStatusById={reviewMode ? review.dialogueStatus : undefined}
+                  reviewStatusById={reviewMode ? safeReview.dialogueStatus : undefined}
                   reviewMode={reviewMode}
                   onAsk={askDialogue}
                 />
@@ -683,8 +701,8 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                   template={template}
                   treatmentIds={treatmentIds}
                   applicationIds={applicationIds}
-                  treatmentStatusById={reviewMode ? review.treatmentStatus : undefined}
-                  applicationStatusById={reviewMode ? review.applicationStatus : undefined}
+                  treatmentStatusById={reviewMode ? safeReview.treatmentStatus : undefined}
+                  applicationStatusById={reviewMode ? safeReview.applicationStatus : undefined}
                   reviewMode={reviewMode}
                   onToggleTreatment={toggleTreatment}
                   onToggleApplication={toggleApplication}
@@ -743,17 +761,8 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                     type="button"
                     onClick={goToJustification}
                     disabled={!readyToSubmit}
-                    className={readyToSubmit ? "btn btn-primary" : "btn"}
-                    style={
-                      !readyToSubmit
-                        ? {
-                            cursor: "not-allowed",
-                            opacity: 0.4,
-                            background: "var(--color-elevated)",
-                            color: "var(--color-text-secondary)",
-                          }
-                        : undefined
-                    }
+                    className="btn btn-primary"
+                    title={!readyToSubmit ? "Conclui observação, diálogo, plano e técnica para avançar" : undefined}
                   >
                     Avançar para justificação
                   </button>
@@ -763,17 +772,8 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
                     type="button"
                     onClick={submitFinal}
                     disabled={!allJustificationsAnswered}
-                    className={allJustificationsAnswered ? "btn btn-primary" : "btn"}
-                    style={
-                      !allJustificationsAnswered
-                        ? {
-                            cursor: "not-allowed",
-                            opacity: 0.4,
-                            background: "var(--color-elevated)",
-                            color: "var(--color-text-secondary)",
-                          }
-                        : undefined
-                    }
+                    className="btn btn-primary"
+                    title={!allJustificationsAnswered ? "Justifica todos os materiais selecionados para submeter" : undefined}
                   >
                     Submeter caso
                   </button>
@@ -784,6 +784,15 @@ const [startedAt, setStartedAt] = useState<number | null>(null);
         </>
       )}
     </main>
+
+    {showToast && (
+      <div className="toast toast-success">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Caso submetido com sucesso
+      </div>
+    )}
     </>
   );
 }

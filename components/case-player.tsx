@@ -230,8 +230,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
   const completedVisualStep =
     visualSubmission.tissues.length > 0 ||
     visualSubmission.exudate.length > 0 ||
-    visualSubmission.edges.length > 0 ||
-    step !== "observacao";
+    visualSubmission.edges.length > 0;
 
   const progressChecklist = [
     {
@@ -246,7 +245,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
       done: completedVisualStep,
       detail: completedVisualStep
         ? "Tecidos, exsudado e bordos identificados"
-        : "Interpreta o que vês na imagem",
+        : "Seleciona pelo menos uma característica visual",
     },
     {
       label: "Avaliação e diálogo",
@@ -445,7 +444,7 @@ export function CasePlayer({ templateId }: { templateId: string }) {
                   ["identificacao", "Identificação", completedVisualStep],
                   ["dialogo", "Diálogo", completedDialogue],
                   ["tratamento", "Tratamento", completedTreatment && completedApplication],
-                  ["justificacao", "Justificação", allJustificationsAnswered],
+                  ["justificacao", "Justificação", justificationQuestions.length > 0 && allJustificationsAnswered],
                 ] as [Step, string, boolean][]).map(([id, label, done]) => {
                   const isActive = step === id;
                   return (

@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import { CasePlayer } from "@/components/case-player";
-import { getCaseTemplate, getPublishedCaseIds } from "@/lib/clinical";
+import { obterModeloCaso, obterIdsCasosPublicados } from "@/lib/clinico/indice";
 
 export function generateStaticParams() {
-  return getPublishedCaseIds().map((caseId) => ({ caseId }));
+  return obterIdsCasosPublicados().map((caseId) => ({ caseId }));
 }
 
 export default async function CasePage({
@@ -12,11 +12,11 @@ export default async function CasePage({
   params: Promise<{ caseId: string }>;
 }) {
   const { caseId } = await params;
-  const template = getCaseTemplate(caseId);
+  const modelo = obterModeloCaso(caseId);
 
-  if (!template || template.status !== "disponivel") {
+  if (!modelo || modelo.status !== "disponivel") {
     notFound();
   }
 
-  return <CasePlayer templateId={caseId} />;
+  return <CasePlayer idModelo={caseId} />;
 }

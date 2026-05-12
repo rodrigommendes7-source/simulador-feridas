@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -95,7 +95,7 @@ export default function HomePage() {
           {
             href: "/casos",
             eyebrow: "Praticar",
-            label: "Casos",
+            rotulo: "Casos",
             description: "Resolve cenários clínicos reais. Seleciona observações, materiais e técnica — e recebe pontuação detalhada com justificação clínica.",
             accentColor: "var(--color-accent)",
             accentBg: "var(--color-accent-subtle)",
@@ -103,7 +103,7 @@ export default function HomePage() {
           {
             href: "/aprender",
             eyebrow: "Estudar",
-            label: "Aprender",
+            rotulo: "Aprender",
             description: "Biblioteca de temas clínicos: tecidos, exsudado, infeção, desbridamento e mais. Com tabelas, alertas e conceitos-chave.",
             accentColor: "var(--color-info)",
             accentBg: "var(--color-info-subtle)",
@@ -111,12 +111,12 @@ export default function HomePage() {
           {
             href: "/historico",
             eyebrow: "Acompanhar",
-            label: "Histórico",
+            rotulo: "Histórico",
             description: "Consulta todas as tuas tentativas anteriores, evolução da pontuação e temas recomendados para reforço.",
             accentColor: "var(--color-success)",
             accentBg: "var(--color-success-subtle)",
           },
-        ].map(({ href, eyebrow, label, description, accentColor, accentBg }) => (
+        ].map(({ href, eyebrow, rotulo, description, accentColor, accentBg }) => (
           <Link
             key={href}
             href={href}
@@ -154,7 +154,7 @@ export default function HomePage() {
                 color: "var(--color-text-primary)",
               }}
             >
-              {label}
+              {rotulo}
             </span>
             <span
               style={{
@@ -176,16 +176,16 @@ export default function HomePage() {
       </span>
       <nav style={{ display: "flex", gap: "var(--space-sm)" }}>
         {[
-          { href: "/sobre", label: "Sobre" },
-          { href: "/termos", label: "Termos" },
-          { href: "/privacidade", label: "Privacidade" },
-        ].map(({ href, label }) => (
+          { href: "/sobre", rotulo: "Sobre" },
+          { href: "/termos", rotulo: "Termos" },
+          { href: "/privacidade", rotulo: "Privacidade" },
+        ].map(({ href, rotulo }) => (
           <Link
             key={href}
             href={href}
             style={{ fontSize: "12px", color: "var(--color-text-tertiary)", textDecoration: "none" }}
           >
-            {label}
+            {rotulo}
           </Link>
         ))}
       </nav>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { MainNav } from "@/components/main-nav";
 
 export default function MainLayout({

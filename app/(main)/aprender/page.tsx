@@ -1,11 +1,11 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
-  getEvidence,
-  getLearningTopic,
-  getRelatedCasesForTopic,
-  getTreatmentsForTopic,
-  listLearningTopics,
-} from "@/lib/clinical";
+  obterEvidencia,
+  obterTema,
+  obterCasosRelacionadosComTema,
+  obterTratamentosParaTema,
+  listarTemas,
+} from "@/lib/clinico/indice";
 
 function capitalizeSentence(value: string) {
   if (!value) return value;
@@ -36,21 +36,21 @@ export default async function LearningPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const topics = listLearningTopics();
+  const topics = listarTemas();
   const topicParam = Array.isArray(resolvedSearchParams.topic)
     ? resolvedSearchParams.topic[0]
     : resolvedSearchParams.topic;
   const sourceParam = Array.isArray(resolvedSearchParams.source)
     ? resolvedSearchParams.source[0]
     : resolvedSearchParams.source;
-  const reasonParam = Array.isArray(resolvedSearchParams.reason)
-    ? resolvedSearchParams.reason[0]
-    : resolvedSearchParams.reason;
+  const reasonParam = Array.isArray(resolvedSearchParams.motivo)
+    ? resolvedSearchParams.motivo[0]
+    : resolvedSearchParams.motivo;
   const activeTopic = topics.find((topic) => topic.id === topicParam) ?? topics[0];
-  const relatedTreatments = getTreatmentsForTopic(activeTopic.id);
-  const relatedCases = getRelatedCasesForTopic(activeTopic.id);
-  const relatedTopics = activeTopic.relatedTopicIds
-    .map((topicId) => getLearningTopic(topicId))
+  const relatedTreatments = obterTratamentosParaTema(activeTopic.id);
+  const relatedCases = obterCasosRelacionadosComTema(activeTopic.id);
+  const relatedTopics = activeTopic.idsTopicoRelacionado
+    .map((topicId) => obterTema(topicId))
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   return (
@@ -97,7 +97,7 @@ export default async function LearningPage({
                     }
               }
             >
-              {topic.title}
+              {topic.titulo}
             </Link>
           ))}
         </div>
@@ -129,7 +129,7 @@ export default async function LearningPage({
                 letterSpacing: "var(--tracking-label)",
               }}
             >
-              {topicDifficultyLabel(activeTopic.pedagogicalDifficulty)}
+              {topicDifficultyLabel(activeTopic.dificuldade)}
             </span>
           </div>
           <h1
@@ -140,10 +140,10 @@ export default async function LearningPage({
               color: "var(--color-text-primary)",
             }}
           >
-            {activeTopic.title}
+            {activeTopic.titulo}
           </h1>
           <p className="text-body" style={{ marginTop: "var(--space-md)", maxWidth: "64rem" }}>
-            {capitalizeSentence(activeTopic.definition)}
+            {capitalizeSentence(activeTopic.definicao)}
           </p>
 
           {reasonParam ? (
@@ -167,7 +167,7 @@ export default async function LearningPage({
             </div>
           ) : null}
 
-          {activeTopic.keyConcepts && activeTopic.keyConcepts.length > 0 && (
+          {activeTopic.conceitosChave && activeTopic.conceitosChave.length > 0 && (
             <div
               style={{
                 marginTop: "var(--space-xl)",
@@ -176,7 +176,7 @@ export default async function LearningPage({
                 gap: "var(--space-sm)",
               }}
             >
-              {activeTopic.keyConcepts.map((concept) => (
+              {activeTopic.conceitosChave.map((concept) => (
                 <div
                   key={concept.id}
                   style={{
@@ -187,10 +187,10 @@ export default async function LearningPage({
                   }}
                 >
                   <p className="text-label" style={{ color: "var(--color-accent)" }}>
-                    {concept.title}
+                    {concept.titulo}
                   </p>
                   <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                    {concept.body}
+                    {concept.corpo}
                   </p>
                 </div>
               ))}
@@ -199,9 +199,9 @@ export default async function LearningPage({
         </div>
 
         {/* Tabelas clínicas */}
-        {activeTopic.tables && activeTopic.tables.length > 0 && (
+        {activeTopic.tabelas && activeTopic.tabelas.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)" }}>
-            {activeTopic.tables.map((table) => (
+            {activeTopic.tabelas.map((table) => (
               <div
                 key={table.id}
                 style={{
@@ -212,21 +212,21 @@ export default async function LearningPage({
                 }}
               >
                 <p className="text-label" style={{ color: "var(--color-warning)" }}>
-                  {table.title}
+                  {table.titulo}
                 </p>
-                {table.caption && (
+                {table.descricao && (
                   <p
                     className="text-body"
                     style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}
                   >
-                    {table.caption}
+                    {table.descricao}
                   </p>
                 )}
                 <div style={{ marginTop: "var(--space-md)", overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "var(--text-body)" }}>
                     <thead>
                       <tr>
-                        {table.headers.map((header) => (
+                        {table.cabecalhos.map((header) => (
                           <th
                             key={header}
                             style={{
@@ -246,9 +246,9 @@ export default async function LearningPage({
                       </tr>
                     </thead>
                     <tbody>
-                      {table.rows.map((row, rowIdx) => (
+                      {table.linhas.map((row, rowIdx) => (
                         <tr key={rowIdx}>
-                          {row.cells.map((cell, cellIdx) => (
+                          {row.celulas.map((cell, cellIdx) => (
                             <td
                               key={cellIdx}
                               style={{
@@ -273,13 +273,13 @@ export default async function LearningPage({
         )}
 
         {/* Alertas clínicos */}
-        {activeTopic.clinicalAlerts && activeTopic.clinicalAlerts.length > 0 && (
+        {activeTopic.alertas && activeTopic.alertas.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
-            {activeTopic.clinicalAlerts.map((alert) => {
+            {activeTopic.alertas.map((alert) => {
               const severityColor =
-                alert.severity === "critical"
+                alert.gravidade === "critico"
                   ? "var(--color-error)"
-                  : alert.severity === "warning"
+                  : alert.gravidade === "aviso"
                   ? "var(--color-warning)"
                   : "var(--color-info)";
               return (
@@ -294,10 +294,10 @@ export default async function LearningPage({
                   }}
                 >
                   <p className="text-label" style={{ color: severityColor }}>
-                    {alert.title}
+                    {alert.titulo}
                   </p>
                   <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                    {alert.body}
+                    {alert.corpo}
                   </p>
                 </div>
               );
@@ -317,7 +317,7 @@ export default async function LearningPage({
           >
             <p className="text-label" style={{ color: "var(--color-info)" }}>Quando considerar</p>
             <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-              {activeTopic.indications.map((item) => (
+              {activeTopic.indicacoes.map((item) => (
                 <div
                   key={item}
                   style={{
@@ -342,7 +342,7 @@ export default async function LearningPage({
           >
             <p className="text-label" style={{ color: "var(--color-error)" }}>Quando evitar</p>
             <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-              {activeTopic.contraindications.map((item) => (
+              {activeTopic.avisos_contraindicacao.map((item) => (
                 <div
                   key={item}
                   style={{
@@ -373,7 +373,7 @@ export default async function LearningPage({
           >
             <p className="text-label" style={{ color: "var(--color-warning)" }}>Sinais de alerta</p>
             <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-              {activeTopic.warningSigns.map((item) => (
+              {activeTopic.sinais_alerta.map((item) => (
                 <div
                   key={item}
                   style={{
@@ -392,7 +392,7 @@ export default async function LearningPage({
               Erros frequentes
             </p>
             <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
-              {activeTopic.commonMistakes.map((mistake) => (
+              {activeTopic.erros_comuns.map((mistake) => (
                 <div
                   key={mistake.id}
                   style={{
@@ -403,10 +403,10 @@ export default async function LearningPage({
                   }}
                 >
                   <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                    {capitalizeSentence(mistake.title)}
+                    {capitalizeSentence(mistake.titulo)}
                   </p>
                   <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                    {capitalizeSentence(mistake.explanation)}
+                    {capitalizeSentence(mistake.explicacao)}
                   </p>
                 </div>
               ))}
@@ -439,30 +439,30 @@ export default async function LearningPage({
                     {/* Linha 1: nome + tags */}
                     <div>
                       <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                        {treatment.label}
+                        {treatment.rotulo}
                       </p>
-                      {treatment.uiTags.length > 0 && (
+                      {treatment.etiquetas.length > 0 && (
                         <p className="text-caption" style={{ marginTop: "2px" }}>
-                          {treatment.uiTags.map(capitalizeSentence).join(" · ")}
+                          {treatment.etiquetas.map(capitalizeSentence).join(" · ")}
                         </p>
                       )}
                     </div>
                     {/* Linha 2: indicações + contraindicações */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                       <p className="text-body" style={{ fontSize: "var(--text-label)" }}>
-                        {treatment.indications.slice(0, 2).map(capitalizeSentence).join(". ")}.
+                        {treatment.indicacoes.slice(0, 2).map(capitalizeSentence).join(". ")}.
                       </p>
-                      {treatment.contraindications.length > 0 && (
+                      {treatment.avisos_contraindicacao.length > 0 && (
                         <p
                           className="text-body"
                           style={{ fontSize: "var(--text-label)", color: "var(--color-text-disabled)" }}
                         >
-                          Evitar: {treatment.contraindications.slice(0, 2).map(capitalizeSentence).join(", ")}.
+                          Evitar: {treatment.avisos_contraindicacao.slice(0, 2).map(capitalizeSentence).join(", ")}.
                         </p>
                       )}
                     </div>
                     {/* Links de evidência */}
-                    {treatment.evidenceRefs.length > 0 && (
+                    {treatment.refsEvidencia.length > 0 && (
                       <div
                         style={{
                           borderTop: "var(--border-default)",
@@ -472,8 +472,8 @@ export default async function LearningPage({
                           gap: "2px",
                         }}
                       >
-                        {treatment.evidenceRefs.map((evidenceId) => {
-                          const evidence = getEvidence(evidenceId);
+                        {treatment.refsEvidencia.map((evidenceId) => {
+                          const evidence = obterEvidencia(evidenceId);
                           if (!evidence) return null;
                           return (
                             <a
@@ -488,7 +488,7 @@ export default async function LearningPage({
                                 opacity: 0.7,
                               }}
                             >
-                              {evidence.title}
+                              {evidence.titulo}
                             </a>
                           );
                         })}
@@ -523,20 +523,20 @@ export default async function LearningPage({
                   >
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-xs)" }}>
                       <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                        {caseItem.shortTitle}
+                        {caseItem.tituloAbreviado}
                       </p>
-                      <span className={caseDifficultyBadgeClass(caseItem.difficulty)}>
-                        {caseDifficultyLabel(caseItem.difficulty)}
+                      <span className={caseDifficultyBadgeClass(caseItem.dificuldade)}>
+                        {caseDifficultyLabel(caseItem.dificuldade)}
                       </span>
                     </div>
                     <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                      {capitalizeSentence(caseItem.title)}
+                      {capitalizeSentence(caseItem.titulo)}
                     </p>
                     <p
                       className="text-label"
                       style={{ marginTop: "var(--space-sm)", color: "var(--color-warning)" }}
                     >
-                      Treina {activeTopic.title.toLowerCase()} neste contexto clínico.
+                      Treina {activeTopic.titulo.toLowerCase()} neste contexto clínico.
                     </p>
                   </Link>
                 ))}
@@ -564,10 +564,10 @@ export default async function LearningPage({
                     className="card card-clickable"
                   >
                     <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                      {topic.title}
+                      {topic.titulo}
                     </p>
                     <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                      Dificuldade {topicDifficultyLabel(topic.pedagogicalDifficulty).toLowerCase()}.
+                      Dificuldade {topicDifficultyLabel(topic.dificuldade).toLowerCase()}.
                     </p>
                   </Link>
                 ))}

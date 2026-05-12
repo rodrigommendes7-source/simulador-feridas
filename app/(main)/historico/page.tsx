@@ -1,25 +1,25 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { startTransition, useEffect, useMemo, useState } from "react";
 import {
-  clearAttemptHistory,
-  type AttemptRecord,
-  getAverageScore,
-  getBestScore,
-  getCaseRetryPriority,
-  getMostRecommendedTopics,
-  getStudyPlan,
-  getTopicMastery,
-  getWeakestSections,
-  loadAttemptHistory,
-} from "@/lib/clinical";
+  limparHistoricoTentativas,
+  type RegistoTentativa,
+  obterPontuacaoMedia,
+  obterMelhorPontuacao,
+  obterPrioridadeRepeticaoCaso,
+  obterTopicosRecomendados,
+  obterPlanoEstudo,
+  obterMestriaTema,
+  obterSeccoesMaisFracas,
+  carregarHistoricoTentativas,
+} from "@/lib/clinico/indice";
 
 const SECTION_LABELS: Record<string, string> = {
   observation: "Observação",
   assessment: "Avaliação e diálogo",
-  "treatment-plan": "Plano terapêutico",
-  "application-technique": "Técnica de aplicação",
+  "plano-terapeutico": "Plano terapêutico",
+  "tecnica-aplicacao": "Técnica de aplicação",
 };
 
 function formatDate(value: string) {
@@ -31,29 +31,29 @@ function metricValue(value: number) {
 }
 
 export default function HistoryPage() {
-  const [history, setHistory] = useState<AttemptRecord[]>([]);
+  const [historico, setHistory] = useState<RegistoTentativa[]>([]);
 
 
   useEffect(() => {
     startTransition(() => {
-      setHistory(loadAttemptHistory());
+      setHistory(carregarHistoricoTentativas());
     });
   }, []);
 
-  const averageScore = useMemo(() => getAverageScore(history), [history]);
-  const bestScore = useMemo(() => getBestScore(history), [history]);
-  const weakestSections = useMemo(() => getWeakestSections(history), [history]);
-  const recommendedTopics = useMemo(() => getMostRecommendedTopics(history), [history]);
-  const retryPriority = useMemo(() => getCaseRetryPriority(history), [history]);
-  const topicMastery = useMemo(() => getTopicMastery(history), [history]);
-  const studyPlan = useMemo(() => getStudyPlan(history), [history]);
+  const averageScore = useMemo(() => obterPontuacaoMedia(historico), [historico]);
+  const bestScore = useMemo(() => obterMelhorPontuacao(historico), [historico]);
+  const weakestSections = useMemo(() => obterSeccoesMaisFracas(historico), [historico]);
+  const recommendedTopics = useMemo(() => obterTopicosRecomendados(historico), [historico]);
+  const retryPriority = useMemo(() => obterPrioridadeRepeticaoCaso(historico), [historico]);
+  const topicMastery = useMemo(() => obterMestriaTema(historico), [historico]);
+  const studyPlan = useMemo(() => obterPlanoEstudo(historico), [historico]);
 
   function handleClear() {
-    clearAttemptHistory();
+    limparHistoricoTentativas();
     setHistory([]);
   }
 
-  const hasHistory = history.length > 0;
+  const hasHistory = historico.length > 0;
 
   return (
     <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)", height: "100%" }}>
@@ -101,7 +101,7 @@ export default function HistoryPage() {
           {/* ── 4 Métricas ──────────────────────────────────────────────────── */}
           <section className="grid md:grid-cols-2 xl:grid-cols-4" style={{ gap: "var(--space-md)" }}>
             {([
-              ["Tentativas", history.length],
+              ["Tentativas", historico.length],
               ["Melhor pontuação", bestScore],
               ["Média global", averageScore],
               ["Casos com dados", retryPriority.length],
@@ -128,16 +128,16 @@ export default function HistoryPage() {
             <div className="card">
               <p className="text-label" style={{ color: "var(--color-warning)" }}>Repetir a seguir</p>
               <p style={{ marginTop: "var(--space-sm)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                {studyPlan.retryCase?.title ?? "Ainda sem prioridade definida"}
+                {studyPlan.casoARepetir?.titulo ?? "Ainda sem prioridade definida"}
               </p>
               <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                {studyPlan.retryCase
-                  ? `Média atual: ${studyPlan.retryCase.average}/100 em ${studyPlan.retryCase.attempts} ${studyPlan.retryCase.attempts === 1 ? "tentativa" : "tentativas"}.`
+                {studyPlan.casoARepetir
+                  ? `Média atual: ${studyPlan.casoARepetir.media}/100 em ${studyPlan.casoARepetir.tentativas} ${studyPlan.casoARepetir.tentativas === 1 ? "tentativa" : "tentativas"}.`
                   : "Conclui alguns casos para gerar uma prioridade de repetição."}
               </p>
-              {studyPlan.retryCase ? (
+              {studyPlan.casoARepetir ? (
                 <Link
-                  href={`/casos/${studyPlan.retryCase.templateId}`}
+                  href={`/casos/${studyPlan.casoARepetir.idModelo}`}
                   style={{ display: "inline-flex", marginTop: "var(--space-md)", color: "var(--color-info)", textDecoration: "underline", fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}
                 >
                   Reabrir caso
@@ -148,16 +148,16 @@ export default function HistoryPage() {
             <div className="card">
               <p className="text-label" style={{ color: "var(--color-info)" }}>Rever tema</p>
               <p style={{ marginTop: "var(--space-sm)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                {studyPlan.reviewTopic?.title ?? "Tema ainda por identificar"}
+                {studyPlan.temaARever?.titulo ?? "Tema ainda por identificar"}
               </p>
               <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                {studyPlan.reviewTopic
-                  ? `Domínio atual: ${studyPlan.reviewTopic.masteryScore}/100.`
+                {studyPlan.temaARever
+                  ? `Domínio atual: ${studyPlan.temaARever.pontuacaoMestria}/100.`
                   : "O tema prioritário aparece depois das primeiras tentativas."}
               </p>
-              {studyPlan.reviewTopic ? (
+              {studyPlan.temaARever ? (
                 <Link
-                  href={`/aprender?topic=${studyPlan.reviewTopic.topicId}&source=history`}
+                  href={`/aprender?topic=${studyPlan.temaARever.idTema}&source=historico`}
                   style={{ display: "inline-flex", marginTop: "var(--space-md)", color: "var(--color-info)", textDecoration: "underline", fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}
                 >
                   Abrir tema
@@ -168,14 +168,14 @@ export default function HistoryPage() {
             <div className="card">
               <p className="text-label" style={{ color: "var(--color-success)" }}>Tentar depois</p>
               <p style={{ marginTop: "var(--space-sm)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                {studyPlan.followUpCase?.title ?? "Sem sugestão ainda"}
+                {studyPlan.casoSeguimento?.titulo ?? "Sem sugestão ainda"}
               </p>
               <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                {studyPlan.followUpCase?.reason ?? "A próxima tentativa recomendada vai aparecer aqui."}
+                {studyPlan.casoSeguimento?.motivo ?? "A próxima tentativa recomendada vai aparecer aqui."}
               </p>
-              {studyPlan.followUpCase ? (
+              {studyPlan.casoSeguimento ? (
                 <Link
-                  href={`/casos/${studyPlan.followUpCase.templateId}`}
+                  href={`/casos/${studyPlan.casoSeguimento.idModelo}`}
                   style={{ display: "inline-flex", marginTop: "var(--space-md)", color: "var(--color-info)", textDecoration: "underline", fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}
                 >
                   Abrir caso sugerido
@@ -192,7 +192,7 @@ export default function HistoryPage() {
                 {retryPriority.length > 0 ? (
                   retryPriority.map((item) => (
                     <div
-                      key={item.templateId}
+                      key={item.idModelo}
                       style={{
                         background: "var(--color-elevated)",
                         border: "var(--border-default)",
@@ -201,18 +201,18 @@ export default function HistoryPage() {
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-md)" }}>
-                        <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{item.title}</p>
+                        <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{item.titulo}</p>
                         <span
                           style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-mono)", color: "var(--color-text-secondary)" }}
                         >
-                          {item.average}/100
+                          {item.media}/100
                         </span>
                       </div>
                       <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                        {item.attempts} {item.attempts === 1 ? "tentativa registada" : "tentativas registadas"}
+                        {item.tentativas} {item.tentativas === 1 ? "tentativa registada" : "tentativas registadas"}
                       </p>
                       <Link
-                        href={`/casos/${item.templateId}`}
+                        href={`/casos/${item.idModelo}`}
                         style={{ display: "inline-flex", marginTop: "var(--space-sm)", color: "var(--color-info)", textDecoration: "underline", fontSize: "var(--text-body)", fontWeight: "var(--weight-medium)" }}
                       >
                         Reabrir caso
@@ -232,7 +232,7 @@ export default function HistoryPage() {
                   {weakestSections.length > 0 ? (
                     weakestSections.map((section) => (
                       <div
-                        key={section.sectionId}
+                        key={section.idSeccao}
                         style={{
                           background: "var(--color-elevated)",
                           border: "var(--border-default)",
@@ -241,7 +241,7 @@ export default function HistoryPage() {
                         }}
                       >
                         <p className="text-body">
-                          {SECTION_LABELS[section.sectionId] ?? section.sectionId}: {section.average}
+                          {SECTION_LABELS[section.idSeccao] ?? section.idSeccao}: {section.media}
                         </p>
                       </div>
                     ))
@@ -257,8 +257,8 @@ export default function HistoryPage() {
                   {recommendedTopics.length > 0 ? (
                     recommendedTopics.map((topic) => (
                       <Link
-                        key={topic.topicId}
-                        href={`/aprender?topic=${topic.topicId}&source=history`}
+                        key={topic.idTema}
+                        href={`/aprender?topic=${topic.idTema}&source=historico`}
                         style={{
                           display: "block",
                           background: "var(--color-elevated)",
@@ -270,7 +270,7 @@ export default function HistoryPage() {
                           fontSize: "var(--text-body)",
                         }}
                       >
-                        {topic.title} · {topic.count === 1 ? "1 vez" : `${topic.count} vezes`}
+                        {topic.titulo} · {topic.count === 1 ? "1 vez" : `${topic.count} vezes`}
                       </Link>
                     ))
                   ) : (
@@ -290,20 +290,20 @@ export default function HistoryPage() {
             >
               {topicMastery.map((topic) => (
                 <Link
-                  key={topic.topicId}
-                  href={`/aprender?topic=${topic.topicId}&source=mastery`}
+                  key={topic.idTema}
+                  href={`/aprender?topic=${topic.idTema}&source=mastery`}
                   className="card card-clickable"
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-md)" }}>
-                    <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{topic.title}</p>
+                    <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{topic.titulo}</p>
                     <span
                       style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-mono)", color: "var(--color-accent)" }}
                     >
-                      {topic.masteryScore}/100
+                      {topic.pontuacaoMestria}/100
                     </span>
                   </div>
                   <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                    {topic.recommendationCount} recomendação(ões) · {topic.weakSignalCount} sinal(is) de fragilidade.
+                    {topic.contadorRecomendacoes} recomendação(ões) · {topic.contadorSinalFraco} sinal(is) de fragilidade.
                   </p>
                 </Link>
               ))}
@@ -314,7 +314,7 @@ export default function HistoryPage() {
           <section className="card">
             <p className="text-label" style={{ color: "var(--color-info)" }}>Tentativas registadas</p>
             <div style={{ marginTop: "var(--space-md)", display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
-              {history.map((entry) => (
+              {historico.map((entry) => (
                 <div
                   key={entry.id}
                   style={{
@@ -326,23 +326,23 @@ export default function HistoryPage() {
                 >
                   <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "var(--space-md)" }}>
                     <div>
-                      <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{entry.caseTitle}</p>
+                      <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>{entry.tituloCaso}</p>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <p
                         style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-h2)", fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
                       >
-                        {entry.score}/100
+                        {entry.pontuacao}/100
                       </p>
-                      <p className="text-caption" style={{ marginTop: "2px" }}>{formatDate(entry.timestamp)}</p>
+                      <p className="text-caption" style={{ marginTop: "2px" }}>{formatDate(entry.data)}</p>
                     </div>
                   </div>
-                  {entry.previousBestScoreForCase !== null ? (
+                  {entry.melhorPontuacaoAnteriorCaso !== null ? (
                     <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>
-                      Melhor registo anterior neste caso: {entry.previousBestScoreForCase}/100.
+                      Melhor registo anterior neste caso: {entry.melhorPontuacaoAnteriorCaso}/100.
                     </p>
                   ) : null}
-                  <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>{entry.summary}</p>
+                  <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>{entry.resumo}</p>
                 </div>
               ))}
             </div>

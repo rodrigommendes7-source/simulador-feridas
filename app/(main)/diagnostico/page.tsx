@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
-import { validateClinicalDomain } from "@/lib/clinical";
+﻿import { redirect } from "next/navigation";
+import { validateClinicalDomain } from "@/lib/clinico/indice";
 
 export default function DiagnosticoPage() {
   redirect("/");

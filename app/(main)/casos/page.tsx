@@ -1,16 +1,16 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { startTransition, useEffect, useMemo, useState } from "react";
 import {
-  type AttemptRecord,
-  getCaseProgress,
-  getContinueLearningTarget,
-  getRandomCase,
-  getRecommendedNextCases,
-  listCaseTemplates,
-  loadAttemptHistory,
-} from "@/lib/clinical";
+  type RegistoTentativa,
+  obterProgressoCaso,
+  obterAlvoContinuarAprendizagem,
+  obterCasoAleatorio,
+  obterCasosRecomendadosSeguintes,
+  listarModelosCaso,
+  carregarHistoricoTentativas,
+} from "@/lib/clinico/indice";
 
 const CASE_INTRO_PHRASES: Record<string, string> = {
   "1": "Começa aqui — caso introdutório com foco em observação e proteção.",
@@ -60,26 +60,26 @@ function difficultyBadgeClass(value: string) {
 }
 
 export default function CasesPage() {
-  const cases = listCaseTemplates().filter((item) => item.status === "disponivel");
-  const [history, setHistory] = useState<AttemptRecord[]>([]);
+  const cases = listarModelosCaso().filter((item) => item.status === "disponivel");
+  const [historico, setHistory] = useState<RegistoTentativa[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
   useEffect(() => {
     startTransition(() => {
-      setHistory(loadAttemptHistory());
+      setHistory(carregarHistoricoTentativas());
       setHistoryLoaded(true);
     });
   }, []);
 
   // Mostra o badge "Recomendado" apenas num único caso (o próximo mais adequado)
   const singleRecommendedId = useMemo(
-    () => history.length === 0 ? "1" : (getRecommendedNextCases(history)[0]?.templateId ?? null),
-    [history]
+    () => historico.length === 0 ? "1" : (obterCasosRecomendadosSeguintes(historico)[0]?.idModelo ?? null),
+    [historico]
   );
 
-  const continueTarget = useMemo(() => getContinueLearningTarget(history), [history]);
-  const [randomCase, setRandomCase] = useState<ReturnType<typeof getRandomCase> | null>(null);
-  useEffect(() => { setRandomCase(getRandomCase()); }, []);
+  const continueTarget = useMemo(() => obterAlvoContinuarAprendizagem(historico), [historico]);
+  const [randomCase, setRandomCase] = useState<ReturnType<typeof obterCasoAleatorio> | null>(null);
+  useEffect(() => { setRandomCase(obterCasoAleatorio()); }, []);
 
   return (
     <main style={{ display: "flex", flexDirection: "column", gap: "var(--space-2xl)", height: "100%" }}>
@@ -110,7 +110,7 @@ export default function CasesPage() {
       {/* ── Ações rápidas ─────────────────────────────────────────────────── */}
       <section style={{ display: "flex", gap: "var(--space-md)", flexWrap: "wrap", flexShrink: 0 }}>
         <Link
-          href={continueTarget ? `/casos/${continueTarget.nextCaseId}` : "/casos/1"}
+          href={continueTarget ? `/casos/${continueTarget.idProximoCaso}` : "/casos/1"}
           className={continueTarget ? "btn btn-primary btn-lg" : "btn btn-secondary btn-lg"}
         >
           {continueTarget ? "Continuar a aprender" : "Iniciar primeiro caso"}
@@ -126,7 +126,7 @@ export default function CasesPage() {
       {/* ── Grelha de casos ───────────────────────────────────────────────── */}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
         {cases.map((item) => {
-          const progress = getCaseProgress(history, item.id);
+          const progress = obterProgressoCaso(historico, item.id);
           const recommended = singleRecommendedId === item.id;
 
           return (
@@ -138,14 +138,14 @@ export default function CasesPage() {
             >
               {/* Topo: shortTitle + duração */}
               <div className="flex items-center justify-between" style={{ gap: "var(--space-sm)" }}>
-                <span className="badge badge-info">{item.shortTitle}</span>
-                <span className="text-caption">{item.estimatedMinutes} min</span>
+                <span className="badge badge-info">{item.tituloAbreviado}</span>
+                <span className="text-caption">{item.minutosEstimados} min</span>
               </div>
 
               {/* Etiquetas de dificuldade e recomendação */}
               <div className="flex flex-wrap" style={{ gap: "var(--space-xs)" }}>
-                <span className={difficultyBadgeClass(item.difficulty)}>
-                  {difficultyLabel(item.difficulty)}
+                <span className={difficultyBadgeClass(item.dificuldade)}>
+                  {difficultyLabel(item.dificuldade)}
                 </span>
                 {recommended && (
                   <span className="badge badge-inter">Recomendado</span>
@@ -158,9 +158,9 @@ export default function CasesPage() {
                   className="text-2xl"
                   style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}
                 >
-                  {item.title}
+                  {item.titulo}
                 </h2>
-                <p className="text-body mt-2">{item.description}</p>
+                <p className="text-body mt-2">{item.descricao}</p>
               </div>
 
               {/* Competências */}
@@ -175,7 +175,7 @@ export default function CasesPage() {
                 <p className="text-label" style={{ marginBottom: "var(--space-xs)" }}>
                   Competências
                 </p>
-                <p className="text-body">{item.competencies}</p>
+                <p className="text-body">{item.competencias}</p>
               </div>
 
               {/* Progresso */}
@@ -193,7 +193,7 @@ export default function CasesPage() {
                     <div className="skeleton" style={{ height: "14px", width: "70%" }} />
                     <div className="skeleton" style={{ height: "12px", width: "50%" }} />
                   </div>
-                ) : progress.hasCompleted ? (
+                ) : progress.concluido ? (
                   <>
                     <p
                       style={{
@@ -203,10 +203,10 @@ export default function CasesPage() {
                         color: "var(--color-accent)",
                       }}
                     >
-                      Melhor {progress.bestScore}/100 · Média {progress.averageScore}/100
+                      Melhor {progress.melhorPontuacao}/100 · Média {progress.pontuacaoMedia}/100
                     </p>
                     <p className="text-body mt-2">
-                      {progress.attempts} {progress.attempts === 1 ? "tentativa registada" : "tentativas registadas"}.
+                      {progress.tentativas} {progress.tentativas === 1 ? "tentativa registada" : "tentativas registadas"}.
                     </p>
                   </>
                 ) : (

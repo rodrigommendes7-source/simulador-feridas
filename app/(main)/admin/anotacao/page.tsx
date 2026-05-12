@@ -1,15 +1,15 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useRef, useState } from "react";
-import { caseTemplates } from "@/data/clinical/casos";
-import { annotatableTissueDisplay } from "@/lib/clinical/wound-display";
+import { caseTemplates } from "@/data/clinico/casos";
+import { annotatableTissueDisplay } from "@/lib/clinico/display-ferida";
 import type {
-  AnnotatableTissueType,
-  RelativeRect,
-  TissueZone,
-} from "@/lib/clinical/types";
+  TipoTecidoAnotavel,
+  RetanguloRelativo,
+  ZonaTecido,
+} from "@/lib/clinico/types";
 
-const ALL_TYPES: AnnotatableTissueType[] = [
+const TIPOS_TECIDO: TipoTecidoAnotavel[] = [
   "necrose",
   "fibrina",
   "granulacao",
@@ -21,9 +21,9 @@ export default function AdminAnotacaoPage() {
   const [selectedCaseId, setSelectedCaseId] = useState(
     caseTemplates[0]?.id ?? ""
   );
-  const [activeType, setActiveType] = useState<AnnotatableTissueType>("fibrina");
-  const [zones, setZones] = useState<TissueZone[]>([]);
-  const [drawing, setDrawing] = useState<RelativeRect | null>(null);
+  const [activeType, setActiveType] = useState<TipoTecidoAnotavel>("fibrina");
+  const [zones, setZones] = useState<ZonaTecido[]>([]);
+  const [drawing, setDrawing] = useState<RetanguloRelativo | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
 
@@ -68,7 +68,7 @@ export default function AdminAnotacaoPage() {
       dragStart.current = null;
       return;
     }
-    setZones((prev) => [...prev, { tissueType: activeType, rect: drawing! }]);
+    setZones((prev) => [...prev, { tipoTecido: activeType, retangulo: drawing! }]);
     setDrawing(null);
     dragStart.current = null;
   }
@@ -79,7 +79,7 @@ export default function AdminAnotacaoPage() {
 
   function loadFromTemplate() {
     if (!current) return;
-    setZones(current.tissueZones ?? []);
+    setZones(current.zonasTecido ?? []);
   }
 
   function copyJson() {
@@ -112,7 +112,7 @@ export default function AdminAnotacaoPage() {
           style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}
         >
           Arrastar para desenhar uma zona → mudar tipo → desenhar próxima zona → copiar JSON →
-          colar no campo <code>tissueZones</code> do caso em{" "}
+              colar no campo <code>zonasTecido</code> do caso em{" "}
           <code>data/clinical/casos.ts</code>.
         </p>
       </div>
@@ -150,7 +150,7 @@ export default function AdminAnotacaoPage() {
         >
           {caseTemplates.map((t) => (
             <option key={t.id} value={t.id}>
-              Caso {t.sequence} · {t.shortTitle} — {t.scenarioTitle}
+              Caso {t.ordem} · {t.tituloAbreviado} — {t.tituloCenario}
             </option>
           ))}
         </select>
@@ -172,7 +172,7 @@ export default function AdminAnotacaoPage() {
           marginBottom: "var(--space-lg)",
         }}
       >
-        {ALL_TYPES.map((type) => {
+        {TIPOS_TECIDO.map((type) => {
           const display = annotatableTissueDisplay[type];
           const isActive = activeType === type;
           return (
@@ -192,7 +192,7 @@ export default function AdminAnotacaoPage() {
                 fontSize: "var(--text-body)",
               }}
             >
-              {display.label}
+              {display.rotulo}
             </button>
           );
         })}
@@ -219,14 +219,14 @@ export default function AdminAnotacaoPage() {
         }}
       >
         <img
-          src={current.imageSrc}
+          src={current.srcImagem}
           alt="Ferida"
           style={{ width: "100%", display: "block" }}
           draggable={false}
         />
 
         {zones.map((zone, i) => {
-          const display = annotatableTissueDisplay[zone.tissueType];
+          const display = annotatableTissueDisplay[zone.tipoTecido];
           return (
             <div
               key={i}
@@ -234,13 +234,13 @@ export default function AdminAnotacaoPage() {
                 e.stopPropagation();
                 removeZone(i);
               }}
-              title={`${display.label} — clicar para remover`}
+              title={`${display.rotulo} — clicar para remover`}
               style={{
                 position: "absolute",
-                left: `${zone.rect.x * 100}%`,
-                top: `${zone.rect.y * 100}%`,
-                width: `${zone.rect.w * 100}%`,
-                height: `${zone.rect.h * 100}%`,
+                left: `${zone.retangulo.x * 100}%`,
+                top: `${zone.retangulo.y * 100}%`,
+                width: `${zone.retangulo.w * 100}%`,
+                height: `${zone.retangulo.h * 100}%`,
                 border: `2px solid ${display.color}`,
                 background: `${display.color}44`,
                 cursor: "pointer",

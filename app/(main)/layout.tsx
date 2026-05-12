@@ -1,5 +1,5 @@
 ﻿import Link from "next/link";
-import { MainNav } from "@/components/main-nav";
+import { MainNav } from "@/componentes/main-nav";
 
 export default function MainLayout({
   children,

@@ -18,13 +18,13 @@ import {
   VISUAL_EXUDATE_OPTIONS,
   VISUAL_EDGE_OPTIONS,
 } from "@/data/clinico/visualOptions";
-import { PainelDialogoCaso } from "@/componentes/reprodutor-caso/painel-dialogo-caso";
-import { IntroducaoCaso } from "@/componentes/reprodutor-caso/introducao-caso";
-import { PainelJustificacaoCaso } from "@/componentes/reprodutor-caso/painel-justificacao-caso";
-import { PainelObservacaoCaso } from "@/componentes/reprodutor-caso/painel-observacao-caso";
-import { ResumoResultadoCaso } from "@/componentes/reprodutor-caso/resumo-resultado-caso";
-import { PlaneadorTratamentoCaso } from "@/componentes/reprodutor-caso/planeador-tratamento-caso";
-import { IdentificacaoVisualCaso } from "@/componentes/reprodutor-caso/identificacao-visual-caso";
+import { PainelDialogoCaso } from "@/componentes/ReprodutorCaso/painel-dialogo-caso";
+import { IntroducaoCaso } from "@/componentes/ReprodutorCaso/introducao-caso";
+import { PainelJustificacaoCaso } from "@/componentes/ReprodutorCaso/painel-justificacao-caso";
+import { PainelObservacaoCaso } from "@/componentes/ReprodutorCaso/painel-observacao-caso";
+import { ResumoResultadoCaso } from "@/componentes/ReprodutorCaso/resumo-resultado-caso";
+import { PlaneadorTratamentoCaso } from "@/componentes/ReprodutorCaso/planeador-tratamento-caso";
+import { IdentificacaoVisualCaso } from "@/componentes/ReprodutorCaso/identificacao-visual-caso";
 import { gerarTodasPerguntasJustificacao } from "@/lib/clinico/motor-justificacao";
 import type { RespostaJustificacao, MarcadorTecido, SubmissaoIdentificacaoVisual } from "@/lib/clinico/types";
 

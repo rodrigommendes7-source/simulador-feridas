@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { InfoBanner } from "@/components/InfoBanner";
+import { InfoBanner } from "@/componentes/InfoBanner";
 
 const PRIVACY_BANNER_KEY = "privacy-banner-dismissed";
 

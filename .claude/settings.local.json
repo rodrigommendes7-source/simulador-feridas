@@ -24,7 +24,7 @@
       "Bash(python3)",
       "Bash(/c/Python314/python)",
       "Bash(awk -F'\"' '{print $2}')",
-      "Bash(grep -n \"infection\\\\|infection:\\\\|infeccao\" /c/Users/rodri/simulador-feridas/components/case-player/*.tsx)",
+      "Bash(grep -n \"infection\\\\|infection:\\\\|infeccao\" /c/Users/rodri/simulador-feridas/componentes/reprodutor-caso/*.tsx)",
       "Bash(npx eslint *)",
       "Bash(rd /s /q .next)",
       "Bash(rd /s /q \"c:\\\\Users\\\\rodri\\\\simulador-feridas\\\\.next\")",

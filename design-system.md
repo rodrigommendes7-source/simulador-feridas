@@ -251,7 +251,7 @@ border-left: var(--border-accent-strong); /* Acento lateral (card ativo) */
   /styles
     design-tokens.css   ← importa sempre primeiro
     globals.css         ← reset + body + tipografia base
-    components/
+    componentes/
       buttons.css
       cards.css
       badges.css
@@ -259,7 +259,7 @@ border-left: var(--border-accent-strong); /* Acento lateral (card ativo) */
       nav.css
       progress.css
       inputs.css
-  /components
+  /componentes
     ...
 ```
 

@@ -1,5 +1,5 @@
 ﻿import { notFound } from "next/navigation";
-import { CasePlayer } from "@/components/case-player";
+import { SimuladorCaso } from "@/componentes/reprodutor-caso";
 import { obterModeloCaso, obterIdsCasosPublicados } from "@/lib/clinico/indice";
 
 export function generateStaticParams() {
@@ -18,5 +18,5 @@ export default async function CasePage({
     notFound();
   }
 
-  return <CasePlayer idModelo={caseId} />;
+  return <SimuladorCaso idModelo={caseId} />;
 }

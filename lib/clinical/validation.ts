@@ -2,7 +2,7 @@ import { caseTemplates } from "../../data/clinical/casos.ts";
 import { evidenceReferences } from "../../data/clinical/evidencia.ts";
 import { learningTopics } from "../../data/clinical/topicos-aprendizagem.ts";
 import { treatmentCatalog } from "../../data/clinical/tratamentos.ts";
-import { evaluateCaseAttempt, getIdealAttempt } from "./evaluation.ts";
+import { avaliarTentativaCaso, obterTentativaIdeal } from "./evaluation.ts";
 
 export type ValidationIssue = {
   level: "error" | "warning";
@@ -10,18 +10,18 @@ export type ValidationIssue = {
   message: string;
 };
 
-function normalizeTopicId(topicId: string) {
-  return topicId === "materiais-desadequados" ? "decisao-clinica" : topicId;
+function normalizarIdTema(idTema: string) {
+  return idTema === "materiais-desadequados" ? "decisao-clinica" : idTema;
 }
 
-export function validateClinicalDomain() {
+export function validarDominioClinico() {
   const issues: ValidationIssue[] = [];
   const treatmentIds = new Set(treatmentCatalog.map((item) => item.id));
   const evidenceIds = new Set(evidenceReferences.map((item) => item.id));
   const topicIds = new Set(learningTopics.map((item) => item.id));
 
   for (const treatment of treatmentCatalog) {
-    for (const evidenceId of treatment.evidenceRefs) {
+    for (const evidenceId of treatment.refsEvidencia) {
       if (!evidenceIds.has(evidenceId)) {
         issues.push({
           level: "error",
@@ -32,7 +32,7 @@ export function validateClinicalDomain() {
     }
 
     for (const topicId of treatment.learningTopicIds) {
-      const normalizedTopicId = normalizeTopicId(topicId);
+      const normalizedTopicId = normalizarIdTema(topicId);
       if (!topicIds.has(normalizedTopicId)) {
         issues.push({
           level: "error",
@@ -44,7 +44,7 @@ export function validateClinicalDomain() {
   }
 
   for (const topic of learningTopics) {
-    for (const evidenceId of topic.evidenceIds) {
+    for (const evidenceId of topic.idsEvidencia) {
       if (!evidenceIds.has(evidenceId)) {
         issues.push({
           level: "error",
@@ -54,7 +54,7 @@ export function validateClinicalDomain() {
       }
     }
 
-    for (const treatmentId of topic.treatmentIds) {
+    for (const treatmentId of topic.idsTratamento) {
       if (!treatmentIds.has(treatmentId)) {
         issues.push({
           level: "error",
@@ -68,10 +68,10 @@ export function validateClinicalDomain() {
   for (const template of caseTemplates) {
     const scope = `case:${template.id}`;
     const applicationDefinitionIds = new Set(
-      template.applicationDefinitions.map((item) => item.id)
+      template.definicoesAplicacao.map((item) => item.id)
     );
 
-    for (const treatmentId of template.availableTreatments) {
+    for (const treatmentId of template.tratamentosDisponiveis) {
       if (!treatmentIds.has(treatmentId)) {
         issues.push({
           level: "error",
@@ -81,22 +81,22 @@ export function validateClinicalDomain() {
       }
     }
 
-    // applicationOptions têm de ter definição correspondente em applicationDefinitions
-    for (const applicationId of template.applicationOptions) {
+    // opcoesAplicacao têm de ter definição correspondente em definicoesAplicacao
+    for (const applicationId of template.opcoesAplicacao) {
       if (!applicationDefinitionIds.has(applicationId)) {
         issues.push({
           level: "error",
           scope,
-          message: `applicationOptions refere técnica sem definição no template: "${applicationId}".`,
+          message: `opcoesAplicacao refere técnica sem definição no modelo: "${applicationId}".`,
         });
       }
     }
 
-    const templateApplicationOptions = new Set(template.applicationOptions);
+    const templateApplicationOptions = new Set(template.opcoesAplicacao);
 
-    for (const goal of template.clinicalTargets) {
-      for (const topicId of goal.learningTopicIds) {
-        const normalizedTopicId = normalizeTopicId(topicId);
+    for (const goal of template.objetivosClinicosAlvo) {
+      for (const topicId of goal.idsTemas) {
+        const normalizedTopicId = normalizarIdTema(topicId);
         if (!topicIds.has(normalizedTopicId)) {
           issues.push({
             level: "error",
@@ -106,8 +106,8 @@ export function validateClinicalDomain() {
         }
       }
 
-      for (const treatmentId of goal.matcher.treatmentIds ?? []) {
-        if (!template.availableTreatments.includes(treatmentId)) {
+      for (const treatmentId of goal.correspondencia.idsTratamento ?? []) {
+        if (!template.tratamentosDisponiveis.includes(treatmentId)) {
           issues.push({
             level: "error",
             scope,
@@ -116,8 +116,8 @@ export function validateClinicalDomain() {
         }
       }
 
-      // matcher.applicationIds têm de estar em applicationOptions do template
-      for (const applicationId of goal.matcher.applicationIds ?? []) {
+      // correspondencia.idsAplicacao têm de estar em opcoesAplicacao do modelo
+      for (const applicationId of goal.correspondencia.idsAplicacao ?? []) {
         if (!templateApplicationOptions.has(applicationId)) {
           issues.push({
             level: "error",
@@ -128,9 +128,9 @@ export function validateClinicalDomain() {
       }
     }
 
-    for (const rule of template.evaluationRules) {
-      for (const ruleId of rule.appliesToIds) {
-        if (rule.target === "treatment" && !template.availableTreatments.includes(ruleId)) {
+    for (const rule of template.regrasAvaliacao) {
+      for (const ruleId of rule.aplicavelAIds) {
+        if (rule.alvo === "treatment" && !template.tratamentosDisponiveis.includes(ruleId)) {
           issues.push({
             level: "error",
             scope,
@@ -138,8 +138,8 @@ export function validateClinicalDomain() {
           });
         }
 
-        // target === "application" tem de existir em applicationOptions do template
-        if (rule.target === "application" && !templateApplicationOptions.has(ruleId as never)) {
+        // alvo === "application" tem de existir em opcoesAplicacao do modelo
+        if (rule.alvo === "application" && !templateApplicationOptions.has(ruleId as never)) {
           issues.push({
             level: "error",
             scope,
@@ -148,8 +148,8 @@ export function validateClinicalDomain() {
         }
       }
 
-      for (const topicId of rule.learningTopicIds) {
-        const normalizedTopicId = normalizeTopicId(topicId);
+      for (const topicId of rule.idsTemas) {
+        const normalizedTopicId = normalizarIdTema(topicId);
         if (!topicIds.has(normalizedTopicId)) {
           issues.push({
             level: "error",
@@ -162,19 +162,19 @@ export function validateClinicalDomain() {
 
     // Simulação 100/100: o caso tem de ser perfeitamente solucionável
     try {
-      const idealAttempt = getIdealAttempt(template);
-      const evaluation = evaluateCaseAttempt(template, idealAttempt);
+      const idealAttempt = obterTentativaIdeal(template);
+      const evaluation = avaliarTentativaCaso(template, idealAttempt);
 
-      if (evaluation.score !== 100) {
-        const sectionDetail = evaluation.sections
-          .filter((section) => section.score < section.maxScore)
-          .map((section) => `${section.id}=${section.score}/${section.maxScore}`)
+      if (evaluation.pontuacao !== 100) {
+        const sectionDetail = evaluation.seccoes
+          .filter((seccao) => seccao.pontuacao < seccao.pontuacaoMaxima)
+          .map((seccao) => `${seccao.id}=${seccao.pontuacao}/${seccao.pontuacaoMaxima}`)
           .join(", ");
 
         issues.push({
           level: "error",
           scope,
-          message: `Caso não atinge 100/100 com tentativa ideal (score=${evaluation.score}; secções abaixo do máximo: ${sectionDetail || "nenhuma"}).`,
+          message: `Caso não atinge 100/100 com tentativa ideal (score=${evaluation.pontuacao}; secções abaixo do máximo: ${sectionDetail || "nenhuma"}).`,
         });
       }
     } catch (error) {
@@ -192,3 +192,7 @@ export function validateClinicalDomain() {
     issues,
   };
 }
+
+// ─── Re-exports com nomes antigos para compatibilidade ───────────────────────
+/** @deprecated Use validarDominioClinico */
+export const validateClinicalDomain = validarDominioClinico;

@@ -1,22 +1,22 @@
 import {
-  getCaseTemplate,
-  getCaseTitle,
-  getLearningTopic,
-  getTemplateLearningTopicIds,
-  listCaseTemplates,
+  obterModeloCaso,
+  obterTituloCaso,
+  obterTema,
+  obterIdsTemasCaso,
+  listarModelosCaso,
 } from "./catalog.ts";
 import type {
-  AttemptInput,
-  AttemptRecord,
-  CaseEvaluation,
-  CaseProgress,
-  RecommendedCase,
-  TopicMastery,
+  EntradaTentativa,
+  RegistoTentativa,
+  AvaliacaoCaso,
+  ProgressoCaso,
+  CasoRecomendado,
+  MestriaTema,
 } from "./types.ts";
 
 export const HISTORY_STORAGE_KEY = "historico_resolucoes_feridas";
 
-type LegacyEntry = {
+type EntradaLegado = {
   id?: string;
   casoId?: string;
   casoTitulo?: string;
@@ -25,113 +25,150 @@ type LegacyEntry = {
   feedback?: string;
 };
 
-export function createAttemptId() {
+export function criarIdTentativa() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
-    : `attempt-${Date.now()}`;
+    : `tentativa-${Date.now()}`;
 }
 
-function parseLegacyTemplateId(value: string | undefined) {
-  if (!value) return "legacy";
+function analisarIdModeloLegado(value: string | undefined) {
+  if (!value) return "legado";
   return value.replace("caso-", "");
 }
 
-function normalizeTopicId(topicId: string) {
-  return topicId === "materiais-desadequados" ? "decisao-clinica" : topicId;
+function normalizarIdTema(idTema: string) {
+  return idTema === "materiais-desadequados" ? "decisao-clinica" : idTema;
 }
 
-function dedupeTopicIds(topicIds: string[]) {
-  return Array.from(new Set(topicIds.map(normalizeTopicId)));
+function removerDuplicadosIdsTema(idsTema: string[]) {
+  return Array.from(new Set(idsTema.map(normalizarIdTema)));
 }
 
-function getBestScoreBefore(history: AttemptRecord[], templateId: string) {
-  const scores = history
-    .filter((entry) => entry.templateId === templateId)
-    .map((entry) => entry.score);
+function obterMelhorPontuacaoAntes(historico: RegistoTentativa[], idModelo: string) {
+  const scores = historico
+    .filter((entry) => entry.idCaso === idModelo)
+    .map((entry) => entry.pontuacao);
 
   return scores.length > 0 ? Math.max(...scores) : null;
 }
 
-function getAverageScoreForCase(history: AttemptRecord[], templateId: string) {
-  const entries = history.filter((entry) => entry.templateId === templateId);
+function obterPontuacaoMediaCasoInterno(historico: RegistoTentativa[], idModelo: string) {
+  const entries = historico.filter((entry) => entry.idCaso === idModelo);
   if (entries.length === 0) return null;
-  return Math.round(entries.reduce((acc, entry) => acc + entry.score, 0) / entries.length);
+  return Math.round(entries.reduce((acc, entry) => acc + entry.pontuacao, 0) / entries.length);
 }
 
-function migrateLegacyEntries(raw: unknown): AttemptRecord[] {
+function migrarEntradasLegado(raw: unknown): RegistoTentativa[] {
   if (!Array.isArray(raw)) return [];
 
   return raw.map((item, index) => {
-    const legacy = item as LegacyEntry;
+    const legacy = item as EntradaLegado;
     return {
       version: 3,
-      id: legacy.id ?? `legacy-${index}`,
-      templateId: parseLegacyTemplateId(legacy.casoId),
-      caseTitle: legacy.casoTitulo ?? "Caso legado",
-      score: Number(legacy.pontuacao) || 0,
-      previousBestScoreForCase: null,
-      sectionScores: {},
-      mistakeCodes: [],
-      learningRecommendations: [],
-      templateLearningTopicIds: [],
-      recommendedNextCaseIds: [],
-      dominantWeakTopics: [],
-      selectedObservationIds: [],
-      selectedDialogueIds: [],
-      selectedTreatmentIds: [],
-      selectedApplicationIds: [],
-      summary: legacy.feedback ?? "",
-      timestamp: legacy.data ?? new Date().toISOString(),
-      durationSeconds: 0,
+      id: legacy.id ?? `legado-${index}`,
+      idCaso: analisarIdModeloLegado(legacy.casoId),
+      tituloCaso: legacy.casoTitulo ?? "Caso legado",
+      pontuacao: Number(legacy.pontuacao) || 0,
+      melhorPontuacaoAnteriorCaso: null,
+      pontuacoesPorSeccao: {},
+      codigosErro: [],
+      recomendacoesAprendizagem: [],
+      idsTemasCaso: [],
+      idsProximosCasos: [],
+      temasFracosDominantes: [],
+      observacoesSeleccionadas: [],
+      dialogosSeleccionados: [],
+      tratamentosSeleccionados: [],
+      aplicacoesSeleccionadas: [],
+      resumo: legacy.feedback ?? "",
+      data: legacy.data ?? new Date().toISOString(),
+      duracaoSegundos: 0,
     };
   });
 }
 
-function normalizeRecord(item: unknown): AttemptRecord | null {
+function normalizarRegisto(item: unknown): RegistoTentativa | null {
   if (!item || typeof item !== "object") return null;
-  const record = item as Partial<AttemptRecord> & { version?: unknown; variantId?: unknown; variantTitle?: unknown };
+  const record = item as Partial<RegistoTentativa> & { version?: unknown; variantId?: unknown; variantTitle?: unknown; templateId?: unknown; caseTitle?: unknown; score?: unknown; timestamp?: unknown; sectionScores?: unknown; mistakeCodes?: unknown; learningRecommendations?: unknown; templateLearningTopicIds?: unknown; recommendedNextCaseIds?: unknown; dominantWeakTopics?: unknown; selectedObservationIds?: unknown; selectedDialogueIds?: unknown; selectedTreatmentIds?: unknown; selectedApplicationIds?: unknown; summary?: unknown; durationSeconds?: unknown; previousBestScoreForCase?: unknown };
   if (record.version !== 3 && record.version !== 2) return null;
+
+  // Support both old field names (templateId, caseTitle, etc.) and new ones (idCaso, tituloCaso, etc.)
+  const idCaso = typeof record.idCaso === "string" ? record.idCaso
+    : typeof record.templateId === "string" ? record.templateId
+    : "desconhecido";
+  const tituloCaso = typeof record.tituloCaso === "string" ? record.tituloCaso
+    : typeof record.caseTitle === "string" ? record.caseTitle
+    : "Caso";
+  const pontuacao = typeof record.pontuacao === "number" ? record.pontuacao
+    : typeof record.score === "number" ? record.score
+    : 0;
+  const melhorPontuacaoAnteriorCaso = typeof record.melhorPontuacaoAnteriorCaso === "number" ? record.melhorPontuacaoAnteriorCaso
+    : typeof record.previousBestScoreForCase === "number" ? record.previousBestScoreForCase
+    : null;
+  const pontuacoesPorSeccao = typeof record.pontuacoesPorSeccao === "object" && record.pontuacoesPorSeccao ? record.pontuacoesPorSeccao
+    : typeof record.sectionScores === "object" && record.sectionScores ? record.sectionScores as Record<string, number>
+    : {};
+  const codigosErro = Array.isArray(record.codigosErro) ? record.codigosErro
+    : Array.isArray(record.mistakeCodes) ? record.mistakeCodes
+    : [];
+  const recomendacoesAprendizagem = Array.isArray(record.recomendacoesAprendizagem) ? record.recomendacoesAprendizagem.map(normalizarIdTema)
+    : Array.isArray(record.learningRecommendations) ? (record.learningRecommendations as string[]).map(normalizarIdTema)
+    : [];
+  const idsTemasCaso = Array.isArray(record.idsTemasCaso) ? removerDuplicadosIdsTema(record.idsTemasCaso)
+    : Array.isArray(record.templateLearningTopicIds) ? removerDuplicadosIdsTema(record.templateLearningTopicIds as string[])
+    : removerDuplicadosIdsTema(obterIdsTemasCaso(idCaso));
+  const idsProximosCasos = Array.isArray(record.idsProximosCasos) ? record.idsProximosCasos
+    : Array.isArray(record.recommendedNextCaseIds) ? record.recommendedNextCaseIds
+    : [];
+  const temasFracosDominantes = Array.isArray(record.temasFracosDominantes) ? removerDuplicadosIdsTema(record.temasFracosDominantes)
+    : Array.isArray(record.dominantWeakTopics) ? removerDuplicadosIdsTema(record.dominantWeakTopics as string[])
+    : [];
+  const observacoesSeleccionadas = Array.isArray(record.observacoesSeleccionadas) ? record.observacoesSeleccionadas
+    : Array.isArray(record.selectedObservationIds) ? record.selectedObservationIds
+    : [];
+  const dialogosSeleccionados = Array.isArray(record.dialogosSeleccionados) ? record.dialogosSeleccionados
+    : Array.isArray(record.selectedDialogueIds) ? record.selectedDialogueIds
+    : [];
+  const tratamentosSeleccionados = Array.isArray(record.tratamentosSeleccionados) ? record.tratamentosSeleccionados
+    : Array.isArray(record.selectedTreatmentIds) ? record.selectedTreatmentIds
+    : [];
+  const aplicacoesSeleccionadas = Array.isArray(record.aplicacoesSeleccionadas) ? record.aplicacoesSeleccionadas
+    : Array.isArray(record.selectedApplicationIds) ? record.selectedApplicationIds
+    : [];
+  const resumo = typeof record.resumo === "string" ? record.resumo
+    : typeof record.summary === "string" ? record.summary
+    : "";
+  const data = typeof record.data === "string" ? record.data
+    : typeof record.timestamp === "string" ? record.timestamp
+    : new Date().toISOString();
+  const duracaoSegundos = typeof record.duracaoSegundos === "number" ? record.duracaoSegundos
+    : typeof record.durationSeconds === "number" ? record.durationSeconds
+    : 0;
 
   return {
     version: 3,
-    id: typeof record.id === "string" ? record.id : createAttemptId(),
-    templateId: typeof record.templateId === "string" ? record.templateId : "unknown",
-    caseTitle: typeof record.caseTitle === "string" ? record.caseTitle : "Caso",
-    score: typeof record.score === "number" ? record.score : 0,
-    previousBestScoreForCase:
-      typeof record.previousBestScoreForCase === "number" ? record.previousBestScoreForCase : null,
-    sectionScores:
-      typeof record.sectionScores === "object" && record.sectionScores ? record.sectionScores : {},
-    mistakeCodes: Array.isArray(record.mistakeCodes) ? record.mistakeCodes : [],
-    learningRecommendations: Array.isArray(record.learningRecommendations)
-      ? record.learningRecommendations.map(normalizeTopicId)
-      : [],
-    templateLearningTopicIds: Array.isArray(record.templateLearningTopicIds)
-      ? dedupeTopicIds(record.templateLearningTopicIds)
-      : dedupeTopicIds(getTemplateLearningTopicIds(typeof record.templateId === "string" ? record.templateId : "")),
-    recommendedNextCaseIds: Array.isArray(record.recommendedNextCaseIds)
-      ? record.recommendedNextCaseIds
-      : [],
-    dominantWeakTopics: Array.isArray(record.dominantWeakTopics)
-      ? dedupeTopicIds(record.dominantWeakTopics)
-      : [],
-    selectedObservationIds: Array.isArray(record.selectedObservationIds)
-      ? record.selectedObservationIds
-      : [],
-    selectedDialogueIds: Array.isArray(record.selectedDialogueIds) ? record.selectedDialogueIds : [],
-    selectedTreatmentIds: Array.isArray(record.selectedTreatmentIds)
-      ? record.selectedTreatmentIds
-      : [],
-    selectedApplicationIds: Array.isArray(record.selectedApplicationIds)
-      ? record.selectedApplicationIds
-      : [],
-    summary: typeof record.summary === "string" ? record.summary : "",
-    timestamp: typeof record.timestamp === "string" ? record.timestamp : new Date().toISOString(),
-    durationSeconds: typeof record.durationSeconds === "number" ? record.durationSeconds : 0,
+    id: typeof record.id === "string" ? record.id : criarIdTentativa(),
+    idCaso,
+    tituloCaso,
+    pontuacao,
+    melhorPontuacaoAnteriorCaso,
+    pontuacoesPorSeccao,
+    codigosErro,
+    recomendacoesAprendizagem,
+    idsTemasCaso,
+    idsProximosCasos,
+    temasFracosDominantes,
+    observacoesSeleccionadas,
+    dialogosSeleccionados,
+    tratamentosSeleccionados,
+    aplicacoesSeleccionadas,
+    resumo,
+    data,
+    duracaoSegundos,
   };
 }
 
-export function loadAttemptHistory(): AttemptRecord[] {
+export function carregarHistoricoTentativas(): RegistoTentativa[] {
   if (typeof window === "undefined") return [];
   const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
   if (!raw) return [];
@@ -145,32 +182,32 @@ export function loadAttemptHistory(): AttemptRecord[] {
     return [];
   }
 
-  if (Array.isArray(parsed) && parsed.every((item) => (item as AttemptRecord).version === 3 || (item as { version?: unknown }).version === 2)) {
+  if (Array.isArray(parsed) && parsed.every((item) => (item as RegistoTentativa).version === 3 || (item as { version?: unknown }).version === 2)) {
     return parsed
-      .map((item) => normalizeRecord(item))
-      .filter((item): item is AttemptRecord => Boolean(item));
+      .map((item) => normalizarRegisto(item))
+      .filter((item): item is RegistoTentativa => Boolean(item));
   }
 
-  const migrated = migrateLegacyEntries(parsed);
+  const migrated = migrarEntradasLegado(parsed);
   localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(migrated));
   return migrated;
 }
 
-export function saveAttemptRecord(record: AttemptRecord) {
+export function guardarRegistoTentativa(registo: RegistoTentativa) {
   if (typeof window === "undefined") return;
-  const current = loadAttemptHistory();
-  current.unshift(record);
+  const current = carregarHistoricoTentativas();
+  current.unshift(registo);
   localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(current));
 }
 
-export function clearAttemptHistory() {
+export function limparHistoricoTentativas() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(HISTORY_STORAGE_KEY);
 }
 
-export function exportHistoryAsJson(): void {
+export function exportarHistoricoComoJson(): void {
   if (typeof window === "undefined") return;
-  const history = loadAttemptHistory();
+  const history = carregarHistoricoTentativas();
   const date = new Date().toISOString().slice(0, 10);
   const blob = new Blob([JSON.stringify(history, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -181,17 +218,17 @@ export function exportHistoryAsJson(): void {
   URL.revokeObjectURL(url);
 }
 
-export type ImportResult = { ok: true; count: number } | { ok: false; error: string };
+export type ResultadoImportacao = { ok: true; count: number } | { ok: false; error: string };
 
-export function importHistoryFromJson(raw: unknown): ImportResult {
+export function importarHistoricoDeJson(raw: unknown): ResultadoImportacao {
   if (typeof window === "undefined") return { ok: false, error: "Não disponível no servidor." };
   if (!Array.isArray(raw)) return { ok: false, error: "O ficheiro não contém um array de tentativas." };
 
-  const REQUIRED: Array<keyof AttemptRecord> = ["version", "id", "templateId", "caseTitle", "score", "timestamp"];
-  const valid = raw.filter((item): item is AttemptRecord => {
+  const CAMPOS_OBRIGATORIOS: Array<string> = ["version", "id"];
+  const valid = raw.filter((item): item is RegistoTentativa => {
     if (!item || typeof item !== "object") return false;
-    const r = item as Partial<AttemptRecord> & { version?: unknown };
-    return (r.version === 3 || r.version === 2) && REQUIRED.every((f) => f in r);
+    const r = item as Partial<RegistoTentativa> & { version?: unknown };
+    return (r.version === 3 || r.version === 2) && CAMPOS_OBRIGATORIOS.every((f) => f in r);
   });
 
   if (valid.length === 0) {
@@ -201,172 +238,172 @@ export function importHistoryFromJson(raw: unknown): ImportResult {
   return { ok: true, count: valid.length };
 }
 
-export function countAttemptsForCase(history: AttemptRecord[], templateId: string) {
-  return history.filter((entry) => entry.templateId === templateId).length;
+export function contarTentativasCaso(historico: RegistoTentativa[], idModelo: string) {
+  return historico.filter((entry) => entry.idCaso === idModelo).length;
 }
 
-export function getPreviousBestScoreForCase(history: AttemptRecord[], templateId: string) {
-  return getBestScoreBefore(history, templateId);
+export function obterMelhorPontuacaoAnteriorCaso(historico: RegistoTentativa[], idModelo: string) {
+  return obterMelhorPontuacaoAntes(historico, idModelo);
 }
 
-export function getCaseProgress(
-  history: AttemptRecord[],
-  templateId: string
-): CaseProgress {
-  const entries = history.filter((entry) => entry.templateId === templateId);
-  const scores = entries.map((entry) => entry.score);
-  const latestScore = entries[0]?.score ?? null;
-  const bestScore = scores.length > 0 ? Math.max(...scores) : null;
-  const previousBestScore =
-    scores.length > 1 ? Math.max(...scores.slice(1)) : entries[0]?.previousBestScoreForCase ?? null;
+export function obterProgressoCaso(
+  historico: RegistoTentativa[],
+  idModelo: string
+): ProgressoCaso {
+  const entries = historico.filter((entry) => entry.idCaso === idModelo);
+  const scores = entries.map((entry) => entry.pontuacao);
+  const ultimaPontuacao = entries[0]?.pontuacao ?? null;
+  const melhorPontuacao = scores.length > 0 ? Math.max(...scores) : null;
+  const melhorPontuacaoAnterior =
+    scores.length > 1 ? Math.max(...scores.slice(1)) : entries[0]?.melhorPontuacaoAnteriorCaso ?? null;
 
   return {
-    templateId,
-    title: getCaseTitle(templateId),
-    attempts: entries.length,
-    averageScore: entries.length > 0 ? Math.round(scores.reduce((acc, score) => acc + score, 0) / entries.length) : null,
-    bestScore,
-    latestScore,
-    previousBestScore,
-    hasCompleted: entries.length > 0,
+    idModelo,
+    titulo: obterTituloCaso(idModelo),
+    tentativas: entries.length,
+    pontuacaoMedia: entries.length > 0 ? Math.round(scores.reduce((acc, score) => acc + score, 0) / entries.length) : null,
+    melhorPontuacao,
+    ultimaPontuacao,
+    melhorPontuacaoAnterior,
+    concluido: entries.length > 0,
   };
 }
 
-function sortByPriority(items: RecommendedCase[]) {
+function ordenarPorPrioridade(items: CasoRecomendado[]) {
   return items.sort((a, b) => {
-    if (a.averageScore === null && b.averageScore !== null) return 1;
-    if (a.averageScore !== null && b.averageScore === null) return -1;
-    if (a.averageScore !== null && b.averageScore !== null && a.averageScore !== b.averageScore) {
-      return a.averageScore - b.averageScore;
+    if (a.pontuacaoMedia === null && b.pontuacaoMedia !== null) return 1;
+    if (a.pontuacaoMedia !== null && b.pontuacaoMedia === null) return -1;
+    if (a.pontuacaoMedia !== null && b.pontuacaoMedia !== null && a.pontuacaoMedia !== b.pontuacaoMedia) {
+      return a.pontuacaoMedia - b.pontuacaoMedia;
     }
-    return a.attempts - b.attempts;
+    return a.tentativas - b.tentativas;
   });
 }
 
-export function getRecommendedNextCases(history: AttemptRecord[]): RecommendedCase[] {
-  const weakTopics = getTopicMastery(history).slice(0, 3).map((topic) => topic.topicId);
+export function obterCasosRecomendadosSeguintes(historico: RegistoTentativa[]): CasoRecomendado[] {
+  const weakTopics = obterMestriaTema(historico).slice(0, 3).map((topic) => topic.idTema);
 
-  return sortByPriority(
-    listCaseTemplates()
-      .filter((template) => template.status === "disponivel")
-      .map((template) => {
-        const progress = getCaseProgress(history, template.id);
-        const topicIds = getTemplateLearningTopicIds(template.id).map(normalizeTopicId);
-        const matchTopics = topicIds.filter((topicId) => weakTopics.includes(topicId));
+  return ordenarPorPrioridade(
+    listarModelosCaso()
+      .filter((modelo) => modelo.status === "disponivel")
+      .map((modelo) => {
+        const progress = obterProgressoCaso(historico, modelo.id);
+        const topicIds = obterIdsTemasCaso(modelo.id).map(normalizarIdTema);
+        const topicosCorrespondentes = topicIds.filter((idTema) => weakTopics.includes(idTema));
         const fallbackTopic = topicIds[0];
 
-        if (matchTopics.length === 0 && progress.attempts > 0) return null;
+        if (topicosCorrespondentes.length === 0 && progress.tentativas > 0) return null;
 
         return {
-          templateId: template.id,
-          title: template.title,
-          shortTitle: template.shortTitle,
-          difficulty: template.difficulty,
-          reason:
-            matchTopics.length > 0
-              ? `Ajuda a reforçar ${matchTopics
-                  .map((topicId) => getLearningTopic(topicId)?.title ?? topicId)
+          idModelo: modelo.id,
+          titulo: modelo.title,
+          tituloAbreviado: modelo.tituloAbreviado,
+          difficulty: modelo.difficulty,
+          motivo:
+            topicosCorrespondentes.length > 0
+              ? `Ajuda a reforçar ${topicosCorrespondentes
+                  .map((idTema) => obterTema(idTema)?.titulo ?? idTema)
                   .join(", ")}.`
-              : `Bom próximo passo para consolidar ${getLearningTopic(fallbackTopic)?.title ?? "o raciocínio clínico"}.`,
-          matchTopics: matchTopics.length > 0 ? matchTopics : fallbackTopic ? [fallbackTopic] : [],
-          averageScore: progress.averageScore,
-          attempts: progress.attempts,
-        } satisfies RecommendedCase;
+              : `Bom próximo passo para consolidar ${obterTema(fallbackTopic)?.titulo ?? "o raciocínio clínico"}.`,
+          topicosCorrespondentes: topicosCorrespondentes.length > 0 ? topicosCorrespondentes : fallbackTopic ? [fallbackTopic] : [],
+          pontuacaoMedia: progress.pontuacaoMedia,
+          tentativas: progress.tentativas,
+        } satisfies CasoRecomendado;
       })
-      .filter((item): item is RecommendedCase => Boolean(item))
+      .filter((item): item is CasoRecomendado => Boolean(item))
   ).slice(0, 4);
 }
 
-export function buildAttemptRecord(params: {
-  evaluation: CaseEvaluation;
-  history: AttemptRecord[];
-  templateId: string;
-  durationSeconds: number;
-  attempt: AttemptInput;
-}): AttemptRecord {
-  const template = getCaseTemplate(params.templateId);
-  const inadequateItems = params.evaluation.sections
-    .flatMap((section) => section.items)
-    .filter((item) => item.classification === "inadequado" || item.classification === "redundante");
-  const learningRecommendations = params.evaluation.learningRecommendations.map(
-    (recommendation) => recommendation.topicId
+export function construirRegistoTentativa(params: {
+  avaliacao: AvaliacaoCaso;
+  historico: RegistoTentativa[];
+  idModelo: string;
+  duracaoSegundos: number;
+  tentativa: EntradaTentativa;
+}): RegistoTentativa {
+  const modelo = obterModeloCaso(params.idModelo);
+  const inadequateItems = params.avaliacao.seccoes
+    .flatMap((seccao) => seccao.itens)
+    .filter((item) => item.classificacao === "inadequado" || item.classificacao === "redundante");
+  const recomendacoesAprendizagem = params.avaliacao.recomendacoesAprendizagem.map(
+    (recommendation) => recommendation.idTema
   );
-  const dominantWeakTopics = dedupeTopicIds(
-    params.evaluation.sections
-      .flatMap((section) =>
-        section.items
-          .filter((item) => item.classification === "inadequado" || item.classification === "redundante")
-          .flatMap((item) => item.learningTopicIds)
+  const temasFracosDominantes = removerDuplicadosIdsTema(
+    params.avaliacao.seccoes
+      .flatMap((seccao) =>
+        seccao.itens
+          .filter((item) => item.classificacao === "inadequado" || item.classificacao === "redundante")
+          .flatMap((item) => item.idsTemas)
       )
       .slice(0, 6)
   );
   const syntheticHistory = [
-    ...params.history,
+    ...params.historico,
     {
       version: 3,
-      id: "preview",
-      templateId: params.templateId,
-      caseTitle: template?.title ?? params.templateId,
-      score: params.evaluation.score,
-      previousBestScoreForCase: getBestScoreBefore(params.history, params.templateId),
-      sectionScores: Object.fromEntries(
-        params.evaluation.sections.map((section) => [section.id, section.score])
+      id: "previsao",
+      idCaso: params.idModelo,
+      tituloCaso: modelo?.title ?? params.idModelo,
+      pontuacao: params.avaliacao.pontuacao,
+      melhorPontuacaoAnteriorCaso: obterMelhorPontuacaoAntes(params.historico, params.idModelo),
+      pontuacoesPorSeccao: Object.fromEntries(
+        params.avaliacao.seccoes.map((seccao) => [seccao.id, seccao.pontuacao])
       ),
-      mistakeCodes: inadequateItems.map((item) => item.id),
-      learningRecommendations,
-      templateLearningTopicIds: dedupeTopicIds(getTemplateLearningTopicIds(params.templateId)),
-      recommendedNextCaseIds: [],
-      dominantWeakTopics,
-      selectedObservationIds: params.attempt.observationIds,
-      selectedDialogueIds: params.attempt.dialogueIds,
-      selectedTreatmentIds: params.attempt.treatmentIds,
-      selectedApplicationIds: params.attempt.applicationIds,
-      summary: params.evaluation.reasoningSummary.nextStep,
-      timestamp: new Date().toISOString(),
-      durationSeconds: params.durationSeconds,
-    } satisfies AttemptRecord,
+      codigosErro: inadequateItems.map((item) => item.id),
+      recomendacoesAprendizagem,
+      idsTemasCaso: removerDuplicadosIdsTema(obterIdsTemasCaso(params.idModelo)),
+      idsProximosCasos: [],
+      temasFracosDominantes,
+      observacoesSeleccionadas: params.tentativa.idsObservacao,
+      dialogosSeleccionados: params.tentativa.idsDialogo,
+      tratamentosSeleccionados: params.tentativa.idsTratamento,
+      aplicacoesSeleccionadas: params.tentativa.idsAplicacao,
+      resumo: params.avaliacao.resumoRaciocinio.proximoPasso,
+      data: new Date().toISOString(),
+      duracaoSegundos: params.duracaoSegundos,
+    } satisfies RegistoTentativa,
   ];
 
   return {
     version: 3,
-    id: createAttemptId(),
-    templateId: params.templateId,
-    caseTitle: template?.title ?? params.templateId,
-    score: params.evaluation.score,
-    previousBestScoreForCase: getBestScoreBefore(params.history, params.templateId),
-    sectionScores: Object.fromEntries(
-      params.evaluation.sections.map((section) => [section.id, section.score])
+    id: criarIdTentativa(),
+    idCaso: params.idModelo,
+    tituloCaso: modelo?.title ?? params.idModelo,
+    pontuacao: params.avaliacao.pontuacao,
+    melhorPontuacaoAnteriorCaso: obterMelhorPontuacaoAntes(params.historico, params.idModelo),
+    pontuacoesPorSeccao: Object.fromEntries(
+      params.avaliacao.seccoes.map((seccao) => [seccao.id, seccao.pontuacao])
     ),
-    mistakeCodes: inadequateItems.map((item) => item.id),
-    learningRecommendations,
-    templateLearningTopicIds: dedupeTopicIds(getTemplateLearningTopicIds(params.templateId)),
-    recommendedNextCaseIds: getRecommendedNextCases(syntheticHistory).map((item) => item.templateId),
-    dominantWeakTopics,
-    selectedObservationIds: params.attempt.observationIds,
-    selectedDialogueIds: params.attempt.dialogueIds,
-    selectedTreatmentIds: params.attempt.treatmentIds,
-    selectedApplicationIds: params.attempt.applicationIds,
-    summary: params.evaluation.reasoningSummary.nextStep,
-    timestamp: new Date().toISOString(),
-    durationSeconds: params.durationSeconds,
+    codigosErro: inadequateItems.map((item) => item.id),
+    recomendacoesAprendizagem,
+    idsTemasCaso: removerDuplicadosIdsTema(obterIdsTemasCaso(params.idModelo)),
+    idsProximosCasos: obterCasosRecomendadosSeguintes(syntheticHistory).map((item) => item.idModelo),
+    temasFracosDominantes,
+    observacoesSeleccionadas: params.tentativa.idsObservacao,
+    dialogosSeleccionados: params.tentativa.idsDialogo,
+    tratamentosSeleccionados: params.tentativa.idsTratamento,
+    aplicacoesSeleccionadas: params.tentativa.idsAplicacao,
+    resumo: params.avaliacao.resumoRaciocinio.proximoPasso,
+    data: new Date().toISOString(),
+    duracaoSegundos: params.duracaoSegundos,
   };
 }
 
-export function getAverageScore(history: AttemptRecord[]) {
-  if (history.length === 0) return 0;
-  return Math.round(history.reduce((acc, entry) => acc + entry.score, 0) / history.length);
+export function obterPontuacaoMedia(historico: RegistoTentativa[]) {
+  if (historico.length === 0) return 0;
+  return Math.round(historico.reduce((acc, entry) => acc + entry.pontuacao, 0) / historico.length);
 }
 
-export function getBestScore(history: AttemptRecord[]) {
-  if (history.length === 0) return 0;
-  return Math.max(...history.map((entry) => entry.score));
+export function obterMelhorPontuacao(historico: RegistoTentativa[]) {
+  if (historico.length === 0) return 0;
+  return Math.max(...historico.map((entry) => entry.pontuacao));
 }
 
-export function getWeakestSections(history: AttemptRecord[]) {
+export function obterSeccoesMaisFracas(historico: RegistoTentativa[]) {
   const totals = new Map<string, { total: number; count: number }>();
 
-  for (const entry of history) {
-    for (const [sectionId, score] of Object.entries(entry.sectionScores)) {
+  for (const entry of historico) {
+    for (const [sectionId, score] of Object.entries(entry.pontuacoesPorSeccao)) {
       const current = totals.get(sectionId) ?? { total: 0, count: 0 };
       current.total += score;
       current.count += 1;
@@ -382,47 +419,47 @@ export function getWeakestSections(history: AttemptRecord[]) {
     .sort((a, b) => a.average - b.average);
 }
 
-export function getMostRecommendedTopics(history: AttemptRecord[]) {
+export function obterTopicosRecomendados(historico: RegistoTentativa[]) {
   const totals = new Map<string, number>();
 
-  for (const entry of history) {
-    for (const topicId of entry.learningRecommendations) {
-      const normalizedTopicId = normalizeTopicId(topicId);
-      totals.set(normalizedTopicId, (totals.get(normalizedTopicId) ?? 0) + 1);
+  for (const entry of historico) {
+    for (const idTema of entry.recomendacoesAprendizagem) {
+      const normalizedIdTema = normalizarIdTema(idTema);
+      totals.set(normalizedIdTema, (totals.get(normalizedIdTema) ?? 0) + 1);
     }
   }
 
   return Array.from(totals.entries())
-    .map(([topicId, count]) => ({
-      topicId,
+    .map(([idTema, count]) => ({
+      idTema,
       count,
-      title: getLearningTopic(topicId)?.title ?? topicId,
+      titulo: obterTema(idTema)?.titulo ?? idTema,
     }))
     .sort((a, b) => b.count - a.count);
 }
 
-export function getTopicMastery(history: AttemptRecord[]): TopicMastery[] {
+export function obterMestriaTema(historico: RegistoTentativa[]): MestriaTema[] {
   const exposureCounts = new Map<string, number>();
   const recommendationCounts = new Map<string, number>();
   const weakSignalCounts = new Map<string, number>();
 
-  for (const entry of history) {
-    for (const topicId of entry.templateLearningTopicIds) {
-      const normalizedTopicId = normalizeTopicId(topicId);
-      exposureCounts.set(normalizedTopicId, (exposureCounts.get(normalizedTopicId) ?? 0) + 1);
+  for (const entry of historico) {
+    for (const idTema of entry.idsTemasCaso) {
+      const normalizedIdTema = normalizarIdTema(idTema);
+      exposureCounts.set(normalizedIdTema, (exposureCounts.get(normalizedIdTema) ?? 0) + 1);
     }
 
-    for (const topicId of entry.learningRecommendations) {
-      const normalizedTopicId = normalizeTopicId(topicId);
+    for (const idTema of entry.recomendacoesAprendizagem) {
+      const normalizedIdTema = normalizarIdTema(idTema);
       recommendationCounts.set(
-        normalizedTopicId,
-        (recommendationCounts.get(normalizedTopicId) ?? 0) + 1
+        normalizedIdTema,
+        (recommendationCounts.get(normalizedIdTema) ?? 0) + 1
       );
     }
 
-    for (const topicId of entry.dominantWeakTopics) {
-      const normalizedTopicId = normalizeTopicId(topicId);
-      weakSignalCounts.set(normalizedTopicId, (weakSignalCounts.get(normalizedTopicId) ?? 0) + 1);
+    for (const idTema of entry.temasFracosDominantes) {
+      const normalizedIdTema = normalizarIdTema(idTema);
+      weakSignalCounts.set(normalizedIdTema, (weakSignalCounts.get(normalizedIdTema) ?? 0) + 1);
     }
   }
 
@@ -433,52 +470,52 @@ export function getTopicMastery(history: AttemptRecord[]): TopicMastery[] {
   ]);
 
   return Array.from(allTopicIds)
-    .map((topicId) => {
-      const exposureCount = exposureCounts.get(topicId) ?? 0;
-      const recommendationCount = recommendationCounts.get(topicId) ?? 0;
-      const weakSignalCount = weakSignalCounts.get(topicId) ?? 0;
-      const masteryScore = Math.max(
+    .map((idTema) => {
+      const contadorExposicao = exposureCounts.get(idTema) ?? 0;
+      const contadorRecomendacoes = recommendationCounts.get(idTema) ?? 0;
+      const contadorSinalFraco = weakSignalCounts.get(idTema) ?? 0;
+      const pontuacaoMestria = Math.max(
         0,
-        Math.min(100, 76 + exposureCount * 6 - recommendationCount * 12 - weakSignalCount * 8)
+        Math.min(100, 76 + contadorExposicao * 6 - contadorRecomendacoes * 12 - contadorSinalFraco * 8)
       );
 
       return {
-        topicId,
-        title: getLearningTopic(topicId)?.title ?? topicId,
-        masteryScore,
-        recommendationCount,
-        weakSignalCount,
-        exposureCount,
+        idTema,
+        titulo: obterTema(idTema)?.titulo ?? idTema,
+        pontuacaoMestria,
+        contadorRecomendacoes,
+        contadorSinalFraco,
+        contadorExposicao,
       };
     })
-    .sort((a, b) => a.masteryScore - b.masteryScore);
+    .sort((a, b) => a.pontuacaoMestria - b.pontuacaoMestria);
 }
 
-export function getCaseRetryPriority(history: AttemptRecord[]) {
+export function obterPrioridadeRepeticaoCaso(historico: RegistoTentativa[]) {
   const totals = new Map<string, { total: number; count: number }>();
 
-  for (const entry of history) {
-    const current = totals.get(entry.templateId) ?? { total: 0, count: 0 };
-    current.total += entry.score;
+  for (const entry of historico) {
+    const current = totals.get(entry.idCaso) ?? { total: 0, count: 0 };
+    current.total += entry.pontuacao;
     current.count += 1;
-    totals.set(entry.templateId, current);
+    totals.set(entry.idCaso, current);
   }
 
   return Array.from(totals.entries())
-    .map(([templateId, value]) => ({
-      templateId,
+    .map(([idModelo, value]) => ({
+      idModelo,
       average: Math.round(value.total / value.count),
-      attempts: value.count,
-      title: getCaseTemplate(templateId)?.title ?? templateId,
+      tentativas: value.count,
+      titulo: obterModeloCaso(idModelo)?.title ?? idModelo,
     }))
     .sort((a, b) => a.average - b.average);
 }
 
-export function getStudyPlan(history: AttemptRecord[]) {
-  const retryCase = getCaseRetryPriority(history)[0] ?? null;
-  const reviewTopic = getTopicMastery(history)[0] ?? null;
-  const followUpCase = getRecommendedNextCases(history).find(
-    (item) => item.templateId !== retryCase?.templateId
+export function obterPlanoEstudo(historico: RegistoTentativa[]) {
+  const retryCase = obterPrioridadeRepeticaoCaso(historico)[0] ?? null;
+  const reviewTopic = obterMestriaTema(historico)[0] ?? null;
+  const followUpCase = obterCasosRecomendadosSeguintes(historico).find(
+    (item) => item.idModelo !== retryCase?.idModelo
   ) ?? null;
 
   return {
@@ -488,28 +525,78 @@ export function getStudyPlan(history: AttemptRecord[]) {
   };
 }
 
-export function getRecentBestScore(history: AttemptRecord[]) {
-  return history[0]?.score ?? 0;
+export function obterMelhorPontuacaoRecente(historico: RegistoTentativa[]) {
+  return historico[0]?.pontuacao ?? 0;
 }
 
-export function getCasesCompletedCount(history: AttemptRecord[]) {
-  return new Set(history.map((entry) => entry.templateId)).size;
+export function obterContadorCasosConcluidos(historico: RegistoTentativa[]) {
+  return new Set(historico.map((entry) => entry.idCaso)).size;
 }
 
-export function getContinueLearningTarget(history: AttemptRecord[]) {
-  const latest = history[0];
+export function obterAlvoContinuarAprendizagem(historico: RegistoTentativa[]) {
+  const latest = historico[0];
   if (!latest) return null;
 
-  const nextCaseId = latest.recommendedNextCaseIds[0] ?? latest.templateId;
+  const nextCaseId = latest.idsProximosCasos[0] ?? latest.idCaso;
 
   return {
-    lastCaseTitle: latest.caseTitle,
-    reviewTopicId: latest.learningRecommendations[0] ?? latest.dominantWeakTopics[0] ?? null,
+    lastCaseTitle: latest.tituloCaso,
+    reviewTopicId: latest.recomendacoesAprendizagem[0] ?? latest.temasFracosDominantes[0] ?? null,
     nextCaseId,
-    nextCaseTitle: getCaseTitle(nextCaseId),
+    nextCaseTitle: obterTituloCaso(nextCaseId),
   };
 }
 
-export function getCaseAverageScore(history: AttemptRecord[], templateId: string) {
-  return getAverageScoreForCase(history, templateId);
+export function obterPontuacaoMediaCaso(historico: RegistoTentativa[], idModelo: string) {
+  return obterPontuacaoMediaCasoInterno(historico, idModelo);
 }
+
+// ─── Re-exports com nomes antigos para compatibilidade ───────────────────────
+/** @deprecated Use carregarHistoricoTentativas */
+export const loadAttemptHistory = carregarHistoricoTentativas;
+/** @deprecated Use guardarRegistoTentativa */
+export const saveAttemptRecord = guardarRegistoTentativa;
+/** @deprecated Use limparHistoricoTentativas */
+export const clearAttemptHistory = limparHistoricoTentativas;
+/** @deprecated Use exportarHistoricoComoJson */
+export const exportHistoryAsJson = exportarHistoricoComoJson;
+/** @deprecated Use importarHistoricoDeJson */
+export const importHistoryFromJson = importarHistoricoDeJson;
+/** @deprecated Use criarIdTentativa */
+export const createAttemptId = criarIdTentativa;
+/** @deprecated Use obterPontuacaoMedia */
+export const getAverageScore = obterPontuacaoMedia;
+/** @deprecated Use obterMelhorPontuacao */
+export const getBestScore = obterMelhorPontuacao;
+/** @deprecated Use obterSeccoesMaisFracas */
+export const getWeakestSections = obterSeccoesMaisFracas;
+/** @deprecated Use obterTopicosRecomendados */
+export const getMostRecommendedTopics = obterTopicosRecomendados;
+/** @deprecated Use obterMestriaTema */
+export const getTopicMastery = obterMestriaTema;
+/** @deprecated Use obterPrioridadeRepeticaoCaso */
+export const getCaseRetryPriority = obterPrioridadeRepeticaoCaso;
+/** @deprecated Use obterPlanoEstudo */
+export const getStudyPlan = obterPlanoEstudo;
+/** @deprecated Use obterMelhorPontuacaoRecente */
+export const getRecentBestScore = obterMelhorPontuacaoRecente;
+/** @deprecated Use obterContadorCasosConcluidos */
+export const getCasesCompletedCount = obterContadorCasosConcluidos;
+/** @deprecated Use obterAlvoContinuarAprendizagem */
+export const getContinueLearningTarget = obterAlvoContinuarAprendizagem;
+/** @deprecated Use obterProgressoCaso */
+export const getCaseProgress = obterProgressoCaso;
+/** @deprecated Use contarTentativasCaso */
+export const countAttemptsForCase = contarTentativasCaso;
+/** @deprecated Use obterMelhorPontuacaoAnteriorCaso */
+export const getPreviousBestScoreForCase = obterMelhorPontuacaoAnteriorCaso;
+/** @deprecated Use construirRegistoTentativa */
+export const buildAttemptRecord = construirRegistoTentativa;
+/** @deprecated Use obterCasosRecomendadosSeguintes */
+export const getRecommendedNextCases = obterCasosRecomendadosSeguintes;
+/** @deprecated Use obterPontuacaoMediaCaso */
+export const getCaseAverageScore = obterPontuacaoMediaCaso;
+
+// Import/Export type alias
+/** @deprecated Use ResultadoImportacao */
+export type ImportResult = ResultadoImportacao;

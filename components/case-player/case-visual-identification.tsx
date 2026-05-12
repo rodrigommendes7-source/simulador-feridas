@@ -264,7 +264,7 @@ export function CaseVisualIdentification({
               className="text-body"
               style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}
             >
-              Seleciona um tipo de tecido e clica na imagem para o assinalar. Clica num pin para o remover.
+              Seleciona um tipo de tecido e clica na imagem para o assinalar. Clica num marcador para o remover.
             </p>
           </div>
 
@@ -359,8 +359,8 @@ export function CaseVisualIdentification({
             }}
           >
             {tissuePins.length === 0
-              ? "Nenhum pin colocado ainda."
-              : `${tissuePins.length} pin(s) na imagem.`}
+              ? "Nenhum marcador colocado ainda."
+              : `${tissuePins.length} marcador(es) na imagem.`}
           </p>
         </div>
       )}

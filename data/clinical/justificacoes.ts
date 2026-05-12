@@ -90,4 +90,7 @@ export const genericDistractors: string[] = [
   "Reduzir hipergranulação",
 ];
 
-export const FALLBACK_CORRECT = "Adequado ao estado atual da ferida";
+export const FALLBACK_CORRETA = "Adequado ao estado atual da ferida";
+
+/** @deprecated Use FALLBACK_CORRETA */
+export const FALLBACK_CORRECT = FALLBACK_CORRETA;

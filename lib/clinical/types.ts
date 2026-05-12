@@ -1,7 +1,7 @@
 // ─── Variáveis clínicas numéricas ───────────────────────────────────────────
 
 /** Representação numérica do estado da ferida. Utilizada na avaliação por material. */
-export type WoundVariables = {
+export type VariaveisFerida = {
   /** 1=ausente  2=ligeiro  3=moderado  4=abundante */
   exsudado: 1 | 2 | 3 | 4;
   /** 0=ausente  1=local  2=marcada  3=sistémica */
@@ -28,90 +28,120 @@ export type WoundVariables = {
   perfusao: 0 | 1;
 };
 
+/** @deprecated Use VariaveisFerida */
+export type WoundVariables = VariaveisFerida;
+
 /**
  * Condição de avaliação: cada chave mapeia para lista de valores válidos.
  * Uma condição com objecto vazio {} corresponde a "aplicável a qualquer ferida".
  * A lógica é AND: todas as chaves presentes têm de corresponder.
  */
-export type WoundVariableCondition = Partial<Record<keyof WoundVariables, number[]>>;
+export type CondicaoVariavelFerida = Partial<Record<keyof VariaveisFerida, number[]>>;
+
+/** @deprecated Use CondicaoVariavelFerida */
+export type WoundVariableCondition = CondicaoVariavelFerida;
 
 /** Regras clínicas de um material ou técnica. */
-export type MaterialRules = {
+export type RegrasClinicas = {
   /** Condições para classificação "correto" — deve satisfazer todas as chaves */
-  condicoes_ideais: WoundVariableCondition;
+  condicoes_ideais: CondicaoVariavelFerida;
   /** Condições para classificação "parcial" (opcional) */
-  condicoes_parciais?: WoundVariableCondition;
+  condicoes_parciais?: CondicaoVariavelFerida;
   /** Lista de condições de contraindicação — basta uma corresponder para "incorreto" */
-  contraindicacoes: WoundVariableCondition[];
+  contraindicacoes: CondicaoVariavelFerida[];
   /** Condições para bónus adicional de 0,25 pts */
-  bonus?: WoundVariableCondition;
+  bonus?: CondicaoVariavelFerida;
 };
 
+/** @deprecated Use RegrasClinicas */
+export type MaterialRules = RegrasClinicas;
+
 /** Classificação por material no novo sistema de avaliação */
-export type MaterialClassification = "correto" | "parcial" | "incorreto";
+export type ClassificacaoMaterial = "correto" | "parcial" | "incorreto";
+
+/** @deprecated Use ClassificacaoMaterial */
+export type MaterialClassification = ClassificacaoMaterial;
 
 /** Resultado da avaliação de um material individual */
-export type MaterialScore = {
-  materialId: string;
-  label: string;
+export type PontuacaoMaterial = {
+  idMaterial: string;
+  rotulo: string;
   nome_comercial?: string | null;
   substancia_ativa?: string;
-  classification: MaterialClassification;
-  /** 1.0 = correto  |  0.5 = parcial  |  0 = incorreto  (+ 0.25 se hasBonus) */
-  score: number;
-  hasBonus: boolean;
+  classificacao: ClassificacaoMaterial;
+  /** 1.0 = correto  |  0.5 = parcial  |  0 = incorreto  (+ 0.25 se temBonus) */
+  pontuacao: number;
+  temBonus: boolean;
   justificacao: string;
 };
 
+/** @deprecated Use PontuacaoMaterial */
+export type MaterialScore = PontuacaoMaterial;
+
 /** Item de feedback por material */
-export type MaterialFeedbackItem = {
+export type ItemFeedbackMaterial = {
   material: string;
   justificacao: string;
 };
 
+/** @deprecated Use ItemFeedbackMaterial */
+export type MaterialFeedbackItem = ItemFeedbackMaterial;
+
 /** Feedback estruturado gerado após avaliação de materiais */
-export type MaterialFeedback = {
-  corretos: MaterialFeedbackItem[];
-  parciais: MaterialFeedbackItem[];
-  incorretos: MaterialFeedbackItem[];
+export type FeedbackMaterial = {
+  corretos: ItemFeedbackMaterial[];
+  parciais: ItemFeedbackMaterial[];
+  incorretos: ItemFeedbackMaterial[];
   /** Materiais não selecionados que seriam ideais para esta ferida */
-  sugestoes: MaterialFeedbackItem[];
+  sugestoes: ItemFeedbackMaterial[];
 };
+
+/** @deprecated Use FeedbackMaterial */
+export type MaterialFeedback = FeedbackMaterial;
 
 // ─── Tipos existentes ────────────────────────────────────────────────────────
 
-export type TreatmentFunction =
-  | "cleanse"
-  | "antiseptic"
-  | "absorb"
-  | "control-bioburden"
-  | "debride"
-  | "protect-periwound"
-  | "hydrate"
-  | "atraumatic-cover"
-  | "manage-odor"
-  | "offload-pressure";
+export type FuncaoTratamento =
+  | "limpar"
+  | "antisseptico"
+  | "absorver"
+  | "controlar-bioburden"
+  | "desbridar"
+  | "proteger-perilesional"
+  | "hidratar"
+  | "cobertura-atraumatica"
+  | "gerir-odor"
+  | "aliviar-pressao";
 
-export type ClinicalIntent =
-  | "control-exudate"
-  | "control-bioburden"
-  | "debridement"
-  | "protect-periwound"
-  | "protect-skin"
-  | "manage-odor"
-  | "offload-pressure"
-  | "atraumatic-cover"
-  | "cleanse-wound"
-  | "venous-compression"
-  | "escalate-medical";
+/** @deprecated Use FuncaoTratamento */
+export type TreatmentFunction = FuncaoTratamento;
 
-export type EvaluationClassification =
+export type IntencaoClinica =
+  | "controlar-exsudado"
+  | "controlar-bioburden"
+  | "desbridamento"
+  | "proteger-perilesional"
+  | "proteger-pele"
+  | "gerir-odor"
+  | "aliviar-pressao"
+  | "cobertura-atraumatica"
+  | "limpar-ferida"
+  | "compressao-venosa"
+  | "referenciar-medico";
+
+/** @deprecated Use IntencaoClinica */
+export type ClinicalIntent = IntencaoClinica;
+
+export type ClassificacaoAvaliacao =
   | "essencial"
   | "adequado"
   | "redundante"
   | "inadequado";
 
-export type ObservationId =
+/** @deprecated Use ClassificacaoAvaliacao */
+export type EvaluationClassification = ClassificacaoAvaliacao;
+
+export type IdObservacao =
   | "imagem"
   | "dimensoes"
   | "exsudado"
@@ -120,7 +150,10 @@ export type ObservationId =
   | "bordos"
   | "pele_perilesional";
 
-export type DialogueId =
+/** @deprecated Use IdObservacao */
+export type ObservationId = IdObservacao;
+
+export type IdDialogo =
   | "dor"
   | "duracao"
   | "posicao"
@@ -128,7 +161,10 @@ export type DialogueId =
   | "febre"
   | "mobilidade";
 
-export type ApplicationId =
+/** @deprecated Use IdDialogo */
+export type DialogueId = IdDialogo;
+
+export type IdAplicacao =
   | "direto_seco"
   | "penso_rapido"
   | "penso_simples"
@@ -137,26 +173,32 @@ export type ApplicationId =
   | "terapia_compressiva"
   | "sem_protecao";
 
-export type EvidenceReference = {
+/** @deprecated Use IdAplicacao */
+export type ApplicationId = IdAplicacao;
+
+export type ReferenciaEvidencia = {
   id: string;
-  title: string;
+  titulo: string;
   url: string;
-  summary: string;
+  resumo: string;
 };
 
-export type TreatmentDefinition = {
+/** @deprecated Use ReferenciaEvidencia */
+export type EvidenceReference = ReferenciaEvidencia;
+
+export type DefinicaoTratamento = {
   id: string;
-  label: string;
+  rotulo: string;
   canonicalId: string;
   equivalenceGroup: string;
   category: string;
   subCategory: string;
-  functions: TreatmentFunction[];
-  indications: string[];
-  contraindications: string[];
-  evidenceRefs: string[];
+  funcoes: FuncaoTratamento[];
+  indicacoes: string[];
+  avisos_contraindicacao: string[];
+  refsEvidencia: string[];
   learningTopicIds: string[];
-  uiTags: string[];
+  etiquetas: string[];
   /** Nome comercial de referência (ex: "Aquacel®"); null quando não existe nome comercial relevante */
   nome_comercial?: string | null;
   /** Substância ativa ou denominação comum (ex: "Carboximetilcelulose sódica") */
@@ -164,120 +206,159 @@ export type TreatmentDefinition = {
   /** Categoria para o sistema de avaliação por material */
   categoria_clinica?: "apositos" | "liquidos" | "pomadas" | "outros";
   /** Regras clínicas para avaliação correto/parcial/incorreto */
-  regras?: MaterialRules;
+  regras?: RegrasClinicas;
 };
 
-export type CommonMistake = {
+/** @deprecated Use DefinicaoTratamento */
+export type TreatmentDefinition = DefinicaoTratamento;
+
+export type ErroComum = {
   id: string;
-  title: string;
-  explanation: string;
-  relatedTreatmentIds?: string[];
+  titulo: string;
+  explicacao: string;
+  idsTratamentoRelacionado?: string[];
 };
+
+/** @deprecated Use ErroComum */
+export type CommonMistake = ErroComum;
 
 /** Linha de uma tabela clínica (pares chave/valor em colunas). */
-export type ClinicalTableRow = {
-  /** Valores das colunas, na mesma ordem de `headers`. */
-  cells: string[];
+export type LinhaTabelaClinica = {
+  /** Valores das colunas, na mesma ordem de `cabecalhos`. */
+  celulas: string[];
 };
+
+/** @deprecated Use LinhaTabelaClinica */
+export type ClinicalTableRow = LinhaTabelaClinica;
 
 /** Tabela clínica estruturada (ex: tecidos × ação clínica). */
-export type ClinicalTable = {
+export type TabelaClinica = {
   id: string;
-  title: string;
+  titulo: string;
   /** Descrição breve do propósito da tabela (1-2 frases). */
-  caption?: string;
+  descricao?: string;
   /** Cabeçalhos das colunas. */
-  headers: string[];
-  rows: ClinicalTableRow[];
+  cabecalhos: string[];
+  linhas: LinhaTabelaClinica[];
 };
+
+/** @deprecated Use TabelaClinica */
+export type ClinicalTable = TabelaClinica;
 
 /** Destaque clínico — conceito chave ou regra prática. */
-export type KeyConcept = {
+export type ConceitoChave = {
   id: string;
-  title: string;
-  body: string;
+  titulo: string;
+  corpo: string;
 };
+
+/** @deprecated Use ConceitoChave */
+export type KeyConcept = ConceitoChave;
 
 /** Alerta clínico — bandeira vermelha, sinais sistémicos, escalamento. */
-export type ClinicalAlert = {
+export type AlertaClinico = {
   id: string;
   /** Gravidade visual — afeta a cor do destaque na UI. */
-  severity: "info" | "warning" | "critical";
-  title: string;
-  body: string;
+  gravidade: "informacao" | "aviso" | "critico";
+  titulo: string;
+  corpo: string;
 };
 
-export type LearningTopic = {
+/** @deprecated Use AlertaClinico */
+export type ClinicalAlert = AlertaClinico;
+
+export type TemaAprendizagem = {
   id: string;
-  title: string;
-  pedagogicalDifficulty: "base" | "intermedio" | "avancado";
+  titulo: string;
+  dificuldade: "base" | "intermedio" | "avancado";
   definition: string;
-  indications: string[];
-  contraindications: string[];
-  warningSigns: string[];
-  commonMistakes: CommonMistake[];
-  evidenceIds: string[];
-  treatmentIds: string[];
-  caseIds: string[];
-  relatedTopicIds: string[];
+  indicacoes: string[];
+  avisos_contraindicacao: string[];
+  sinais_alerta: string[];
+  erros_comuns: ErroComum[];
+  idsEvidencia: string[];
+  idsTratamento: string[];
+  idsCaso: string[];
+  idsTopicoRelacionado: string[];
   /** Tabelas clínicas estruturadas (opcional). */
-  tables?: ClinicalTable[];
+  tabelas?: TabelaClinica[];
   /** Conceitos-chave ou regras práticas (opcional). */
-  keyConcepts?: KeyConcept[];
+  conceitosChave?: ConceitoChave[];
   /** Alertas clínicos / bandeiras vermelhas (opcional). */
-  clinicalAlerts?: ClinicalAlert[];
+  alertas?: AlertaClinico[];
 };
 
-export type ObservationDefinition = {
-  id: ObservationId;
-  label: string;
-  priority: "essencial" | "adequado";
-  prompt: string;
-  learningTopicIds: string[];
+/** @deprecated Use TemaAprendizagem */
+export type LearningTopic = TemaAprendizagem;
+
+export type DefinicaoObservacao = {
+  id: IdObservacao;
+  rotulo: string;
+  prioridade: "essencial" | "adequado";
+  instrucao: string;
+  idsTemas: string[];
 };
 
-export type DialoguePrompt = {
-  id: DialogueId;
-  label: string;
-  question: string;
-  priority: "essencial" | "adequado";
-  learningTopicIds: string[];
+/** @deprecated Use DefinicaoObservacao */
+export type ObservationDefinition = DefinicaoObservacao;
+
+export type PerguntaDialogo = {
+  id: IdDialogo;
+  rotulo: string;
+  pergunta: string;
+  prioridade: "essencial" | "adequado";
+  idsTemas: string[];
 };
 
-export type ApplicationOption = {
-  id: ApplicationId;
-  label: string;
-  learningTopicIds: string[];
+/** @deprecated Use PerguntaDialogo */
+export type DialoguePrompt = PerguntaDialogo;
+
+export type OpcaoAplicacao = {
+  id: IdAplicacao;
+  rotulo: string;
+  idsTemas: string[];
   /** Regras clínicas para avaliação da técnica (correto/parcial/incorreto) */
-  regras?: MaterialRules;
+  regras?: RegrasClinicas;
 };
 
-export type GoalMatcher = {
-  treatmentIds?: string[];
-  treatmentFunctions?: TreatmentFunction[];
-  applicationIds?: ApplicationId[];
+/** @deprecated Use OpcaoAplicacao */
+export type ApplicationOption = OpcaoAplicacao;
+
+export type CorrespondenciaObjetivo = {
+  idsTratamento?: string[];
+  funcoesTratamento?: FuncaoTratamento[];
+  idsAplicacao?: IdAplicacao[];
 };
 
-export type CaseGoal = {
+/** @deprecated Use CorrespondenciaObjetivo */
+export type GoalMatcher = CorrespondenciaObjetivo;
+
+export type ObjetivoCaso = {
   id: string;
-  label: string;
-  intent: ClinicalIntent;
-  priority: "essencial" | "adequado";
-  rationale: string;
-  learningTopicIds: string[];
-  matcher: GoalMatcher;
+  rotulo: string;
+  intencao: IntencaoClinica;
+  prioridade: "essencial" | "adequado";
+  justificativa: string;
+  idsTemas: string[];
+  correspondencia: CorrespondenciaObjetivo;
 };
 
-export type EvaluationRule = {
+/** @deprecated Use ObjetivoCaso */
+export type CaseGoal = ObjetivoCaso;
+
+export type RegraAvaliacao = {
   id: string;
-  target: "treatment" | "application";
-  appliesToIds: string[];
-  classification: EvaluationClassification;
-  reason: string;
-  learningTopicIds: string[];
+  alvo: "treatment" | "application";
+  aplicavelAIds: string[];
+  classificacao: ClassificacaoAvaliacao;
+  motivo: string;
+  idsTemas: string[];
 };
 
-export type WoundState = {
+/** @deprecated Use RegraAvaliacao */
+export type EvaluationRule = RegraAvaliacao;
+
+export type EstadoFerida = {
   /**
    * Escala de exsudado (5 níveis — Lev-Tov et al., 2025 / WRAHPS):
    * - nenhum:    penso seco após uso
@@ -286,296 +367,383 @@ export type WoundState = {
    * - moderado:  50–75% da cobertura impregnada
    * - abundante: > 75% da cobertura impregnada (ou saturação)
    */
-  exudate: "nenhum" | "escasso" | "ligeiro" | "moderado" | "abundante";
+  exsudado: "nenhum" | "escasso" | "ligeiro" | "moderado" | "abundante";
   /**
    * Alinhado com IWII Wound Infection Continuum 2022.
-   * - contamination: micro-organismos presentes, sem multiplicação
-   * - colonization: multiplicação sem resposta do hospedeiro
-   * - local-infection-covert: sinais subtis (granulação friável, odor, estagnação)
-   * - local-infection-overt: sinais clássicos (eritema, dor, calor, exsudado purulento)
-   * - spreading-infection: eritema >2 cm, extensão para tecidos profundos, linfangite
-   * - systemic-infection: febre, sépsis
+   * - contaminacao: micro-organismos presentes, sem multiplicação
+   * - colonizacao: multiplicação sem resposta do hospedeiro
+   * - infecao-local-encoberta: sinais subtis (granulação friável, odor, estagnação)
+   * - infecao-local-evidente: sinais clássicos (eritema, dor, calor, exsudado purulento)
+   * - infecao-em-propagacao: eritema >2 cm, extensão para tecidos profundos, linfangite
+   * - infecao-sistemica: febre, sépsis
    */
-  infection:
-    | "contamination"
-    | "colonization"
-    | "local-infection-covert"
-    | "local-infection-overt"
-    | "spreading-infection"
-    | "systemic-infection";
-  tissue: "granulacao" | "granulacao-fibrina" | "fibrina" | "desvitalizado" | "hipergranulacao" | "necrose-fibrina" | "necrose-mista";
-  periwound: "integra" | "fragil" | "macerada" | "eritematosa";
+  infeccao:
+    | "contaminacao"
+    | "colonizacao"
+    | "infecao-local-encoberta"
+    | "infecao-local-evidente"
+    | "infecao-em-propagacao"
+    | "infecao-sistemica";
+  tecido: "granulacao" | "granulacao-fibrina" | "fibrina" | "desvitalizado" | "hipergranulacao" | "necrose-fibrina" | "necrose-mista";
+  perilesional: "integra" | "fragil" | "macerada" | "eritematosa";
   odor: "ausente" | "ligeiro" | "presente" | "fetido" | "intenso";
 };
 
-export type ObservationDetail = {
-  detail: string;
-  priority?: "essencial" | "adequado";
+/** @deprecated Use EstadoFerida */
+export type WoundState = EstadoFerida;
+
+export type DetalheObservacao = {
+  detalhe: string;
+  prioridade?: "essencial" | "adequado";
 };
 
-export type CaseTemplate = {
+/** @deprecated Use DetalheObservacao */
+export type ObservationDetail = DetalheObservacao;
+
+export type ModeloCaso = {
   id: string;
   slug: string;
-  shortTitle: string;
+  tituloAbreviado: string;
   title: string;
-  scenarioTitle: string;
-  description: string;
-  competencies: string;
+  tituloCenario: string;
+  descricao: string;
+  competencias: string;
   difficulty: "introdutorio" | "intermedio" | "avancado";
-  sequence: number;
-  estimatedMinutes: number;
+  ordem: number;
+  minutosEstimados: number;
   status: "disponivel" | "preparacao";
-  imageSrc: string;
-  imageAlt: string;
-  introSummary: string;
-  objective: string;
-  observationDefinitions: ObservationDefinition[];
-  dialoguePrompts: DialoguePrompt[];
-  applicationDefinitions: ApplicationOption[];
-  patientContext: string;
-  patientBanner: string;
-  woundState: WoundState;
-  woundVariables?: WoundVariables;
-  visualTargets: VisualIdentificationTargets;
-  observationDetails: Record<ObservationId, ObservationDetail>;
-  dialogueResponses: Record<DialogueId, string>;
-  availableTreatments: string[];
-  applicationOptions: ApplicationId[];
-  clinicalTargets: CaseGoal[];
-  evaluationRules: EvaluationRule[];
-  tissueZones?: TissueZone[];
-  justificacoesOverride?: Record<string, JustificationOverride>;
-  imageUrlAfter?: string;
-  evolutionCaption?: string;
-  learningTopicIds: string[];
-  recommendedPlan: {
-    minimum: string[];
-    optimized: string[];
+  srcImagem: string;
+  altImagem: string;
+  resumoIntro: string;
+  objetivo: string;
+  definicoesObservacao: DefinicaoObservacao[];
+  promptsDialogo: PerguntaDialogo[];
+  definicoesAplicacao: OpcaoAplicacao[];
+  contextoPaciente: string;
+  bannerPaciente: string;
+  estadoFerida: EstadoFerida;
+  variavelFerida?: VariaveisFerida;
+  objetivosVisuais: ObjetivosIdentificacaoVisual;
+  detalhesObservacao: Record<IdObservacao, DetalheObservacao>;
+  respostasDialogo: Record<IdDialogo, string>;
+  tratamentosDisponiveis: string[];
+  opcoesAplicacao: IdAplicacao[];
+  objetivosClinicosAlvo: ObjetivoCaso[];
+  regrasAvaliacao: RegraAvaliacao[];
+  zonasTecido?: ZonaTecido[];
+  justificacoesOverride?: Record<string, SubstituicaoJustificacao>;
+  urlImagemDepois?: string;
+  legendaEvolucao?: string;
+  idsTemas: string[];
+  planoRecomendado: {
+    minimo: string[];
+    otimizado: string[];
   };
 };
 
-export type AttemptInput = {
-  observationIds: ObservationId[];
-  visualSubmission: VisualIdentificationSubmission;
-  tissuePins?: TissuePin[];
-  dialogueIds: DialogueId[];
-  treatmentIds: string[];
-  applicationIds: ApplicationId[];
-  justificationAnswers?: JustificationAnswer[];
+/** @deprecated Use ModeloCaso */
+export type CaseTemplate = ModeloCaso;
+
+export type EntradaTentativa = {
+  idsObservacao: IdObservacao[];
+  submissaoVisual: SubmissaoIdentificacaoVisual;
+  marcadoresTecido?: MarcadorTecido[];
+  idsDialogo: IdDialogo[];
+  idsTratamento: string[];
+  idsAplicacao: IdAplicacao[];
+  respostasJustificacao?: RespostaJustificacao[];
 };
 
-export type EvaluationItem = {
+/** @deprecated Use EntradaTentativa */
+export type AttemptInput = EntradaTentativa;
+
+export type ItemAvaliacao = {
   id: string;
-  sourceId?: string;
-  label: string;
-  classification: EvaluationClassification;
-  explanation: string;
-  learningTopicIds: string[];
-  justificationCorrect?: boolean | null;
-  /** Peso explícito que sobrepõe classificationWeights para este item */
-  weightOverride?: number;
+  idOrigem?: string;
+  rotulo: string;
+  classificacao: ClassificacaoAvaliacao;
+  explicacao: string;
+  idsTemas: string[];
+  justificacaoCorreta?: boolean | null;
+  /** Peso explícito que sobrepõe pesosClassificacao para este item */
+  pesoOverride?: number;
 };
 
-export type ReviewStatus = "correct" | "incorrect" | "missed" | null;
+/** @deprecated Use ItemAvaliacao */
+export type EvaluationItem = ItemAvaliacao;
 
-export type AttemptReview = {
-  idealAttempt: AttemptInput;
-  observationStatus: Partial<Record<ObservationId, ReviewStatus>>;
-  dialogueStatus: Partial<Record<DialogueId, ReviewStatus>>;
-  treatmentStatus: Record<string, ReviewStatus>;
-  applicationStatus: Partial<Record<ApplicationId, ReviewStatus>>;
+export type EstadoRevisao = "correto" | "incorreto" | "omitido" | null;
+
+/** @deprecated Use EstadoRevisao */
+export type ReviewStatus = EstadoRevisao;
+
+export type RevisaoTentativa = {
+  tentativaIdeal: EntradaTentativa;
+  estadoObservacao: Partial<Record<IdObservacao, EstadoRevisao>>;
+  estadoDialogo: Partial<Record<IdDialogo, EstadoRevisao>>;
+  estadoTratamento: Record<string, EstadoRevisao>;
+  estadoAplicacao: Partial<Record<IdAplicacao, EstadoRevisao>>;
 };
+
+/** @deprecated Use RevisaoTentativa */
+export type AttemptReview = RevisaoTentativa;
 
 // ─── Anotação de tecidos ───────────────────────────────────────────────────
 
-/** Tipo de tecido anotável — alinhado com os valores de VisualTissueOption */
-export type AnnotatableTissueType =
+/** Tipo de tecido anotável — alinhado com os valores de OpcaoTecidoVisual */
+export type TipoTecidoAnotavel =
   | "necrose"
   | "fibrina"
   | "granulacao"
   | "epitelial"
   | "hipergranulacao";
 
+/** @deprecated Use TipoTecidoAnotavel */
+export type AnnotatableTissueType = TipoTecidoAnotavel;
+
 /** Retângulo em coordenadas relativas à imagem (0-1) */
-export type RelativeRect = {
+export type RetanguloRelativo = {
   x: number;
   y: number;
   w: number;
   h: number;
 };
 
+/** @deprecated Use RetanguloRelativo */
+export type RelativeRect = RetanguloRelativo;
+
 /** Zona ground truth para um tipo de tecido na imagem da variante */
-export type TissueZone = {
-  tissueType: AnnotatableTissueType;
-  rect: RelativeRect;
+export type ZonaTecido = {
+  tipoTecido: TipoTecidoAnotavel;
+  retangulo: RetanguloRelativo;
 };
 
+/** @deprecated Use ZonaTecido */
+export type TissueZone = ZonaTecido;
+
 /** Pin colocado pelo aluno na imagem */
-export type TissuePin = {
+export type MarcadorTecido = {
   id: string;
-  tissueType: AnnotatableTissueType;
+  tipoTecido: TipoTecidoAnotavel;
   x: number;
   y: number;
 };
 
+/** @deprecated Use MarcadorTecido */
+export type TissuePin = MarcadorTecido;
+
 // ─── Justificação clínica por escolha múltipla ───────────────────────────────
 
-export type JustificationOption = {
+export type OpcaoJustificacao = {
   id: string;
-  text: string;
+  texto: string;
 };
 
-export type JustificationQuestion = {
-  treatmentId: string;
-  treatmentLabel: string;
-  options: JustificationOption[];
-  correctOptionId: string;
-  kind: "ideal-match" | "contraindicated" | "redundant" | "no-match";
+/** @deprecated Use OpcaoJustificacao */
+export type JustificationOption = OpcaoJustificacao;
+
+export type PerguntaJustificacao = {
+  idTratamento: string;
+  rotuloTratamento: string;
+  opcoes: OpcaoJustificacao[];
+  idOpcaoCorreta: string;
+  tipo: "correspondencia-ideal" | "contraindicado" | "redundante" | "sem-correspondencia";
 };
 
-export type JustificationOverride = {
-  options: JustificationOption[];
-  correctOptionId: string;
+/** @deprecated Use PerguntaJustificacao */
+export type JustificationQuestion = PerguntaJustificacao;
+
+export type SubstituicaoJustificacao = {
+  opcoes: OpcaoJustificacao[];
+  idOpcaoCorreta: string;
 };
 
-export type JustificationAnswer = {
-  treatmentId: string;
-  selectedOptionId: string;
+/** @deprecated Use SubstituicaoJustificacao */
+export type JustificationOverride = SubstituicaoJustificacao;
+
+export type RespostaJustificacao = {
+  idTratamento: string;
+  idOpcaoSelecionada: string;
 };
+
+/** @deprecated Use RespostaJustificacao */
+export type JustificationAnswer = RespostaJustificacao;
 
 // ─── Identificação Visual ──────────────────────────────────────────────────
 
-export type VisualTissueOption =
+export type OpcaoTecidoVisual =
   | "granulacao"
   | "fibrina"
   | "necrose"
   | "epitelial"
   | "hipergranulacao";
 
-export type VisualExudateOption =
+/** @deprecated Use OpcaoTecidoVisual */
+export type VisualTissueOption = OpcaoTecidoVisual;
+
+export type OpcaoExsudadoVisual =
   | "seroso"
   | "hematico"
   | "purulento";
 
-export type VisualEdgeOption =
+/** @deprecated Use OpcaoExsudadoVisual */
+export type VisualExudateOption = OpcaoExsudadoVisual;
+
+export type OpcaoBordosVisual =
   | "maceracao"
   | "rubor"
   | "hiperqueratose"
   | "pele-seca"
   | "integra";
 
-export interface VisualOptionDefinition<T extends string> {
+/** @deprecated Use OpcaoBordosVisual */
+export type VisualEdgeOption = OpcaoBordosVisual;
+
+export interface DefinicaoOpcaoVisual<T extends string> {
   id: T;
-  label: string;
+  rotulo: string;
   description?: string;
 }
 
-export interface VisualIdentificationTargets {
-  tissues: VisualTissueOption[];
-  exudate: VisualExudateOption[];
-  edges: VisualEdgeOption[];
+/** @deprecated Use DefinicaoOpcaoVisual */
+export type VisualOptionDefinition<T extends string> = DefinicaoOpcaoVisual<T>;
+
+export interface ObjetivosIdentificacaoVisual {
+  tecidos: OpcaoTecidoVisual[];
+  exsudado: OpcaoExsudadoVisual[];
+  bordos: OpcaoBordosVisual[];
 }
 
-export interface VisualIdentificationSubmission {
-  tissues: VisualTissueOption[];
-  exudate: VisualExudateOption[];
-  edges: VisualEdgeOption[];
+/** @deprecated Use ObjetivosIdentificacaoVisual */
+export type VisualIdentificationTargets = ObjetivosIdentificacaoVisual;
+
+export interface SubmissaoIdentificacaoVisual {
+  tecidos: OpcaoTecidoVisual[];
+  exsudado: OpcaoExsudadoVisual[];
+  bordos: OpcaoBordosVisual[];
 }
+
+/** @deprecated Use SubmissaoIdentificacaoVisual */
+export type VisualIdentificationSubmission = SubmissaoIdentificacaoVisual;
 
 // ──────────────────────────────────────────────────────────────────────────────
 
-export type EvaluationSection = {
+export type SeccaoAvaliacao = {
   id:
-    | "observation"
-    | "visual-identification"
-    | "assessment"
-    | "treatment-plan"
-    | "application-technique";
+    | "observacao"
+    | "identificacao-visual"
+    | "avaliacao"
+    | "plano-terapeutico"
+    | "tecnica-aplicacao";
   title: string;
-  score: number;
-  maxScore: number;
-  items: EvaluationItem[];
+  pontuacao: number;
+  pontuacaoMaxima: number;
+  itens: ItemAvaliacao[];
 };
 
-export type RecommendedPlanComparison = {
-  minimum: string[];
-  optimized: string[];
-  differences: string[];
+/** @deprecated Use SeccaoAvaliacao */
+export type EvaluationSection = SeccaoAvaliacao;
+
+export type ComparacaoPlanoRecomendado = {
+  minimo: string[];
+  otimizado: string[];
+  diferencas: string[];
 };
 
-export type LearningRecommendation = {
-  topicId: string;
-  title: string;
-  reason: string;
-  priority: "alta" | "media";
+/** @deprecated Use ComparacaoPlanoRecomendado */
+export type RecommendedPlanComparison = ComparacaoPlanoRecomendado;
+
+export type RecomendacaoAprendizagem = {
+  idTema: string;
+  titulo: string;
+  motivo: string;
+  prioridade: "alta" | "media";
 };
 
-export type CaseEvaluation = {
-  score: number;
-  justificationPenalty: number;
-  wrongJustificationsCount: number;
-  sections: EvaluationSection[];
-  reasoningSummary: {
-    reading: string;
-    essential: string[];
-    correct: string[];
-    redundant: string[];
-    inadequate: string[];
-    nextStep: string;
+/** @deprecated Use RecomendacaoAprendizagem */
+export type LearningRecommendation = RecomendacaoAprendizagem;
+
+export type AvaliacaoCaso = {
+  pontuacao: number;
+  penalizacaoJustificacao: number;
+  justificacoesErradas: number;
+  seccoes: SeccaoAvaliacao[];
+  resumoRaciocinio: {
+    leitura: string;
+    essenciais: string[];
+    corretos: string[];
+    redundantes: string[];
+    inadequados: string[];
+    proximoPasso: string;
   };
-  recommendedPlan: RecommendedPlanComparison;
-  learningRecommendations: LearningRecommendation[];
+  planoRecomendado: ComparacaoPlanoRecomendado;
+  recomendacoesAprendizagem: RecomendacaoAprendizagem[];
 };
 
-export type AttemptRecord = {
+/** @deprecated Use AvaliacaoCaso */
+export type CaseEvaluation = AvaliacaoCaso;
+
+export type RegistoTentativa = {
   version: 3;
   id: string;
-  templateId: string;
-  caseTitle: string;
-  score: number;
-  previousBestScoreForCase: number | null;
-  sectionScores: Record<string, number>;
-  mistakeCodes: string[];
-  learningRecommendations: string[];
-  templateLearningTopicIds: string[];
-  recommendedNextCaseIds: string[];
-  dominantWeakTopics: string[];
-  selectedObservationIds: ObservationId[];
-  selectedDialogueIds: DialogueId[];
-  selectedTreatmentIds: string[];
-  selectedApplicationIds: ApplicationId[];
-  summary: string;
-  timestamp: string;
-  durationSeconds: number;
+  idCaso: string;
+  tituloCaso: string;
+  pontuacao: number;
+  melhorPontuacaoAnteriorCaso: number | null;
+  pontuacoesPorSeccao: Record<string, number>;
+  codigosErro: string[];
+  recomendacoesAprendizagem: string[];
+  idsTemasCaso: string[];
+  idsProximosCasos: string[];
+  temasFracosDominantes: string[];
+  observacoesSeleccionadas: IdObservacao[];
+  dialogosSeleccionados: IdDialogo[];
+  tratamentosSeleccionados: string[];
+  aplicacoesSeleccionadas: IdAplicacao[];
+  resumo: string;
+  data: string;
+  duracaoSegundos: number;
 };
 
-export type TopicMastery = {
-  topicId: string;
-  title: string;
-  masteryScore: number;
-  recommendationCount: number;
-  weakSignalCount: number;
-  exposureCount: number;
+/** @deprecated Use RegistoTentativa */
+export type AttemptRecord = RegistoTentativa;
+
+export type MestriaTema = {
+  idTema: string;
+  titulo: string;
+  pontuacaoMestria: number;
+  contadorRecomendacoes: number;
+  contadorSinalFraco: number;
+  contadorExposicao: number;
 };
 
-export type RecommendedCase = {
-  templateId: string;
-  title: string;
-  shortTitle: string;
-  difficulty: CaseTemplate["difficulty"];
-  reason: string;
-  matchTopics: string[];
-  averageScore: number | null;
-  attempts: number;
+/** @deprecated Use MestriaTema */
+export type TopicMastery = MestriaTema;
+
+export type CasoRecomendado = {
+  idModelo: string;
+  titulo: string;
+  tituloAbreviado: string;
+  difficulty: ModeloCaso["difficulty"];
+  motivo: string;
+  topicosCorrespondentes: string[];
+  pontuacaoMedia: number | null;
+  tentativas: number;
 };
 
-export type CaseProgress = {
-  templateId: string;
-  title: string;
-  attempts: number;
-  averageScore: number | null;
-  bestScore: number | null;
-  latestScore: number | null;
-  previousBestScore: number | null;
-  hasCompleted: boolean;
+/** @deprecated Use CasoRecomendado */
+export type RecommendedCase = CasoRecomendado;
+
+export type ProgressoCaso = {
+  idModelo: string;
+  titulo: string;
+  tentativas: number;
+  pontuacaoMedia: number | null;
+  melhorPontuacao: number | null;
+  ultimaPontuacao: number | null;
+  melhorPontuacaoAnterior: number | null;
+  concluido: boolean;
 };
+
+/** @deprecated Use ProgressoCaso */
+export type CaseProgress = ProgressoCaso;

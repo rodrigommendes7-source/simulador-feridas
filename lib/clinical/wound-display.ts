@@ -1,6 +1,6 @@
-import type { AnnotatableTissueType, WoundVariables } from "./types.ts";
+import type { TipoTecidoAnotavel, VariaveisFerida } from "./types.ts";
 
-const WOUND_VARIABLE_LABELS: Record<keyof WoundVariables, Record<number, string>> = {
+const ROTULOS_VARIAVEIS_FERIDA: Record<keyof VariaveisFerida, Record<number, string>> = {
   exsudado:          { 1: "Sem exsudado", 2: "Leve", 3: "Moderado", 4: "Abundante" },
   infeccao:          { 0: "Contaminação", 1: "Infeção local encoberta", 2: "Infeção em propagação", 3: "Infeção sistémica" },
   tecido:            { 1: "Necrose seca", 2: "Fibrina dominante", 3: "Granulação ativa", 4: "Epitelização", 5: "Hipergranulação" },
@@ -15,7 +15,7 @@ const WOUND_VARIABLE_LABELS: Record<keyof WoundVariables, Record<number, string>
   perfusao:          { 0: "Comprometida", 1: "Adequada" },
 };
 
-export const WOUND_VARIABLE_DISPLAY_LABELS: Record<keyof WoundVariables, string> = {
+export const ROTULOS_EXIBICAO_VARIAVEIS_FERIDA: Record<keyof VariaveisFerida, string> = {
   exsudado:          "Exsudado",
   infeccao:          "Infeção",
   tecido:            "Tecido",
@@ -30,14 +30,20 @@ export const WOUND_VARIABLE_DISPLAY_LABELS: Record<keyof WoundVariables, string>
   perfusao:          "Perfusão",
 };
 
-export const WOUND_VARIABLES_MAIN: readonly (keyof WoundVariables)[] = [
+/** @deprecated Use ROTULOS_EXIBICAO_VARIAVEIS_FERIDA */
+export const WOUND_VARIABLE_DISPLAY_LABELS = ROTULOS_EXIBICAO_VARIAVEIS_FERIDA;
+
+export const VARIAVEIS_FERIDA_PRINCIPAIS: readonly (keyof VariaveisFerida)[] = [
   "exsudado",
   "odor",
   "tecido",
   "pele_perilesional",
 ];
 
-export const WOUND_VARIABLES_EXTRA: readonly (keyof WoundVariables)[] = [
+/** @deprecated Use VARIAVEIS_FERIDA_PRINCIPAIS */
+export const WOUND_VARIABLES_MAIN = VARIAVEIS_FERIDA_PRINCIPAIS;
+
+export const VARIAVEIS_FERIDA_EXTRAS: readonly (keyof VariaveisFerida)[] = [
   "infeccao",
   "humidade",
   "profundidade",
@@ -48,14 +54,20 @@ export const WOUND_VARIABLES_EXTRA: readonly (keyof WoundVariables)[] = [
   "perfusao",
 ];
 
-export function getWoundVariableLabel(key: keyof WoundVariables, value: number): string {
-  return WOUND_VARIABLE_LABELS[key]?.[value] ?? String(value);
+/** @deprecated Use VARIAVEIS_FERIDA_EXTRAS */
+export const WOUND_VARIABLES_EXTRA = VARIAVEIS_FERIDA_EXTRAS;
+
+export function obterRotuloVariavelFerida(key: keyof VariaveisFerida, value: number): string {
+  return ROTULOS_VARIAVEIS_FERIDA[key]?.[value] ?? String(value);
 }
+
+/** @deprecated Use obterRotuloVariavelFerida */
+export const getWoundVariableLabel = obterRotuloVariavelFerida;
 
 // ─── Anotação de tecidos ───────────────────────────────────────────────────
 
-/** Mapeia o valor de VisualTissueOption para AnnotatableTissueType */
-export const tissueValueToAnnotatableType: Record<string, AnnotatableTissueType | null> = {
+/** Mapeia o valor de OpcaoTecidoVisual para TipoTecidoAnotavel */
+export const tissueValueToAnnotatableType: Record<string, TipoTecidoAnotavel | null> = {
   necrose: "necrose",
   fibrina: "fibrina",
   granulacao: "granulacao",
@@ -64,7 +76,7 @@ export const tissueValueToAnnotatableType: Record<string, AnnotatableTissueType 
 };
 
 /** Cores e labels para UI dos pins de anotação */
-export const annotatableTissueDisplay: Record<AnnotatableTissueType, { label: string; color: string }> = {
+export const annotatableTissueDisplay: Record<TipoTecidoAnotavel, { label: string; color: string }> = {
   necrose:         { label: "Necrose",              color: "#1a1a1a" },
   fibrina:         { label: "Fibrina / Esfacelo",   color: "#d4a574" },
   granulacao:      { label: "Granulação",            color: "#c9434b" },

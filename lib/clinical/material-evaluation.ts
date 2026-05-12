@@ -2,24 +2,24 @@
  * Motor de avaliação por material.
  *
  * Cada material/técnica é classificado individualmente com base nas variáveis
- * clínicas numéricas da ferida (WoundVariables):
+ * clínicas numéricas da ferida (VariaveisFerida):
  *   correto   → +1.0 pts
  *   parcial   → +0.5 pts
  *   incorreto → +0.0 pts
  *   bonus     → +0.25 pts adicionais
  */
 
-import { getTreatment, listTreatments } from "./catalog.ts";
+import { obterTratamento, listarTratamentos } from "./catalog.ts";
 import type {
-  ApplicationId,
-  ApplicationOption,
-  CaseTemplate,
-  MaterialClassification,
-  MaterialFeedback,
-  MaterialFeedbackItem,
-  MaterialScore,
-  WoundVariableCondition,
-  WoundVariables,
+  IdAplicacao,
+  OpcaoAplicacao,
+  ModeloCaso,
+  ClassificacaoMaterial,
+  FeedbackMaterial,
+  ItemFeedbackMaterial,
+  PontuacaoMaterial,
+  CondicaoVariavelFerida,
+  VariaveisFerida,
 } from "./types.ts";
 
 // ─── Utilitários de condição ─────────────────────────────────────────────────
@@ -28,15 +28,15 @@ import type {
  * Verifica se as variáveis da ferida satisfazem TODAS as condições do objecto.
  * Um objecto vazio {} corresponde a "corresponde sempre" (aplicação universal).
  */
-function matchesAllConditions(
-  woundVars: WoundVariables,
-  condition: WoundVariableCondition
+function satisfazTodasCondicoes(
+  variavelFerida: VariaveisFerida,
+  condition: CondicaoVariavelFerida
 ): boolean {
   for (const rawKey of Object.keys(condition)) {
-    const key = rawKey as keyof WoundVariables;
+    const key = rawKey as keyof VariaveisFerida;
     const allowedValues = condition[key];
     if (!allowedValues) continue;
-    const woundValue = woundVars[key] as number;
+    const woundValue = variavelFerida[key] as number;
     if (!allowedValues.includes(woundValue)) return false;
   }
   return true; // vazio → sempre verdadeiro
@@ -46,16 +46,16 @@ function matchesAllConditions(
  * Verifica se as variáveis da ferida satisfazem ALGUMA das contraindicações.
  * (lógica OR sobre a lista, AND dentro de cada objecto)
  */
-function isContraindicated(
-  woundVars: WoundVariables,
-  contraindicacoes: WoundVariableCondition[]
+function eContraindicado(
+  variavelFerida: VariaveisFerida,
+  contraindicacoes: CondicaoVariavelFerida[]
 ): boolean {
-  return contraindicacoes.some((condition) => matchesAllConditions(woundVars, condition));
+  return contraindicacoes.some((condition) => satisfazTodasCondicoes(variavelFerida, condition));
 }
 
 // ─── Rótulos legíveis para variáveis numéricas ───────────────────────────────
 
-const WOUND_VARIABLE_LABELS: Record<keyof WoundVariables, Record<number, string>> = {
+const ROTULOS_VARIAVEIS_FERIDA: Record<keyof VariaveisFerida, Record<number, string>> = {
   exsudado:          { 1: "Sem exsudado", 2: "Leve", 3: "Moderado", 4: "Abundante" },
   infeccao:          { 0: "Ausente", 1: "Sinais locais", 2: "Infeção local", 3: "Infeção sistémica" },
   tecido:            { 1: "Necrose seca", 2: "Fibrina dominante", 3: "Granulação ativa", 4: "Epitelização" },
@@ -71,7 +71,7 @@ const WOUND_VARIABLE_LABELS: Record<keyof WoundVariables, Record<number, string>
 };
 
 /** Rótulos apresentáveis para as variáveis principais da ferida */
-export const WOUND_VARIABLE_DISPLAY_LABELS: Record<keyof WoundVariables, string> = {
+export const ROTULOS_EXIBICAO_VARIAVEIS_FERIDA: Record<keyof VariaveisFerida, string> = {
   exsudado:          "Exsudado",
   infeccao:          "Infeção",
   tecido:            "Tecido",
@@ -86,16 +86,22 @@ export const WOUND_VARIABLE_DISPLAY_LABELS: Record<keyof WoundVariables, string>
   perfusao:          "Perfusão",
 };
 
+/** @deprecated Use ROTULOS_EXIBICAO_VARIAVEIS_FERIDA */
+export const WOUND_VARIABLE_DISPLAY_LABELS = ROTULOS_EXIBICAO_VARIAVEIS_FERIDA;
+
 /** Variáveis principais exibidas por defeito (sem necessidade de "Ver mais") */
-export const WOUND_VARIABLES_MAIN: readonly (keyof WoundVariables)[] = [
+export const VARIAVEIS_FERIDA_PRINCIPAIS: readonly (keyof VariaveisFerida)[] = [
   "exsudado",
   "infeccao",
   "tecido",
   "profundidade",
 ];
 
+/** @deprecated Use VARIAVEIS_FERIDA_PRINCIPAIS */
+export const WOUND_VARIABLES_MAIN = VARIAVEIS_FERIDA_PRINCIPAIS;
+
 /** Variáveis secundárias (escondidas atrás de "Ver mais detalhes") */
-export const WOUND_VARIABLES_EXTRA: readonly (keyof WoundVariables)[] = [
+export const VARIAVEIS_FERIDA_EXTRAS: readonly (keyof VariaveisFerida)[] = [
   "odor",
   "humidade",
   "bordos",
@@ -106,26 +112,32 @@ export const WOUND_VARIABLES_EXTRA: readonly (keyof WoundVariables)[] = [
   "perfusao",
 ];
 
+/** @deprecated Use VARIAVEIS_FERIDA_EXTRAS */
+export const WOUND_VARIABLES_EXTRA = VARIAVEIS_FERIDA_EXTRAS;
+
 /** Converte valor numérico da variável para texto legível */
-export function getWoundVariableLabel(key: keyof WoundVariables, value: number): string {
-  return WOUND_VARIABLE_LABELS[key]?.[value] ?? String(value);
+export function obterRotuloVariavelFerida(key: keyof VariaveisFerida, value: number): string {
+  return ROTULOS_VARIAVEIS_FERIDA[key]?.[value] ?? String(value);
 }
+
+/** @deprecated Use obterRotuloVariavelFerida */
+export const getWoundVariableLabel = obterRotuloVariavelFerida;
 
 // ─── Geração de justificações ─────────────────────────────────────────────────
 
 function buildJustificacao(
   nome: string,
-  classification: MaterialClassification,
-  woundVars: WoundVariables,
-  condition?: WoundVariableCondition
+  classification: ClassificacaoMaterial,
+  variavelFerida: VariaveisFerida,
+  condition?: CondicaoVariavelFerida
 ): string {
   const context = condition
     ? Object.entries(condition)
         .map(([k, vals]) => {
           if (!vals) return "";
-          const key = k as keyof WoundVariables;
-          const labels = vals.map((v) => getWoundVariableLabel(key, v)).join(" ou ");
-          return `${WOUND_VARIABLE_DISPLAY_LABELS[key].toLowerCase()} ${labels}`;
+          const key = k as keyof VariaveisFerida;
+          const labels = vals.map((v) => obterRotuloVariavelFerida(key, v)).join(" ou ");
+          return `${ROTULOS_EXIBICAO_VARIAVEIS_FERIDA[key].toLowerCase()} ${labels}`;
         })
         .filter(Boolean)
         .join(", ")
@@ -137,8 +149,8 @@ function buildJustificacao(
       : `${nome} é adequado para este leito.`;
   }
   if (classification === "parcial") {
-    const exs = getWoundVariableLabel("exsudado", woundVars.exsudado);
-    const tec = getWoundVariableLabel("tecido", woundVars.tecido);
+    const exs = obterRotuloVariavelFerida("exsudado", variavelFerida.exsudado);
+    const tec = obterRotuloVariavelFerida("tecido", variavelFerida.tecido);
     return `${nome} pode ser utilizado mas não é a escolha prioritária (exsudado ${exs}, tecido ${tec}).`;
   }
   return `${nome} está contraindicado para este estado da ferida.`;
@@ -150,204 +162,222 @@ function buildJustificacao(
  * Avalia um tratamento individualmente face às variáveis clínicas da ferida.
  * Retorna null se o tratamento não existir no catálogo ou não tiver regras.
  */
-export function evaluateMaterialForWound(
-  treatmentId: string,
-  woundVars: WoundVariables
-): MaterialScore | null {
-  const treatment = getTreatment(treatmentId);
-  if (!treatment || !treatment.regras) return null;
+export function avaliarMaterialParaFerida(
+  idTratamento: string,
+  variavelFerida: VariaveisFerida
+): PontuacaoMaterial | null {
+  const tratamento = obterTratamento(idTratamento);
+  if (!tratamento || !tratamento.regras) return null;
 
-  const { regras } = treatment;
-  const nome = treatment.nome_comercial ?? treatment.label;
+  const { regras } = tratamento;
+  const nome = tratamento.nome_comercial ?? tratamento.rotulo;
 
   // 1. Verificar contraindicações (prioridade máxima)
-  if (isContraindicated(woundVars, regras.contraindicacoes)) {
+  if (eContraindicado(variavelFerida, regras.contraindicacoes)) {
     // Encontrar a condição que activou a contraindicação para a justificação
     const matchedCondition = regras.contraindicacoes.find((c) =>
-      matchesAllConditions(woundVars, c)
+      satisfazTodasCondicoes(variavelFerida, c)
     );
     return {
-      materialId: treatmentId,
-      label: treatment.label,
-      nome_comercial: treatment.nome_comercial,
-      substancia_ativa: treatment.substancia_ativa,
-      classification: "incorreto",
-      score: 0,
-      hasBonus: false,
-      justificacao: buildJustificacao(nome, "incorreto", woundVars, matchedCondition),
+      idMaterial: idTratamento,
+      rotulo: tratamento.rotulo,
+      nome_comercial: tratamento.nome_comercial,
+      substancia_ativa: tratamento.substancia_ativa,
+      classificacao: "incorreto",
+      pontuacao: 0,
+      temBonus: false,
+      justificacao: buildJustificacao(nome, "incorreto", variavelFerida, matchedCondition),
     };
   }
 
   // 2. Verificar condições ideais (empty = universal)
-  const isIdeal = matchesAllConditions(woundVars, regras.condicoes_ideais);
+  const isIdeal = satisfazTodasCondicoes(variavelFerida, regras.condicoes_ideais);
 
   if (isIdeal) {
-    const hasBonus =
-      regras.bonus !== undefined && matchesAllConditions(woundVars, regras.bonus);
+    const temBonus =
+      regras.bonus !== undefined && satisfazTodasCondicoes(variavelFerida, regras.bonus);
     return {
-      materialId: treatmentId,
-      label: treatment.label,
-      nome_comercial: treatment.nome_comercial,
-      substancia_ativa: treatment.substancia_ativa,
-      classification: "correto",
-      score: hasBonus ? 1.25 : 1.0,
-      hasBonus,
-      justificacao: buildJustificacao(nome, "correto", woundVars, regras.condicoes_ideais),
+      idMaterial: idTratamento,
+      rotulo: tratamento.rotulo,
+      nome_comercial: tratamento.nome_comercial,
+      substancia_ativa: tratamento.substancia_ativa,
+      classificacao: "correto",
+      pontuacao: temBonus ? 1.25 : 1.0,
+      temBonus,
+      justificacao: buildJustificacao(nome, "correto", variavelFerida, regras.condicoes_ideais),
     };
   }
 
   // 3. Verificar condições parciais
   const isPartial =
     regras.condicoes_parciais !== undefined &&
-    matchesAllConditions(woundVars, regras.condicoes_parciais);
+    satisfazTodasCondicoes(variavelFerida, regras.condicoes_parciais);
 
   if (isPartial) {
-    const hasBonus =
-      regras.bonus !== undefined && matchesAllConditions(woundVars, regras.bonus);
+    const temBonus =
+      regras.bonus !== undefined && satisfazTodasCondicoes(variavelFerida, regras.bonus);
     return {
-      materialId: treatmentId,
-      label: treatment.label,
-      nome_comercial: treatment.nome_comercial,
-      substancia_ativa: treatment.substancia_ativa,
-      classification: "parcial",
-      score: hasBonus ? 0.75 : 0.5,
-      hasBonus,
-      justificacao: buildJustificacao(nome, "parcial", woundVars),
+      idMaterial: idTratamento,
+      rotulo: tratamento.rotulo,
+      nome_comercial: tratamento.nome_comercial,
+      substancia_ativa: tratamento.substancia_ativa,
+      classificacao: "parcial",
+      pontuacao: temBonus ? 0.75 : 0.5,
+      temBonus,
+      justificacao: buildJustificacao(nome, "parcial", variavelFerida),
     };
   }
 
-  // 4. Padrão: parcial (não contraindicicado, mas não ideal)
+  // 4. Padrão: parcial (não contraindicado, mas não ideal)
   return {
-    materialId: treatmentId,
-    label: treatment.label,
-    nome_comercial: treatment.nome_comercial,
-    substancia_ativa: treatment.substancia_ativa,
-    classification: "parcial",
-    score: 0.5,
-    hasBonus: false,
-    justificacao: buildJustificacao(nome, "parcial", woundVars),
+    idMaterial: idTratamento,
+    rotulo: tratamento.rotulo,
+    nome_comercial: tratamento.nome_comercial,
+    substancia_ativa: tratamento.substancia_ativa,
+    classificacao: "parcial",
+    pontuacao: 0.5,
+    temBonus: false,
+    justificacao: buildJustificacao(nome, "parcial", variavelFerida),
   };
 }
+
+/** @deprecated Use avaliarMaterialParaFerida */
+export const evaluateMaterialForWound = avaliarMaterialParaFerida;
 
 /**
  * Avalia uma técnica de aplicação face às variáveis clínicas da ferida.
  */
-export function evaluateApplicationForWound(
-  applicationOption: ApplicationOption,
-  woundVars: WoundVariables
-): MaterialScore | null {
-  if (!applicationOption.regras) return null;
+export function avaliarAplicacaoParaFerida(
+  opcaoAplicacao: OpcaoAplicacao,
+  variavelFerida: VariaveisFerida
+): PontuacaoMaterial | null {
+  if (!opcaoAplicacao.regras) return null;
 
-  const { regras } = applicationOption;
-  const nome = applicationOption.label;
+  const { regras } = opcaoAplicacao;
+  const nome = opcaoAplicacao.rotulo;
 
-  if (isContraindicated(woundVars, regras.contraindicacoes)) {
+  if (eContraindicado(variavelFerida, regras.contraindicacoes)) {
     const matchedCondition = regras.contraindicacoes.find((c) =>
-      matchesAllConditions(woundVars, c)
+      satisfazTodasCondicoes(variavelFerida, c)
     );
     return {
-      materialId: applicationOption.id,
-      label: applicationOption.label,
-      classification: "incorreto",
-      score: 0,
-      hasBonus: false,
-      justificacao: buildJustificacao(nome, "incorreto", woundVars, matchedCondition),
+      idMaterial: opcaoAplicacao.id,
+      rotulo: opcaoAplicacao.rotulo,
+      classificacao: "incorreto",
+      pontuacao: 0,
+      temBonus: false,
+      justificacao: buildJustificacao(nome, "incorreto", variavelFerida, matchedCondition),
     };
   }
 
-  const isIdeal = matchesAllConditions(woundVars, regras.condicoes_ideais);
+  const isIdeal = satisfazTodasCondicoes(variavelFerida, regras.condicoes_ideais);
   if (isIdeal) {
-    const hasBonus =
-      regras.bonus !== undefined && matchesAllConditions(woundVars, regras.bonus);
+    const temBonus =
+      regras.bonus !== undefined && satisfazTodasCondicoes(variavelFerida, regras.bonus);
     return {
-      materialId: applicationOption.id,
-      label: applicationOption.label,
-      classification: "correto",
-      score: hasBonus ? 1.25 : 1.0,
-      hasBonus,
-      justificacao: buildJustificacao(nome, "correto", woundVars, regras.condicoes_ideais),
+      idMaterial: opcaoAplicacao.id,
+      rotulo: opcaoAplicacao.rotulo,
+      classificacao: "correto",
+      pontuacao: temBonus ? 1.25 : 1.0,
+      temBonus,
+      justificacao: buildJustificacao(nome, "correto", variavelFerida, regras.condicoes_ideais),
     };
   }
 
   const isPartial =
     regras.condicoes_parciais !== undefined &&
-    matchesAllConditions(woundVars, regras.condicoes_parciais);
+    satisfazTodasCondicoes(variavelFerida, regras.condicoes_parciais);
 
   return {
-    materialId: applicationOption.id,
-    label: applicationOption.label,
-    classification: isPartial ? "parcial" : "parcial",
-    score: 0.5,
-    hasBonus: false,
-    justificacao: buildJustificacao(nome, "parcial", woundVars),
+    idMaterial: opcaoAplicacao.id,
+    rotulo: opcaoAplicacao.rotulo,
+    classificacao: isPartial ? "parcial" : "parcial",
+    pontuacao: 0.5,
+    temBonus: false,
+    justificacao: buildJustificacao(nome, "parcial", variavelFerida),
   };
 }
+
+/** @deprecated Use avaliarAplicacaoParaFerida */
+export const evaluateApplicationForWound = avaliarAplicacaoParaFerida;
 
 /**
  * Avalia todos os tratamentos seleccionados face às variáveis da ferida.
  * Filtra materiais sem regras definidas.
  */
-export function evaluateMaterialsForWound(
-  treatmentIds: string[],
-  woundVars: WoundVariables
-): MaterialScore[] {
-  return treatmentIds
-    .map((id) => evaluateMaterialForWound(id, woundVars))
-    .filter((score): score is MaterialScore => score !== null);
+export function avaliarMateriaisParaFerida(
+  idsTratamento: string[],
+  variavelFerida: VariaveisFerida
+): PontuacaoMaterial[] {
+  return idsTratamento
+    .map((id) => avaliarMaterialParaFerida(id, variavelFerida))
+    .filter((score): score is PontuacaoMaterial => score !== null);
 }
+
+/** @deprecated Use avaliarMateriaisParaFerida */
+export const evaluateMaterialsForWound = avaliarMateriaisParaFerida;
 
 /**
  * Calcula a pontuação total dos materiais avaliados.
  * correto → 1.0  |  parcial → 0.5  |  incorreto → 0  |  bonus → +0.25
  */
-export function calculateMaterialTotalScore(scores: MaterialScore[]): number {
-  return scores.reduce((acc, s) => acc + s.score, 0);
+export function calcularPontuacaoTotalMaterial(scores: PontuacaoMaterial[]): number {
+  return scores.reduce((acc, s) => acc + s.pontuacao, 0);
 }
+
+/** @deprecated Use calcularPontuacaoTotalMaterial */
+export const calculateMaterialTotalScore = calcularPontuacaoTotalMaterial;
 
 /**
  * Constrói o feedback estruturado.
  * As sugestões são materiais disponíveis no catálogo, não seleccionados,
  * que seriam "correto" para a ferida actual.
  */
-export function buildMaterialFeedback(
-  scores: MaterialScore[],
-  selectedTreatmentIds: string[],
-  woundVars: WoundVariables
-): MaterialFeedback {
-  const toItem = (s: MaterialScore): MaterialFeedbackItem => ({
-    material: s.nome_comercial ?? s.label,
+export function construirFeedbackMaterial(
+  scores: PontuacaoMaterial[],
+  idsTratamentoSelecionados: string[],
+  variavelFerida: VariaveisFerida
+): FeedbackMaterial {
+  const toItem = (s: PontuacaoMaterial): ItemFeedbackMaterial => ({
+    material: s.nome_comercial ?? s.rotulo,
     justificacao: s.justificacao,
   });
 
-  const corretos = scores.filter((s) => s.classification === "correto").map(toItem);
-  const parciais = scores.filter((s) => s.classification === "parcial").map(toItem);
-  const incorretos = scores.filter((s) => s.classification === "incorreto").map(toItem);
+  const corretos = scores.filter((s) => s.classificacao === "correto").map(toItem);
+  const parciais = scores.filter((s) => s.classificacao === "parcial").map(toItem);
+  const incorretos = scores.filter((s) => s.classificacao === "incorreto").map(toItem);
 
   // Sugestões: materiais do catálogo com regras, não seleccionados, classificados como "correto"
-  const selectedSet = new Set(selectedTreatmentIds);
-  const sugestoes: MaterialFeedbackItem[] = listTreatments()
+  const selectedSet = new Set(idsTratamentoSelecionados);
+  const sugestoes: ItemFeedbackMaterial[] = listarTratamentos()
     .filter((t) => !selectedSet.has(t.id) && t.regras)
-    .map((t) => evaluateMaterialForWound(t.id, woundVars))
-    .filter((s): s is MaterialScore => s !== null && s.classification === "correto")
+    .map((t) => avaliarMaterialParaFerida(t.id, variavelFerida))
+    .filter((s): s is PontuacaoMaterial => s !== null && s.classificacao === "correto")
     .slice(0, 3)
     .map(toItem);
 
   return { corretos, parciais, incorretos, sugestoes };
 }
 
+/** @deprecated Use construirFeedbackMaterial */
+export const buildMaterialFeedback = construirFeedbackMaterial;
+
 /**
  * Avalia técnicas de aplicação seleccionadas face às variáveis da ferida.
  */
-export function evaluateApplicationsForWound(
-  selectedApplicationIds: ApplicationId[],
-  template: CaseTemplate,
-  woundVars: WoundVariables
-): MaterialScore[] {
-  return selectedApplicationIds
+export function avaliarAplicacoesParaFerida(
+  idsAplicacaoSelecionados: IdAplicacao[],
+  modelo: ModeloCaso,
+  variavelFerida: VariaveisFerida
+): PontuacaoMaterial[] {
+  return idsAplicacaoSelecionados
     .map((appId) => {
-      const option = template.applicationDefinitions.find((d) => d.id === appId);
+      const option = modelo.definicoesAplicacao.find((d) => d.id === appId);
       if (!option) return null;
-      return evaluateApplicationForWound(option, woundVars);
+      return avaliarAplicacaoParaFerida(option, variavelFerida);
     })
-    .filter((s): s is MaterialScore => s !== null);
+    .filter((s): s is PontuacaoMaterial => s !== null);
 }
+
+/** @deprecated Use avaliarAplicacoesParaFerida */
+export const evaluateApplicationsForWound = avaliarAplicacoesParaFerida;

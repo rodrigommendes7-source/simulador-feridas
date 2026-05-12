@@ -1,91 +1,91 @@
 import assert from "node:assert/strict";
 import {
-  getCaseProgress,
-  getRecommendedNextCases,
-  getStudyPlan,
-  getTopicMastery,
+  obterProgressoCaso,
+  obterCasosRecomendadosSeguintes,
+  obterPlanoEstudo,
+  obterMestriaTema,
 } from "./history.ts";
-import type { AttemptRecord } from "./types.ts";
+import type { RegistoTentativa } from "./types.ts";
 
-const baseAttempt: AttemptRecord = {
+const baseAttempt: RegistoTentativa = {
   version: 3,
-  id: "attempt-1",
-  templateId: "1",
-  caseTitle: "Lesao por pressao",
-  score: 58,
-  previousBestScoreForCase: null,
-  sectionScores: {
-    observation: 9,
-    assessment: 6,
-    "treatment-plan": 28,
-    "application-technique": 15,
+  id: "tentativa-1",
+  idCaso: "1",
+  tituloCaso: "Lesao por pressao",
+  pontuacao: 58,
+  melhorPontuacaoAnteriorCaso: null,
+  pontuacoesPorSeccao: {
+    observacao: 9,
+    avaliacao: 6,
+    "plano-terapeutico": 28,
+    "tecnica-aplicacao": 15,
   },
-  mistakeCodes: ["treatment-plan-1"],
-  learningRecommendations: ["gestao-exsudado", "protecao-perilesional"],
-  templateLearningTopicIds: ["gestao-exsudado", "protecao-perilesional", "decisao-clinica"],
-  recommendedNextCaseIds: ["4"],
-  dominantWeakTopics: ["gestao-exsudado"],
-  selectedObservationIds: ["imagem", "exsudado", "tecidos"],
-  selectedDialogueIds: ["dor", "posicao"],
-  selectedTreatmentIds: ["aquacel-simples"],
-  selectedApplicationIds: ["penso_simples"],
-  summary: "Reforca a leitura do exsudado.",
-  timestamp: "2026-04-02T10:00:00.000Z",
-  durationSeconds: 320,
+  codigosErro: ["plano-terapeutico-1"],
+  recomendacoesAprendizagem: ["gestao-exsudado", "protecao-perilesional"],
+  idsTemasCaso: ["gestao-exsudado", "protecao-perilesional", "decisao-clinica"],
+  idsProximosCasos: ["4"],
+  temasFracosDominantes: ["gestao-exsudado"],
+  observacoesSeleccionadas: ["imagem", "exsudado", "tecidos"],
+  dialogosSeleccionados: ["dor", "posicao"],
+  tratamentosSeleccionados: ["aquacel-simples"],
+  aplicacoesSeleccionadas: ["penso_simples"],
+  resumo: "Reforca a leitura do exsudado.",
+  data: "2026-04-02T10:00:00.000Z",
+  duracaoSegundos: 320,
 };
 
-const attempts: AttemptRecord[] = [
+const attempts: RegistoTentativa[] = [
   {
     ...baseAttempt,
-    id: "attempt-2",
-    templateId: "2",
-    caseTitle: "Ferida cirurgica com deiscencia",
-    score: 46,
-    previousBestScoreForCase: null,
-    learningRecommendations: ["antimicrobianos", "gestao-exsudado"],
-    templateLearningTopicIds: ["antimicrobianos", "gestao-exsudado", "decisao-clinica"],
-    recommendedNextCaseIds: ["3"],
-    dominantWeakTopics: ["antimicrobianos", "gestao-exsudado"],
-    timestamp: "2026-04-03T10:00:00.000Z",
+    id: "tentativa-2",
+    idCaso: "2",
+    tituloCaso: "Ferida cirurgica com deiscencia",
+    pontuacao: 46,
+    melhorPontuacaoAnteriorCaso: null,
+    recomendacoesAprendizagem: ["antimicrobianos", "gestao-exsudado"],
+    idsTemasCaso: ["antimicrobianos", "gestao-exsudado", "decisao-clinica"],
+    idsProximosCasos: ["3"],
+    temasFracosDominantes: ["antimicrobianos", "gestao-exsudado"],
+    data: "2026-04-03T10:00:00.000Z",
   },
   {
     ...baseAttempt,
-    id: "attempt-3",
-    score: 74,
-    previousBestScoreForCase: 58,
-    learningRecommendations: ["protecao-perilesional"],
-    dominantWeakTopics: ["protecao-perilesional"],
-    timestamp: "2026-04-04T10:00:00.000Z",
+    id: "tentativa-3",
+    pontuacao: 74,
+    melhorPontuacaoAnteriorCaso: 58,
+    recomendacoesAprendizagem: ["protecao-perilesional"],
+    temasFracosDominantes: ["protecao-perilesional"],
+    data: "2026-04-04T10:00:00.000Z",
   },
   baseAttempt,
 ];
 
 function run() {
-  const mastery = getTopicMastery(attempts);
-  assert.equal(mastery[0]?.topicId, "gestao-exsudado");
-  assert.ok((mastery[0]?.masteryScore ?? 0) <= (mastery[1]?.masteryScore ?? 100));
+  const mastery = obterMestriaTema(attempts);
+  assert.equal(mastery[0]?.idTema, "gestao-exsudado");
+  assert.ok((mastery[0]?.pontuacaoMestria ?? 0) <= (mastery[1]?.pontuacaoMestria ?? 100));
 
-  const recommendations = getRecommendedNextCases(attempts);
+  const recommendations = obterCasosRecomendadosSeguintes(attempts);
   assert.ok(recommendations.length > 0);
   assert.ok(
     recommendations.some(
       (recommendation) =>
-        recommendation.matchTopics.includes("gestao-exsudado") ||
-        recommendation.matchTopics.includes("antimicrobianos")
+        recommendation.topicosCorrespondentes.includes("gestao-exsudado") ||
+        recommendation.topicosCorrespondentes.includes("antimicrobianos")
     )
   );
 
-  const progress = getCaseProgress(attempts, "1");
-  assert.equal(progress.bestScore, 74);
-  assert.equal(progress.previousBestScore, 58);
-  assert.equal(progress.attempts, 2);
+  const progress = obterProgressoCaso(attempts, "1");
+  assert.equal(progress.melhorPontuacao, 74);
+  assert.equal(progress.melhorPontuacaoAnterior, 58);
+  assert.equal(progress.tentativas, 2);
 
-  const plan = getStudyPlan(attempts);
+  const plan = obterPlanoEstudo(attempts);
   assert.ok(plan.retryCase);
   assert.ok(plan.reviewTopic);
   assert.ok(plan.followUpCase);
 
-  console.log("Clinical history tests passed.");
+  console.log("Testes de histórico clínico concluídos.");
 }
 
 run();

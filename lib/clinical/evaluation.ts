@@ -1,32 +1,32 @@
 import {
-  getApplicationLabel,
-  getLearningTopic,
-  getLearningTopicTitle,
-  getTreatment,
-  getTreatmentLabel,
+  obterRotuloAplicacao,
+  obterTema,
+  obterTituloTema,
+  obterTratamento,
+  obterRotuloTratamento,
 } from "./catalog.ts";
-import { generateAllJustificationQuestions, generateJustificationQuestion } from "./justification-engine.ts";
-import { evaluateAnnotation } from "./annotation-evaluator.ts";
+import { gerarTodasPerguntasJustificacao, gerarPerguntaJustificacao } from "./justification-engine.ts";
+import { avaliarAnotacao } from "./annotation-evaluator.ts";
 import type {
-  AttemptReview,
-  ApplicationId,
-  AttemptInput,
-  CaseEvaluation,
-  CaseTemplate,
-  EvaluationClassification,
-  EvaluationSection,
-  JustificationAnswer,
-  LearningRecommendation,
-  ReviewStatus,
-  TissuePin,
-  TreatmentDefinition,
-  TreatmentFunction,
-  VisualTissueOption,
-  VisualExudateOption,
-  VisualEdgeOption,
+  RevisaoTentativa,
+  IdAplicacao,
+  EntradaTentativa,
+  AvaliacaoCaso,
+  ModeloCaso,
+  ClassificacaoAvaliacao,
+  SeccaoAvaliacao,
+  RespostaJustificacao,
+  RecomendacaoAprendizagem,
+  EstadoRevisao,
+  MarcadorTecido,
+  DefinicaoTratamento,
+  FuncaoTratamento,
+  OpcaoTecidoVisual,
+  OpcaoExsudadoVisual,
+  OpcaoBordosVisual,
 } from "./types.ts";
 
-const classificationWeights: Record<EvaluationClassification, number> = {
+const pesosClassificacao: Record<ClassificacaoAvaliacao, number> = {
   essencial: 12,
   adequado: 6,
   redundante: -3,
@@ -34,88 +34,88 @@ const classificationWeights: Record<EvaluationClassification, number> = {
 };
 
 
-function normalizeLearningTopicId(topicId: string) {
-  return topicId === "materiais-desadequados" ? "decisao-clinica" : topicId;
+function normalizarIdTema(idTema: string) {
+  return idTema === "materiais-desadequados" ? "decisao-clinica" : idTema;
 }
 
-function createSection(
-  id: EvaluationSection["id"],
+function criarSeccao(
+  id: SeccaoAvaliacao["id"],
   title: string,
-  maxScore: number
-): EvaluationSection {
-  return { id, title, score: 0, maxScore, items: [] };
+  pontuacaoMaxima: number
+): SeccaoAvaliacao {
+  return { id, title, pontuacao: 0, pontuacaoMaxima, itens: [] };
 }
 
-function pushItem(
-  section: EvaluationSection,
-  sourceId: string | undefined,
-  label: string,
-  classification: EvaluationClassification,
-  explanation: string,
-  learningTopicIds: string[]
+function adicionarItem(
+  seccao: SeccaoAvaliacao,
+  idOrigem: string | undefined,
+  rotulo: string,
+  classificacao: ClassificacaoAvaliacao,
+  explicacao: string,
+  idsTemas: string[]
 ) {
-  section.items.push({
-    id: `${section.id}-${section.items.length + 1}`,
-    sourceId,
-    label,
-    classification,
-    explanation,
-    learningTopicIds,
+  seccao.itens.push({
+    id: `${seccao.id}-${seccao.itens.length + 1}`,
+    idOrigem,
+    rotulo,
+    classificacao,
+    explicacao,
+    idsTemas,
   });
 }
 
-function getSectionRawScore(section: EvaluationSection) {
-  return section.items.reduce((acc, item) => {
-    if (item.weightOverride !== undefined) {
+function obterPontuacaoBrutaSeccao(seccao: SeccaoAvaliacao) {
+  return seccao.itens.reduce((acc, item) => {
+    if (item.pesoOverride !== undefined) {
       const sign =
-        item.classification === "inadequado" ? -1
-        : item.classification === "redundante" ? -0.25
+        item.classificacao === "inadequado" ? -1
+        : item.classificacao === "redundante" ? -0.25
         : 1;
-      return acc + item.weightOverride * sign;
+      return acc + item.pesoOverride * sign;
     }
-    return acc + classificationWeights[item.classification];
+    return acc + pesosClassificacao[item.classificacao];
   }, 0);
 }
 
-function finalizeSectionScore(section: EvaluationSection, attainableRawMax: number) {
-  const rawScore = Math.max(0, Math.min(attainableRawMax, getSectionRawScore(section)));
-  section.score =
-    attainableRawMax > 0 ? Math.round((rawScore / attainableRawMax) * section.maxScore) : 0;
-  return section;
+function finalizarPontuacaoSeccao(seccao: SeccaoAvaliacao, tetoBrutoAtingivel: number) {
+  const pontuacaoBruta = Math.max(0, Math.min(tetoBrutoAtingivel, obterPontuacaoBrutaSeccao(seccao)));
+  seccao.pontuacao =
+    tetoBrutoAtingivel > 0 ? Math.round((pontuacaoBruta / tetoBrutoAtingivel) * seccao.pontuacaoMaxima) : 0;
+  return seccao;
 }
 
-function uniqueCanonicalTreatments(treatmentIds: string[]) {
+function tratamentosCanonicosSemDuplicados(idsTratamento: string[]) {
   const seen = new Set<string>();
   const duplicates = new Set<string>();
-  const selected: TreatmentDefinition[] = [];
+  const selected: DefinicaoTratamento[] = [];
 
-  for (const treatmentId of treatmentIds) {
-    const treatment = getTreatment(treatmentId);
-    if (!treatment) continue;
+  for (const idTratamento of idsTratamento) {
+    const tratamento = obterTratamento(idTratamento);
+    if (!tratamento) continue;
 
-    if (seen.has(treatment.equivalenceGroup)) {
-      duplicates.add(treatment.id);
+    if (seen.has(tratamento.equivalenceGroup)) {
+      duplicates.add(tratamento.id);
       continue;
     }
 
-    seen.add(treatment.equivalenceGroup);
-    selected.push(treatment);
+    seen.add(tratamento.equivalenceGroup);
+    selected.push(tratamento);
   }
 
   return { selected, duplicates };
 }
 
-function treatmentMatchesGoal(
-  treatment: TreatmentDefinition,
-  matcher: { treatmentIds?: string[]; treatmentFunctions?: TreatmentFunction[] }
+function tratamentoCorrespondeAObjetivo(
+  tratamento: DefinicaoTratamento,
+  correspondencia: { idsTratamento?: string[]; funcoesTratamento?: FuncaoTratamento[] }
 ) {
-  if (matcher.treatmentIds?.includes(treatment.id)) return true;
-  if (matcher.treatmentFunctions?.some((fn) => treatment.functions.includes(fn))) return true;
-  // Equivalência clínica: materiais do mesmo grupo equivalem-se nos goals por treatmentId
-  if (matcher.treatmentIds) {
-    for (const matcherId of matcher.treatmentIds) {
-      const matcherTreatment = getTreatment(matcherId);
-      if (matcherTreatment && matcherTreatment.equivalenceGroup === treatment.equivalenceGroup) {
+  if (correspondencia.idsTratamento?.includes(tratamento.id)) return true;
+  if (correspondencia.funcoesTratamento?.some((fn) => tratamento.funcoes.includes(fn))) return true;
+  // Equivalência clínica: materiais do mesmo grupo equivalem-se nos goals por idsTratamento
+  if (correspondencia.idsTratamento) {
+    for (const matcherId of correspondencia.idsTratamento) {
+      const matcherTreatment = obterTratamento(matcherId);
+      if (matcherTreatment && matcherTreatment.equivalenceGroup === tratamento.equivalenceGroup) {
         return true;
       }
     }
@@ -123,199 +123,199 @@ function treatmentMatchesGoal(
   return false;
 }
 
-function buildObservationSection(template: CaseTemplate, attempt: AttemptInput) {
-  const section = createSection("observation", "Observação", 5);
-  const selected = new Set(attempt.observationIds);
+function construirSeccaoObservacao(modelo: ModeloCaso, tentativa: EntradaTentativa) {
+  const seccao = criarSeccao("observacao", "Observação", 5);
+  const selected = new Set(tentativa.idsObservacao);
 
-  for (const definition of template.observationDefinitions) {
-    const detail = template.observationDetails[definition.id];
+  for (const definition of modelo.definicoesObservacao) {
+    const detail = modelo.detalhesObservacao[definition.id];
     if (!detail) continue;
 
     if (selected.has(definition.id)) {
-      pushItem(
-        section,
+      adicionarItem(
+        seccao,
         definition.id,
-        definition.label,
-        definition.priority === "essencial" ? "essencial" : "adequado",
-        `Observaste ${definition.label.toLowerCase()}: ${detail.detail}`,
-        definition.learningTopicIds
+        definition.rotulo,
+        definition.prioridade === "essencial" ? "essencial" : "adequado",
+        `Observaste ${definition.rotulo.toLowerCase()}: ${detail.detalhe}`,
+        definition.idsTemas
       );
-    } else if (definition.priority === "essencial") {
+    } else if (definition.prioridade === "essencial") {
       // Itens essenciais não observados penalizam — adequados omitidos são silenciosos
-      pushItem(
-        section,
+      adicionarItem(
+        seccao,
         definition.id,
-        definition.label,
+        definition.rotulo,
         "inadequado",
-        `Faltou observar ${definition.label.toLowerCase()}, o que limita a leitura clínica do caso.`,
-        definition.learningTopicIds
+        `Faltou observar ${definition.rotulo.toLowerCase()}, o que limita a leitura clínica do caso.`,
+        definition.idsTemas
       );
     }
   }
 
-  return section;
+  return seccao;
 }
 
-function buildAssessmentSection(template: CaseTemplate, attempt: AttemptInput) {
-  const section = createSection("assessment", "Avaliação e diálogo", 10);
-  const selected = new Set(attempt.dialogueIds);
+function construirSeccaoAvaliacao(modelo: ModeloCaso, tentativa: EntradaTentativa) {
+  const seccao = criarSeccao("avaliacao", "Avaliação e diálogo", 10);
+  const selected = new Set(tentativa.idsDialogo);
 
-  for (const prompt of template.dialoguePrompts) {
+  for (const prompt of modelo.promptsDialogo) {
     if (selected.has(prompt.id)) {
-      pushItem(
-        section,
+      adicionarItem(
+        seccao,
         prompt.id,
-        prompt.label,
-        prompt.priority === "essencial" ? "essencial" : "adequado",
-        `Perguntaste sobre ${prompt.label.toLowerCase().replace("perguntar sobre ", "")}: ${template.dialogueResponses[prompt.id]}`,
-        prompt.learningTopicIds
+        prompt.rotulo,
+        prompt.prioridade === "essencial" ? "essencial" : "adequado",
+        `Perguntaste sobre ${prompt.rotulo.toLowerCase().replace("perguntar sobre ", "")}: ${modelo.respostasDialogo[prompt.id]}`,
+        prompt.idsTemas
       );
-    } else if (prompt.priority === "essencial") {
+    } else if (prompt.prioridade === "essencial") {
       // Perguntas essenciais omitidas penalizam — adequadas omitidas são silenciosas
-      pushItem(
-        section,
+      adicionarItem(
+        seccao,
         prompt.id,
-        prompt.label,
+        prompt.rotulo,
         "inadequado",
         "Faltou recolher este dado clínico, que influencia a segurança do plano.",
-        prompt.learningTopicIds
+        prompt.idsTemas
       );
     }
   }
 
-  return section;
+  return seccao;
 }
 
-function buildTreatmentSection(template: CaseTemplate, attempt: AttemptInput) {
-  const section = createSection("treatment-plan", "Plano terapêutico", 45);
-  const { selected, duplicates } = uniqueCanonicalTreatments(attempt.treatmentIds);
-  const specialRules = template.evaluationRules.filter((rule) => rule.target === "treatment");
+function construirSeccaoTratamento(modelo: ModeloCaso, tentativa: EntradaTentativa) {
+  const seccao = criarSeccao("plano-terapeutico", "Plano terapêutico", 45);
+  const { selected, duplicates } = tratamentosCanonicosSemDuplicados(tentativa.idsTratamento);
+  const regraEspeciais = modelo.regrasAvaliacao.filter((rule) => rule.alvo === "treatment");
   const claimedGoalIds = new Set<string>();
 
-  function getJustificationStatus(treatmentId: string): boolean | null {
-    if (!attempt.justificationAnswers) return null;
-    const answer = attempt.justificationAnswers.find((a) => a.treatmentId === treatmentId);
+  function obterEstadoJustificacao(idTratamento: string): boolean | null {
+    if (!tentativa.respostasJustificacao) return null;
+    const answer = tentativa.respostasJustificacao.find((a) => a.idTratamento === idTratamento);
     if (!answer) return null;
-    const question = generateJustificationQuestion(treatmentId, template);
+    const question = gerarPerguntaJustificacao(idTratamento, modelo);
     if (!question) return null;
-    return answer.selectedOptionId === question.correctOptionId;
+    return answer.idOpcaoSelecionada === question.idOpcaoCorreta;
   }
 
-  function pushTreatmentItem(
-    treatmentId: string,
-    label: string,
-    classification: EvaluationClassification,
-    reason: string,
-    topicIds: string[]
+  function adicionarItemTratamento(
+    idTratamento: string,
+    rotulo: string,
+    classificacao: ClassificacaoAvaliacao,
+    motivo: string,
+    idsTemas: string[]
   ) {
-    const justificationCorrect = getJustificationStatus(treatmentId);
-    section.items.push({
-      id: `${section.id}-${section.items.length + 1}`,
-      sourceId: treatmentId,
-      label,
-      classification,
-      explanation: reason,
-      learningTopicIds: topicIds,
-      justificationCorrect,
+    const justificacaoCorreta = obterEstadoJustificacao(idTratamento);
+    seccao.itens.push({
+      id: `${seccao.id}-${seccao.itens.length + 1}`,
+      idOrigem: idTratamento,
+      rotulo,
+      classificacao,
+      explicacao: motivo,
+      idsTemas,
+      justificacaoCorreta,
     });
   }
 
-  for (const treatment of selected) {
-    const forcedRule = specialRules.find((rule) => rule.appliesToIds.includes(treatment.id));
+  for (const tratamento of selected) {
+    const regraForcada = regraEspeciais.find((rule) => rule.aplicavelAIds.includes(tratamento.id));
 
-    if (forcedRule) {
-      pushTreatmentItem(
-        treatment.id,
-        treatment.label,
-        forcedRule.classification,
-        forcedRule.reason,
-        forcedRule.learningTopicIds
+    if (regraForcada) {
+      adicionarItemTratamento(
+        tratamento.id,
+        tratamento.rotulo,
+        regraForcada.classificacao,
+        regraForcada.motivo,
+        regraForcada.idsTemas
       );
       continue;
     }
 
-    const matchedGoals = template.clinicalTargets.filter((goal) =>
-      treatmentMatchesGoal(treatment, goal.matcher)
+    const objetivosCorrespondentes = modelo.objetivosClinicosAlvo.filter((goal) =>
+      tratamentoCorrespondeAObjetivo(tratamento, goal.correspondencia)
     );
-    const availableGoals = matchedGoals.filter((goal) => !claimedGoalIds.has(goal.id));
+    const objetivosDisponiveis = objetivosCorrespondentes.filter((goal) => !claimedGoalIds.has(goal.id));
 
-    if (matchedGoals.length === 0) {
+    if (objetivosCorrespondentes.length === 0) {
       // Limpeza e antissépsia universais são sempre corretas — nunca penalizar
       const isUniversalCleanser =
-        treatment.contraindications.length === 0 &&
-        (treatment.functions.includes("cleanse") || treatment.functions.includes("antiseptic"));
+        tratamento.avisos_contraindicacao.length === 0 &&
+        (tratamento.funcoes.includes("limpar") || tratamento.funcoes.includes("antisseptico"));
       if (isUniversalCleanser) {
-        pushTreatmentItem(
-          treatment.id,
-          treatment.label,
+        adicionarItemTratamento(
+          tratamento.id,
+          tratamento.rotulo,
           "adequado",
           "Limpeza e antissépsia são sempre adequadas como preparação do leito da ferida.",
-          treatment.learningTopicIds
+          tratamento.learningTopicIds
         );
         continue;
       }
-      pushTreatmentItem(
-        treatment.id,
-        treatment.label,
+      adicionarItemTratamento(
+        tratamento.id,
+        tratamento.rotulo,
         "redundante",
         "Este tratamento não responde claramente ao problema dominante da variante atual.",
-        treatment.learningTopicIds
+        tratamento.learningTopicIds
       );
       continue;
     }
 
-    if (availableGoals.length === 0) {
-      pushTreatmentItem(
-        treatment.id,
-        treatment.label,
+    if (objetivosDisponiveis.length === 0) {
+      adicionarItemTratamento(
+        tratamento.id,
+        tratamento.rotulo,
         "redundante",
         "Este tratamento repete uma função já coberta no plano e não acrescenta novo valor clínico.",
-        treatment.learningTopicIds
+        tratamento.learningTopicIds
       );
       continue;
     }
 
-    const essentialGoal = availableGoals.find((goal) => goal.priority === "essencial");
-    const chosenGoal = essentialGoal ?? availableGoals[0];
-    claimedGoalIds.add(chosenGoal.id);
-    pushTreatmentItem(
-      treatment.id,
-      treatment.label,
-      chosenGoal.priority === "essencial" ? "essencial" : "adequado",
-      chosenGoal.rationale,
-      [...chosenGoal.learningTopicIds, ...treatment.learningTopicIds]
+    const objetivoEssencial = objetivosDisponiveis.find((goal) => goal.prioridade === "essencial");
+    const objetivoEscolhido = objetivoEssencial ?? objetivosDisponiveis[0];
+    claimedGoalIds.add(objetivoEscolhido.id);
+    adicionarItemTratamento(
+      tratamento.id,
+      tratamento.rotulo,
+      objetivoEscolhido.prioridade === "essencial" ? "essencial" : "adequado",
+      objetivoEscolhido.justificativa,
+      [...objetivoEscolhido.idsTemas, ...tratamento.learningTopicIds]
     );
   }
 
   for (const duplicateId of duplicates) {
-    pushTreatmentItem(
+    adicionarItemTratamento(
       duplicateId,
-      getTreatmentLabel(duplicateId),
+      obterRotuloTratamento(duplicateId),
       "redundante",
       "Selecionaste um material equivalente ao já escolhido, sem acrescentar novo valor clínico.",
       ["materiais-desadequados", "decisao-clinica"]
     );
   }
 
-  for (const goal of template.clinicalTargets.filter(
-    (item) => item.matcher.treatmentIds || item.matcher.treatmentFunctions
+  for (const goal of modelo.objetivosClinicosAlvo.filter(
+    (item) => item.correspondencia.idsTratamento || item.correspondencia.funcoesTratamento
   )) {
-    const fulfilled = selected.some((treatment) => treatmentMatchesGoal(treatment, goal.matcher));
-    if (!fulfilled && goal.priority === "essencial") {
-      pushItem(
-        section,
+    const fulfilled = selected.some((tratamento) => tratamentoCorrespondeAObjetivo(tratamento, goal.correspondencia));
+    if (!fulfilled && goal.prioridade === "essencial") {
+      adicionarItem(
+        seccao,
         undefined,
-        goal.label,
+        goal.rotulo,
         "inadequado",
-        `Faltou um elemento essencial: ${goal.rationale}`,
-        goal.learningTopicIds
+        `Faltou um elemento essencial: ${goal.justificativa}`,
+        goal.idsTemas
       );
     }
   }
 
   if (selected.length === 0) {
-    pushItem(
-      section,
+    adicionarItem(
+      seccao,
       undefined,
       "Sem tratamento selecionado",
       "inadequado",
@@ -324,16 +324,16 @@ function buildTreatmentSection(template: CaseTemplate, attempt: AttemptInput) {
     );
   }
 
-  return section;
+  return seccao;
 }
 
-function evaluateVisualCategory<T extends string>(
-  section: EvaluationSection,
-  categoryId: string,
-  categoryLabel: string,
+function avaliarCategoriaVisual<T extends string>(
+  seccao: SeccaoAvaliacao,
+  categoriaId: string,
+  categoriaRotulo: string,
   expected: T[],
   selected: T[],
-  learningTopicIds: string[]
+  idsTemas: string[]
 ) {
   const expectedSet = new Set(expected);
   const selectedSet = new Set(selected);
@@ -342,15 +342,15 @@ function evaluateVisualCategory<T extends string>(
     [...expectedSet].every((item) => selectedSet.has(item));
 
   if (isCorrect) {
-    pushItem(
-      section,
-      `visual-${categoryId}`,
-      categoryLabel,
+    adicionarItem(
+      seccao,
+      `visual-${categoriaId}`,
+      categoriaRotulo,
       "essencial",
       expected.length === 0
-        ? `Identificaste corretamente que não há ${categoryLabel.toLowerCase()} relevante nesta ferida.`
+        ? `Identificaste corretamente que não há ${categoriaRotulo.toLowerCase()} relevante nesta ferida.`
         : `Identificaste corretamente: ${expected.join(", ")}.`,
-      learningTopicIds
+      idsTemas
     );
   } else {
     const missed = expected.filter((item) => !selectedSet.has(item));
@@ -358,90 +358,90 @@ function evaluateVisualCategory<T extends string>(
     const parts: string[] = [];
     if (missed.length > 0) parts.push(`não identificaste: ${missed.join(", ")}`);
     if (extra.length > 0) parts.push(`identificaste incorretamente: ${extra.join(", ")}`);
-    pushItem(
-      section,
-      `visual-${categoryId}`,
-      categoryLabel,
+    adicionarItem(
+      seccao,
+      `visual-${categoriaId}`,
+      categoriaRotulo,
       "inadequado",
       `Identificação incorreta — ${parts.join("; ")}. Revê os tipos visíveis na imagem.`,
-      learningTopicIds
+      idsTemas
     );
   }
 }
 
-function buildVisualIdentificationSection(template: CaseTemplate, attempt: AttemptInput) {
-  const section = createSection("visual-identification", "Identificação visual", 25);
-  const targets = template.visualTargets;
-  const submission = attempt.visualSubmission;
+function construirSeccaoIdentificacaoVisual(modelo: ModeloCaso, tentativa: EntradaTentativa) {
+  const seccao = criarSeccao("identificacao-visual", "Identificação visual", 25);
+  const targets = modelo.objetivosVisuais;
+  const submission = tentativa.submissaoVisual;
 
-  evaluateVisualCategory<VisualTissueOption>(
-    section, "tissues", "Tecidos",
-    targets.tissues, submission.tissues, ["tecidos-e-leito"]
+  avaliarCategoriaVisual<OpcaoTecidoVisual>(
+    seccao, "tecidos", "Tecidos",
+    targets.tecidos, submission.tecidos, ["tecidos-e-leito"]
   );
-  evaluateVisualCategory<VisualExudateOption>(
-    section, "exudate", "Exsudado",
-    targets.exudate, submission.exudate, ["gestao-exsudado"]
+  avaliarCategoriaVisual<OpcaoExsudadoVisual>(
+    seccao, "exsudado", "Exsudado",
+    targets.exsudado, submission.exsudado, ["gestao-exsudado"]
   );
-  evaluateVisualCategory<VisualEdgeOption>(
-    section, "edges", "Bordos e pele perilesional",
-    targets.edges, submission.edges, ["protecao-perilesional"]
+  avaliarCategoriaVisual<OpcaoBordosVisual>(
+    seccao, "bordos", "Bordos e pele perilesional",
+    targets.bordos, submission.bordos, ["protecao-perilesional"]
   );
 
-  const tissueZones = template.tissueZones ?? [];
-  if (tissueZones.length > 0) {
-    const annotationEval = evaluateAnnotation(attempt.tissuePins ?? [], tissueZones);
+  const zonasTecido = modelo.zonasTecido ?? [];
+  if (zonasTecido.length > 0) {
+    const avaliacaoAnotacao = avaliarAnotacao(tentativa.marcadoresTecido ?? [], zonasTecido);
 
     // peso da anotação = soma dos pesos positivos dos items da checkbox (para 50/50)
-    const checkboxAttainable = section.items.reduce(
-      (acc, it) => acc + Math.max(0, classificationWeights[it.classification]),
+    const checkboxAttainable = seccao.itens.reduce(
+      (acc, it) => acc + Math.max(0, pesosClassificacao[it.classificacao]),
       0
     );
 
-    const annotationClassification: EvaluationClassification =
-      annotationEval.score >= 0.85 ? "essencial"
-      : annotationEval.score >= 0.5 ? "adequado"
-      : annotationEval.score > 0 ? "redundante"
+    const classificacaoAnotacao: ClassificacaoAvaliacao =
+      avaliacaoAnotacao.pontuacao >= 0.85 ? "essencial"
+      : avaliacaoAnotacao.pontuacao >= 0.5 ? "adequado"
+      : avaliacaoAnotacao.pontuacao > 0 ? "redundante"
       : "inadequado";
 
-    const explanation =
-      annotationEval.missedTypes.length > 0
-        ? `Tipos identificados na imagem: ${annotationEval.correctTypes.join(", ") || "nenhum"}. Em falta: ${annotationEval.missedTypes.join(", ")}.`
-        : annotationEval.pinsOutOfZones > 0
-        ? `Todos os tipos correctamente apontados, mas ${annotationEval.pinsOutOfZones} pin(s) fora das zonas esperadas.`
+    const explicacao =
+      avaliacaoAnotacao.tiposOmitidos.length > 0
+        ? `Tipos identificados na imagem: ${avaliacaoAnotacao.tiposCorretos.join(", ") || "nenhum"}. Em falta: ${avaliacaoAnotacao.tiposOmitidos.join(", ")}.`
+        : avaliacaoAnotacao.marcadoresForaZona > 0
+        ? `Todos os tipos correctamente apontados, mas ${avaliacaoAnotacao.marcadoresForaZona} marcador(es) fora das zonas esperadas.`
         : "Todos os tecidos correctamente identificados na imagem.";
 
-    section.items.push({
-      id: `${section.id}-annotation`,
-      sourceId: undefined,
-      label: "Anotação dos tecidos na imagem",
-      classification: annotationClassification,
-      explanation,
-      learningTopicIds: ["tecidos-e-leito"],
-      weightOverride: annotationEval.score * checkboxAttainable,
+    seccao.itens.push({
+      id: `${seccao.id}-annotation`,
+      idOrigem: undefined,
+      rotulo: "Anotação dos tecidos na imagem",
+      classificacao: classificacaoAnotacao,
+      explicacao,
+      idsTemas: ["tecidos-e-leito"],
+      pesoOverride: avaliacaoAnotacao.pontuacao * checkboxAttainable,
     });
   }
 
-  return section;
+  return seccao;
 }
 
-function applicationMatchesGoal(
-  applicationId: ApplicationId,
-  matcher: { applicationIds?: ApplicationId[] }
+function aplicacaoCorrespondeAObjetivo(
+  idAplicacao: IdAplicacao,
+  correspondencia: { idsAplicacao?: IdAplicacao[] }
 ) {
-  return matcher.applicationIds?.includes(applicationId) ?? false;
+  return correspondencia.idsAplicacao?.includes(idAplicacao) ?? false;
 }
 
-function classifyApplicationByRules(
-  applicationDef: { regras?: { condicoes_ideais: Record<string, number[]>; condicoes_parciais?: Record<string, number[]>; contraindicacoes: Record<string, number[]>[] } },
-  woundVariables: Record<string, number>
+function classificarAplicacaoPorRegras(
+  appDef: { regras?: { condicoes_ideais: Record<string, number[]>; condicoes_parciais?: Record<string, number[]>; contraindicacoes: Record<string, number[]>[] } },
+  variavelFerida: Record<string, number>
 ): "correto" | "parcial" | "incorreto" | null {
-  if (!applicationDef.regras) return null;
-  const { condicoes_ideais, condicoes_parciais, contraindicacoes } = applicationDef.regras;
+  if (!appDef.regras) return null;
+  const { condicoes_ideais, condicoes_parciais, contraindicacoes } = appDef.regras;
 
   function matchesAll(cond: Record<string, number[]>): boolean {
     for (const [key, vals] of Object.entries(cond)) {
       if (!vals || vals.length === 0) continue;
-      if (!vals.includes(woundVariables[key] as number)) return false;
+      if (!vals.includes(variavelFerida[key] as number)) return false;
     }
     return true;
   }
@@ -452,74 +452,74 @@ function classifyApplicationByRules(
   return "parcial";
 }
 
-function buildApplicationSection(template: CaseTemplate, attempt: AttemptInput) {
-  const section = createSection("application-technique", "Técnica de aplicação", 15);
-  const selected = new Set(attempt.applicationIds);
-  const specialRules = template.evaluationRules.filter((rule) => rule.target === "application");
-  const woundVars = (template.woundVariables ?? {}) as Record<string, number>;
+function construirSeccaoAplicacao(modelo: ModeloCaso, tentativa: EntradaTentativa) {
+  const seccao = criarSeccao("tecnica-aplicacao", "Técnica de aplicação", 15);
+  const selected = new Set(tentativa.idsAplicacao);
+  const regraEspeciais = modelo.regrasAvaliacao.filter((rule) => rule.alvo === "application");
+  const variavelFerida = (modelo.variavelFerida ?? {}) as Record<string, number>;
 
-  for (const applicationId of template.applicationOptions) {
-    const label = getApplicationLabel(template, applicationId);
-    const specialRule = specialRules.find((rule) => rule.appliesToIds.includes(applicationId));
+  for (const idAplicacao of modelo.opcoesAplicacao) {
+    const rotulo = obterRotuloAplicacao(modelo, idAplicacao);
+    const regraEspecial = regraEspeciais.find((rule) => rule.aplicavelAIds.includes(idAplicacao));
 
-    if (selected.has(applicationId) && specialRule) {
-      pushItem(
-        section,
-        applicationId,
-        label,
-        specialRule.classification,
-        specialRule.reason,
-        specialRule.learningTopicIds
+    if (selected.has(idAplicacao) && regraEspecial) {
+      adicionarItem(
+        seccao,
+        idAplicacao,
+        rotulo,
+        regraEspecial.classificacao,
+        regraEspecial.motivo,
+        regraEspecial.idsTemas
       );
       continue;
     }
 
-    const matchingGoal = template.clinicalTargets.find((goal) =>
-      applicationMatchesGoal(applicationId, goal.matcher)
+    const objetivoCorrespondente = modelo.objetivosClinicosAlvo.find((goal) =>
+      aplicacaoCorrespondeAObjetivo(idAplicacao, goal.correspondencia)
     );
 
-    if (!selected.has(applicationId) && matchingGoal?.priority === "essencial") {
-      pushItem(
-        section,
-        applicationId,
-        label,
+    if (!selected.has(idAplicacao) && objetivoCorrespondente?.prioridade === "essencial") {
+      adicionarItem(
+        seccao,
+        idAplicacao,
+        rotulo,
         "inadequado",
-        `Faltou esta decisão técnica: ${matchingGoal.rationale}`,
-        matchingGoal.learningTopicIds
+        `Faltou esta decisão técnica: ${objetivoCorrespondente.justificativa}`,
+        objetivoCorrespondente.idsTemas
       );
       continue;
     }
 
-    if (selected.has(applicationId) && matchingGoal) {
-      pushItem(
-        section,
-        applicationId,
-        label,
-        matchingGoal.priority === "essencial" ? "essencial" : "adequado",
-        matchingGoal.rationale,
-        matchingGoal.learningTopicIds
+    if (selected.has(idAplicacao) && objetivoCorrespondente) {
+      adicionarItem(
+        seccao,
+        idAplicacao,
+        rotulo,
+        objetivoCorrespondente.prioridade === "essencial" ? "essencial" : "adequado",
+        objetivoCorrespondente.justificativa,
+        objetivoCorrespondente.idsTemas
       );
       continue;
     }
 
-    // Sem goal específico: avaliar pela regras da applicationDefinition (condicoes_ideais/contraindicacoes)
-    if (!matchingGoal) {
-      const appDef = template.applicationDefinitions.find((d) => d.id === applicationId);
+    // Sem goal específico: avaliar pela regras da definicoesAplicacao (condicoes_ideais/contraindicacoes)
+    if (!objetivoCorrespondente) {
+      const appDef = modelo.definicoesAplicacao.find((d) => d.id === idAplicacao);
       if (appDef) {
-        const ruleClassification = classifyApplicationByRules(appDef as Parameters<typeof classifyApplicationByRules>[0], woundVars);
+        const ruleClassification = classificarAplicacaoPorRegras(appDef as Parameters<typeof classificarAplicacaoPorRegras>[0], variavelFerida);
         if (ruleClassification !== null) {
-          if (selected.has(applicationId)) {
+          if (selected.has(idAplicacao)) {
             if (ruleClassification === "incorreto") {
-              pushItem(section, applicationId, label, "inadequado",
+              adicionarItem(seccao, idAplicacao, rotulo, "inadequado",
                 "Esta técnica está contraindicada para o estado atual da ferida.",
-                appDef.learningTopicIds);
+                appDef.idsTemas);
             } else {
-              pushItem(section, applicationId, label,
+              adicionarItem(seccao, idAplicacao, rotulo,
                 ruleClassification === "correto" ? "adequado" : "redundante",
                 ruleClassification === "correto"
                   ? "Técnica adequada para o estado atual da ferida."
                   : "Técnica aplicável, mas existem opções mais indicadas para o estado atual da ferida.",
-                appDef.learningTopicIds);
+                appDef.idsTemas);
             }
           }
           // Técnica não selecionada e sem goal específico: silenciosa (não penaliza nem bonifica)
@@ -529,8 +529,8 @@ function buildApplicationSection(template: CaseTemplate, attempt: AttemptInput) 
   }
 
   if (selected.size === 0) {
-    pushItem(
-      section,
+    adicionarItem(
+      seccao,
       undefined,
       "Sem técnica registada",
       "inadequado",
@@ -539,36 +539,36 @@ function buildApplicationSection(template: CaseTemplate, attempt: AttemptInput) 
     );
   }
 
-  return section;
+  return seccao;
 }
 
-const EMPTY_VISUAL_SUBMISSION = { tissues: [], exudate: [], edges: [] };
+const SUBMISSAO_VISUAL_VAZIA = { tecidos: [], exsudado: [], bordos: [] };
 
-function buildAttemptWithSelection<K extends keyof AttemptInput>(
+function construirTentativaComSelecao<K extends keyof EntradaTentativa>(
   field: K,
-  selection: AttemptInput[K]
-): AttemptInput {
+  selection: EntradaTentativa[K]
+): EntradaTentativa {
   return {
-    observationIds: [],
-    visualSubmission: EMPTY_VISUAL_SUBMISSION,
-    dialogueIds: [],
-    treatmentIds: [],
-    applicationIds: [],
+    idsObservacao: [],
+    submissaoVisual: SUBMISSAO_VISUAL_VAZIA,
+    idsDialogo: [],
+    idsTratamento: [],
+    idsAplicacao: [],
     [field]: selection,
   };
 }
 
-function greedyBestSelection<T, K extends keyof AttemptInput>(
+function selecaoGulosaOtima<T, K extends keyof EntradaTentativa>(
   options: readonly T[],
   field: K,
-  buildSection: (template: CaseTemplate, attempt: AttemptInput) => EvaluationSection,
-  template: CaseTemplate
+  buildSection: (modelo: ModeloCaso, tentativa: EntradaTentativa) => SeccaoAvaliacao,
+  modelo: ModeloCaso
 ): T[] {
   // Greedy forward: repeatedly add the option that most improves the score.
   // Falls back to no-item if all additions would hurt (negative marginal contribution).
   const currentSelection: T[] = [];
-  let currentScore = getSectionRawScore(
-    buildSection(template, buildAttemptWithSelection(field, currentSelection as unknown as AttemptInput[K]))
+  let currentScore = obterPontuacaoBrutaSeccao(
+    buildSection(modelo, construirTentativaComSelecao(field, currentSelection as unknown as EntradaTentativa[K]))
   );
 
   while (true) {
@@ -578,8 +578,8 @@ function greedyBestSelection<T, K extends keyof AttemptInput>(
     for (const option of options) {
       if (currentSelection.includes(option)) continue;
       const candidate = [...currentSelection, option];
-      const score = getSectionRawScore(
-        buildSection(template, buildAttemptWithSelection(field, candidate as unknown as AttemptInput[K]))
+      const score = obterPontuacaoBrutaSeccao(
+        buildSection(modelo, construirTentativaComSelecao(field, candidate as unknown as EntradaTentativa[K]))
       );
       const gain = score - currentScore;
       if (gain > bestGain) {
@@ -598,96 +598,96 @@ function greedyBestSelection<T, K extends keyof AttemptInput>(
   return options.filter((opt) => selectionSet.has(opt));
 }
 
-function getBestRawScoreForSelections<T, K extends keyof AttemptInput>(
+function obterMelhorPontuacaoBrutaSelecoes<T, K extends keyof EntradaTentativa>(
   options: readonly T[],
   field: K,
-  buildSection: (template: CaseTemplate, attempt: AttemptInput) => EvaluationSection,
-  template: CaseTemplate
+  buildSection: (modelo: ModeloCaso, tentativa: EntradaTentativa) => SeccaoAvaliacao,
+  modelo: ModeloCaso
 ) {
-  const bestSelection = greedyBestSelection(options, field, buildSection, template);
-  const attempt = buildAttemptWithSelection(field, bestSelection as unknown as AttemptInput[K]);
-  return Math.max(0, getSectionRawScore(buildSection(template, attempt)));
+  const bestSelection = selecaoGulosaOtima(options, field, buildSection, modelo);
+  const tentativa = construirTentativaComSelecao(field, bestSelection as unknown as EntradaTentativa[K]);
+  return Math.max(0, obterPontuacaoBrutaSeccao(buildSection(modelo, tentativa)));
 }
 
-function getBestSelectionForSelections<T, K extends keyof AttemptInput>(
+function obterMelhorSelecaoSelecoes<T, K extends keyof EntradaTentativa>(
   options: readonly T[],
   field: K,
-  buildSection: (template: CaseTemplate, attempt: AttemptInput) => EvaluationSection,
-  template: CaseTemplate
+  buildSection: (modelo: ModeloCaso, tentativa: EntradaTentativa) => SeccaoAvaliacao,
+  modelo: ModeloCaso
 ) {
-  return greedyBestSelection(options, field, buildSection, template);
+  return selecaoGulosaOtima(options, field, buildSection, modelo);
 }
 
 // Teto fixo baseado apenas nos goals essenciais — selecionar só os essenciais já dá 100/100
-function getEssentialRawCeiling(
-  template: CaseTemplate,
-  sectionId: EvaluationSection["id"]
+function obterTetoBrutoEssencial(
+  modelo: ModeloCaso,
+  seccaoId: SeccaoAvaliacao["id"]
 ): number {
-  const ESSENTIAL_WEIGHT = classificationWeights.essencial; // 12
+  const PESO_ESSENCIAL = pesosClassificacao.essencial; // 12
 
-  if (sectionId === "observation") {
-    const count = template.observationDefinitions.filter(
-      (d) => d.priority === "essencial"
+  if (seccaoId === "observacao") {
+    const count = modelo.definicoesObservacao.filter(
+      (d) => d.prioridade === "essencial"
     ).length;
-    return count * ESSENTIAL_WEIGHT;
+    return count * PESO_ESSENCIAL;
   }
-  if (sectionId === "assessment") {
-    const count = template.dialoguePrompts.filter(
-      (d) => d.priority === "essencial"
+  if (seccaoId === "avaliacao") {
+    const count = modelo.promptsDialogo.filter(
+      (d) => d.prioridade === "essencial"
     ).length;
-    return count * ESSENTIAL_WEIGHT;
+    return count * PESO_ESSENCIAL;
   }
-  if (sectionId === "treatment-plan") {
-    const count = template.clinicalTargets.filter(
+  if (seccaoId === "plano-terapeutico") {
+    const count = modelo.objetivosClinicosAlvo.filter(
       (g) =>
-        g.priority === "essencial" &&
-        (g.matcher.treatmentIds !== undefined || g.matcher.treatmentFunctions !== undefined)
+        g.prioridade === "essencial" &&
+        (g.correspondencia.idsTratamento !== undefined || g.correspondencia.funcoesTratamento !== undefined)
     ).length;
-    return count * ESSENTIAL_WEIGHT;
+    return count * PESO_ESSENCIAL;
   }
-  if (sectionId === "application-technique") {
-    const count = template.clinicalTargets.filter(
-      (g) => g.priority === "essencial" && g.matcher.applicationIds !== undefined
+  if (seccaoId === "tecnica-aplicacao") {
+    const count = modelo.objetivosClinicosAlvo.filter(
+      (g) => g.prioridade === "essencial" && g.correspondencia.idsAplicacao !== undefined
     ).length;
-    return count * ESSENTIAL_WEIGHT;
+    return count * PESO_ESSENCIAL;
   }
   return 0;
 }
 
-function toReviewStatus(classification: EvaluationClassification): ReviewStatus {
-  if (classification === "essencial" || classification === "adequado") return "correct";
-  if (classification === "redundante" || classification === "inadequado") return "incorrect";
+function paraEstadoRevisao(classificacao: ClassificacaoAvaliacao): EstadoRevisao {
+  if (classificacao === "essencial" || classificacao === "adequado") return "correto";
+  if (classificacao === "redundante" || classificacao === "inadequado") return "incorreto";
   return null;
 }
 
-function buildStatusMap(
+function construirMapaEstado(
   availableIds: readonly string[],
   selectedIds: readonly string[],
   idealIds: readonly string[],
-  selectedStatuses: Map<string, ReviewStatus>
+  selectedStatuses: Map<string, EstadoRevisao>
 ) {
   return Object.fromEntries(
     availableIds.map((id) => {
       const explicitStatus = selectedStatuses.get(id) ?? null;
       if (explicitStatus) return [id, explicitStatus];
-      if (!selectedIds.includes(id) && idealIds.includes(id)) return [id, "missed"];
+      if (!selectedIds.includes(id) && idealIds.includes(id)) return [id, "omitido"];
       return [id, null];
     })
-  ) as Record<string, ReviewStatus>;
+  ) as Record<string, EstadoRevisao>;
 }
 
-function buildLearningRecommendations(sections: EvaluationSection[]): LearningRecommendation[] {
+function construirRecomendacoesAprendizagem(seccoes: SeccaoAvaliacao[]): RecomendacaoAprendizagem[] {
   const frequencies = new Map<string, { count: number; reasons: string[] }>();
 
-  for (const section of sections) {
-    for (const item of section.items) {
-      if (item.classification === "essencial" || item.classification === "adequado") continue;
-      for (const topicId of item.learningTopicIds) {
-        const normalizedTopicId = normalizeLearningTopicId(topicId);
-        const current = frequencies.get(normalizedTopicId) ?? { count: 0, reasons: [] };
+  for (const seccao of seccoes) {
+    for (const item of seccao.itens) {
+      if (item.classificacao === "essencial" || item.classificacao === "adequado") continue;
+      for (const idTema of item.idsTemas) {
+        const normalizedIdTema = normalizarIdTema(idTema);
+        const current = frequencies.get(normalizedIdTema) ?? { count: 0, reasons: [] };
         current.count += 1;
-        current.reasons.push(item.explanation);
-        frequencies.set(normalizedTopicId, current);
+        current.reasons.push(item.explicacao);
+        frequencies.set(normalizedIdTema, current);
       }
     }
   }
@@ -695,230 +695,238 @@ function buildLearningRecommendations(sections: EvaluationSection[]): LearningRe
   return Array.from(frequencies.entries())
     .sort((a, b) => b[1].count - a[1].count)
     .slice(0, 4)
-    .map(([topicId, value]) => ({
-      topicId,
-      title: getLearningTopicTitle(topicId),
-      reason:
+    .map(([idTema, value]) => ({
+      idTema,
+      titulo: obterTituloTema(idTema),
+      motivo:
         value.reasons[0] ??
-        `Vale a pena rever ${getLearningTopicTitle(topicId).toLowerCase()} para ganhar consistência.`,
-      priority: value.count >= 2 ? "alta" : "media",
+        `Vale a pena rever ${obterTituloTema(idTema).toLowerCase()} para ganhar consistência.`,
+      prioridade: value.count >= 2 ? "alta" : "media",
     }));
 }
 
-function summarizeByClassification(
-  sections: EvaluationSection[],
-  classification: EvaluationClassification
+function resumirPorClassificacao(
+  seccoes: SeccaoAvaliacao[],
+  classificacao: ClassificacaoAvaliacao
 ) {
-  return sections
-    .flatMap((section) => section.items)
-    .filter((item) => item.classification === classification)
-    .map((item) => `${item.label}: ${item.explanation}`)
+  return seccoes
+    .flatMap((seccao) => seccao.itens)
+    .filter((item) => item.classificacao === classificacao)
+    .map((item) => `${item.rotulo}: ${item.explicacao}`)
     .slice(0, 5);
 }
 
-function buildRecommendedPlanDifferences(template: CaseTemplate, attempt: AttemptInput) {
-  const selectedLabels = new Set(attempt.treatmentIds.map((item) => getTreatmentLabel(item)));
+function construirDiferencasPlanoRecomendado(modelo: ModeloCaso, tentativa: EntradaTentativa) {
+  const selectedLabels = new Set(tentativa.idsTratamento.map((item) => obterRotuloTratamento(item)));
   const applicationLabels = new Set(
-    attempt.applicationIds.map((item) => getApplicationLabel(template, item))
+    tentativa.idsAplicacao.map((item) => obterRotuloAplicacao(modelo, item))
   );
 
-  const differences = [
-    ...template.recommendedPlan.minimum,
-    ...template.recommendedPlan.optimized,
+  const diferencas = [
+    ...modelo.planoRecomendado.minimo,
+    ...modelo.planoRecomendado.otimizado,
   ]
     .filter((label, index, arr) => arr.indexOf(label) === index)
     .filter((label) => !selectedLabels.has(label) && !applicationLabels.has(label));
 
   return {
-    minimum: template.recommendedPlan.minimum,
-    optimized: template.recommendedPlan.optimized,
-    differences,
+    minimo: modelo.planoRecomendado.minimo,
+    otimizado: modelo.planoRecomendado.otimizado,
+    diferencas,
   };
 }
 
-function buildReading(template: CaseTemplate) {
-  const { woundState } = template;
-  const infectionLabel: Record<typeof woundState.infection, string> = {
-    "contamination": "contaminação (sem sinais clínicos)",
-    "colonization": "colonização (sem resposta do hospedeiro)",
-    "local-infection-covert": "infeção local encoberta — sinais subtis",
-    "local-infection-overt": "infeção local evidente — sinais clássicos",
-    "spreading-infection": "infeção em propagação — escalamento urgente",
-    "systemic-infection": "infeção sistémica — emergência clínica",
+function construirLeitura(modelo: ModeloCaso) {
+  const { estadoFerida } = modelo;
+  const infectionLabel: Record<typeof estadoFerida.infeccao, string> = {
+    "contaminacao": "contaminação (sem sinais clínicos)",
+    "colonizacao": "colonização (sem resposta do hospedeiro)",
+    "infecao-local-encoberta": "infeção local encoberta — sinais subtis",
+    "infecao-local-evidente": "infeção local evidente — sinais clássicos",
+    "infecao-em-propagacao": "infeção em propagação — escalamento urgente",
+    "infecao-sistemica": "infeção sistémica — emergência clínica",
   };
-  return `Ferida com exsudado ${woundState.exudate}, tecido ${woundState.tissue.replace(/-/g, " ")}, infeção: ${infectionLabel[woundState.infection]} e pele peri-ferida ${woundState.periwound}.`;
+  return `Ferida com exsudado ${estadoFerida.exsudado}, tecido ${estadoFerida.tecido.replace(/-/g, " ")}, infeção: ${infectionLabel[estadoFerida.infeccao]} e pele peri-ferida ${estadoFerida.perilesional}.`;
 }
 
-function sectionPercentage(section: EvaluationSection) {
-  if (section.maxScore <= 0) return 0;
-  return Math.round((section.score / section.maxScore) * 100);
+function percentagemSeccao(seccao: SeccaoAvaliacao) {
+  if (seccao.pontuacaoMaxima <= 0) return 0;
+  return Math.round((seccao.pontuacao / seccao.pontuacaoMaxima) * 100);
 }
 
-export function evaluateCaseAttempt(
-  template: CaseTemplate,
-  attempt: AttemptInput
-): CaseEvaluation {
-  const sections = [
-    finalizeSectionScore(
-      buildObservationSection(template, attempt),
-      getEssentialRawCeiling(template, "observation")
+export function avaliarTentativaCaso(
+  modelo: ModeloCaso,
+  tentativa: EntradaTentativa
+): AvaliacaoCaso {
+  const seccoes = [
+    finalizarPontuacaoSeccao(
+      construirSeccaoObservacao(modelo, tentativa),
+      obterTetoBrutoEssencial(modelo, "observacao")
     ),
-    // Visual identification: teto fixo = 3 categorias × peso essencial (3 × 12 = 36)
-    finalizeSectionScore(
-      buildVisualIdentificationSection(template, attempt),
+    // Identificação visual: teto fixo = 3 categorias × peso essencial (3 × 12 = 36)
+    finalizarPontuacaoSeccao(
+      construirSeccaoIdentificacaoVisual(modelo, tentativa),
       3 * 12
     ),
-    finalizeSectionScore(
-      buildAssessmentSection(template, attempt),
-      getEssentialRawCeiling(template, "assessment")
+    finalizarPontuacaoSeccao(
+      construirSeccaoAvaliacao(modelo, tentativa),
+      obterTetoBrutoEssencial(modelo, "avaliacao")
     ),
-    finalizeSectionScore(
-      buildTreatmentSection(template, attempt),
-      getEssentialRawCeiling(template, "treatment-plan")
+    finalizarPontuacaoSeccao(
+      construirSeccaoTratamento(modelo, tentativa),
+      obterTetoBrutoEssencial(modelo, "plano-terapeutico")
     ),
-    finalizeSectionScore(
-      buildApplicationSection(template, attempt),
-      getEssentialRawCeiling(template, "application-technique")
+    finalizarPontuacaoSeccao(
+      construirSeccaoAplicacao(modelo, tentativa),
+      obterTetoBrutoEssencial(modelo, "tecnica-aplicacao")
     ),
   ];
 
-  const rawTotalScore = Math.round(sections.reduce((acc, section) => acc + section.score, 0));
+  const rawTotalScore = Math.round(seccoes.reduce((acc, seccao) => acc + seccao.pontuacao, 0));
 
-  const wrongJustificationsCount = sections
-    .flatMap((s) => s.items)
-    .filter((item) => item.justificationCorrect === false).length;
-  const justificationPenalty = Math.min(30, wrongJustificationsCount * 10);
-  const totalScore = Math.max(0, rawTotalScore - justificationPenalty);
+  const justificacoesErradas = seccoes
+    .flatMap((s) => s.itens)
+    .filter((item) => item.justificacaoCorreta === false).length;
+  const penalizacaoJustificacao = Math.min(30, justificacoesErradas * 10);
+  const totalScore = Math.max(0, rawTotalScore - penalizacaoJustificacao);
 
-  const essential = summarizeByClassification(sections, "essencial");
-  const correct = summarizeByClassification(sections, "adequado");
-  const redundant = summarizeByClassification(sections, "redundante");
-  const inadequate = summarizeByClassification(sections, "inadequado");
-  const weakestSection = [...sections].sort(
-    (a, b) => sectionPercentage(a) - sectionPercentage(b)
+  const essenciais = resumirPorClassificacao(seccoes, "essencial");
+  const corretos = resumirPorClassificacao(seccoes, "adequado");
+  const redundantes = resumirPorClassificacao(seccoes, "redundante");
+  const inadequados = resumirPorClassificacao(seccoes, "inadequado");
+  const seccaoMaisFraca = [...seccoes].sort(
+    (a, b) => percentagemSeccao(a) - percentagemSeccao(b)
   )[0];
-  const weakestTopic = weakestSection.items
-    .flatMap((item) => item.learningTopicIds)
-    .map(normalizeLearningTopicId)
-    .find((topicId) => getLearningTopic(topicId));
-  const learningRecommendations = buildLearningRecommendations(sections);
+  const temaMaisFraco = seccaoMaisFraca.itens
+    .flatMap((item) => item.idsTemas)
+    .map(normalizarIdTema)
+    .find((idTema) => obterTema(idTema));
+  const recomendacoesAprendizagem = construirRecomendacoesAprendizagem(seccoes);
 
   return {
-    score: Math.max(0, Math.min(100, totalScore)),
-    justificationPenalty,
-    wrongJustificationsCount,
-    sections,
-    reasoningSummary: {
-      reading: buildReading(template),
-      essential,
-      correct,
-      redundant,
-      inadequate,
-      nextStep: weakestTopic
-        ? `Reforça o tema "${getLearningTopic(weakestTopic)?.title}" para corrigires o domínio mais frágil desta tentativa.`
+    pontuacao: Math.max(0, Math.min(100, totalScore)),
+    penalizacaoJustificacao,
+    justificacoesErradas,
+    seccoes,
+    resumoRaciocinio: {
+      leitura: construirLeitura(modelo),
+      essenciais,
+      corretos,
+      redundantes,
+      inadequados,
+      proximoPasso: temaMaisFraco
+        ? `Reforça o tema "${obterTema(temaMaisFraco)?.titulo}" para corrigires o domínio mais frágil desta tentativa.`
         : "Mantém um plano focado no problema dominante e reavalia a resposta clínica.",
     },
-    recommendedPlan: buildRecommendedPlanDifferences(template, attempt),
-    learningRecommendations,
+    planoRecomendado: construirDiferencasPlanoRecomendado(modelo, tentativa),
+    recomendacoesAprendizagem,
   };
 }
 
-export function getIdealAttempt(template: CaseTemplate): AttemptInput {
-  const idealTreatmentIds = getBestSelectionForSelections(
-    template.availableTreatments,
-    "treatmentIds",
-    buildTreatmentSection,
-    template
+export function obterTentativaIdeal(modelo: ModeloCaso): EntradaTentativa {
+  const idealTreatmentIds = obterMelhorSelecaoSelecoes(
+    modelo.tratamentosDisponiveis,
+    "idsTratamento",
+    construirSeccaoTratamento,
+    modelo
   );
 
-  const idealJustificationAnswers: JustificationAnswer[] = generateAllJustificationQuestions(
+  const idealJustificationAnswers: RespostaJustificacao[] = gerarTodasPerguntasJustificacao(
     idealTreatmentIds,
-    template
+    modelo
   ).map((q) => ({
-    treatmentId: q.treatmentId,
-    selectedOptionId: q.correctOptionId,
+    idTratamento: q.idTratamento,
+    idOpcaoSelecionada: q.idOpcaoCorreta,
   }));
 
-  const idealTissuePins: TissuePin[] = (template.tissueZones ?? []).map((zone, i) => ({
+  const idealTissuePins: MarcadorTecido[] = (modelo.zonasTecido ?? []).map((zone, i) => ({
     id: `ideal-pin-${i}`,
-    tissueType: zone.tissueType,
-    x: zone.rect.x + zone.rect.w / 2,
-    y: zone.rect.y + zone.rect.h / 2,
+    tipoTecido: zone.tipoTecido,
+    x: zone.retangulo.x + zone.retangulo.w / 2,
+    y: zone.retangulo.y + zone.retangulo.h / 2,
   }));
 
   return {
-    observationIds: getBestSelectionForSelections(
-      template.observationDefinitions.map((item) => item.id),
-      "observationIds",
-      buildObservationSection,
-      template
+    idsObservacao: obterMelhorSelecaoSelecoes(
+      modelo.definicoesObservacao.map((item) => item.id),
+      "idsObservacao",
+      construirSeccaoObservacao,
+      modelo
     ),
-    visualSubmission: {
-      tissues: [...template.visualTargets.tissues],
-      exudate: [...template.visualTargets.exudate],
-      edges: [...template.visualTargets.edges],
+    submissaoVisual: {
+      tecidos: [...modelo.objetivosVisuais.tecidos],
+      exsudado: [...modelo.objetivosVisuais.exsudado],
+      bordos: [...modelo.objetivosVisuais.bordos],
     },
-    dialogueIds: getBestSelectionForSelections(
-      template.dialoguePrompts.map((item) => item.id),
-      "dialogueIds",
-      buildAssessmentSection,
-      template
+    idsDialogo: obterMelhorSelecaoSelecoes(
+      modelo.promptsDialogo.map((item) => item.id),
+      "idsDialogo",
+      construirSeccaoAvaliacao,
+      modelo
     ),
-    treatmentIds: idealTreatmentIds,
-    applicationIds: getBestSelectionForSelections(
-      template.applicationOptions,
-      "applicationIds",
-      buildApplicationSection,
-      template
+    idsTratamento: idealTreatmentIds,
+    idsAplicacao: obterMelhorSelecaoSelecoes(
+      modelo.opcoesAplicacao,
+      "idsAplicacao",
+      construirSeccaoAplicacao,
+      modelo
     ),
-    justificationAnswers: idealJustificationAnswers,
-    tissuePins: idealTissuePins,
+    respostasJustificacao: idealJustificationAnswers,
+    marcadoresTecido: idealTissuePins,
   };
 }
 
-export function buildAttemptReview(
-  template: CaseTemplate,
-  attempt: AttemptInput
-): AttemptReview {
-  const idealAttempt = getIdealAttempt(template);
-  const evaluation = evaluateCaseAttempt(template, attempt);
-  const selectedStatuses = new Map<string, ReviewStatus>();
+export function construirRevisaoTentativa(
+  modelo: ModeloCaso,
+  tentativa: EntradaTentativa
+): RevisaoTentativa {
+  const tentativaIdeal = obterTentativaIdeal(modelo);
+  const avaliacao = avaliarTentativaCaso(modelo, tentativa);
+  const selectedStatuses = new Map<string, EstadoRevisao>();
 
-  for (const section of evaluation.sections) {
-    for (const item of section.items) {
-      if (!item.sourceId) continue;
-      const status = toReviewStatus(item.classification);
+  for (const seccao of avaliacao.seccoes) {
+    for (const item of seccao.itens) {
+      if (!item.idOrigem) continue;
+      const status = paraEstadoRevisao(item.classificacao);
       if (status) {
-        selectedStatuses.set(item.sourceId, status);
+        selectedStatuses.set(item.idOrigem, status);
       }
     }
   }
 
   return {
-    idealAttempt,
-    observationStatus: buildStatusMap(
-      template.observationDefinitions.map((item) => item.id),
-      attempt.observationIds,
-      idealAttempt.observationIds,
+    tentativaIdeal,
+    estadoObservacao: construirMapaEstado(
+      modelo.definicoesObservacao.map((item) => item.id),
+      tentativa.idsObservacao,
+      tentativaIdeal.idsObservacao,
       selectedStatuses
     ),
-    dialogueStatus: buildStatusMap(
-      template.dialoguePrompts.map((item) => item.id),
-      attempt.dialogueIds,
-      idealAttempt.dialogueIds,
+    estadoDialogo: construirMapaEstado(
+      modelo.promptsDialogo.map((item) => item.id),
+      tentativa.idsDialogo,
+      tentativaIdeal.idsDialogo,
       selectedStatuses
     ),
-    treatmentStatus: buildStatusMap(
-      template.availableTreatments,
-      attempt.treatmentIds,
-      idealAttempt.treatmentIds,
+    estadoTratamento: construirMapaEstado(
+      modelo.tratamentosDisponiveis,
+      tentativa.idsTratamento,
+      tentativaIdeal.idsTratamento,
       selectedStatuses
     ),
-    applicationStatus: buildStatusMap(
-      template.applicationOptions,
-      attempt.applicationIds,
-      idealAttempt.applicationIds,
+    estadoAplicacao: construirMapaEstado(
+      modelo.opcoesAplicacao,
+      tentativa.idsAplicacao,
+      tentativaIdeal.idsAplicacao,
       selectedStatuses
     ),
   };
 }
+
+// ─── Re-exports com nomes antigos para compatibilidade ───────────────────────
+/** @deprecated Use avaliarTentativaCaso */
+export const evaluateCaseAttempt = avaliarTentativaCaso;
+/** @deprecated Use obterTentativaIdeal */
+export const getIdealAttempt = obterTentativaIdeal;
+/** @deprecated Use construirRevisaoTentativa */
+export const buildAttemptReview = construirRevisaoTentativa;

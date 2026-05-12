@@ -3,11 +3,11 @@ import { evidenceReferences } from "../../data/clinical/evidencia.ts";
 import { learningTopics } from "../../data/clinical/topicos-aprendizagem.ts";
 import { treatmentCatalog } from "../../data/clinical/tratamentos.ts";
 import type {
-  ApplicationId,
-  CaseTemplate,
-  EvidenceReference,
-  LearningTopic,
-  TreatmentDefinition,
+  IdAplicacao,
+  ModeloCaso,
+  ReferenciaEvidencia,
+  TemaAprendizagem,
+  DefinicaoTratamento,
 } from "./types.ts";
 
 const treatmentById = new Map(treatmentCatalog.map((item) => [item.id, item]));
@@ -15,113 +15,149 @@ const topicById = new Map(learningTopics.map((item) => [item.id, item]));
 const evidenceById = new Map(evidenceReferences.map((item) => [item.id, item]));
 const templateById = new Map(caseTemplates.map((item) => [item.id, item]));
 
-export function listCaseTemplates(): CaseTemplate[] {
+export function listarModelosCaso(): ModeloCaso[] {
   return caseTemplates;
 }
 
-export function getCaseTemplate(templateId: string): CaseTemplate | undefined {
-  return templateById.get(templateId);
+export function obterModeloCaso(idModelo: string): ModeloCaso | undefined {
+  return templateById.get(idModelo);
 }
 
-export function getCaseTitle(templateId: string) {
-  return getCaseTemplate(templateId)?.title ?? templateId;
+export function obterTituloCaso(idModelo: string) {
+  return obterModeloCaso(idModelo)?.title ?? idModelo;
 }
 
-export function getPublishedCaseIds(): string[] {
+export function obterIdsCasosPublicados(): string[] {
   return caseTemplates.filter((item) => item.status === "disponivel").map((item) => item.id);
 }
 
-export function getTreatment(treatmentId: string): TreatmentDefinition | undefined {
-  return treatmentById.get(treatmentId);
+export function obterTratamento(idTratamento: string): DefinicaoTratamento | undefined {
+  return treatmentById.get(idTratamento);
 }
 
-export function listTreatments(): TreatmentDefinition[] {
+export function listarTratamentos(): DefinicaoTratamento[] {
   return treatmentCatalog;
 }
 
-export function listLearningTopics(): LearningTopic[] {
+export function listarTemas(): TemaAprendizagem[] {
   return learningTopics;
 }
 
-export function getLearningTopic(topicId: string): LearningTopic | undefined {
-  return topicById.get(topicId);
+export function obterTema(idTema: string): TemaAprendizagem | undefined {
+  return topicById.get(idTema);
 }
 
-export function getLearningTopicTitle(topicId: string) {
-  return getLearningTopic(topicId)?.title ?? topicId;
+export function obterTituloTema(idTema: string) {
+  return obterTema(idTema)?.titulo ?? idTema;
 }
 
-export function getEvidence(evidenceId: string): EvidenceReference | undefined {
-  return evidenceById.get(evidenceId);
+export function obterEvidencia(idEvidencia: string): ReferenciaEvidencia | undefined {
+  return evidenceById.get(idEvidencia);
 }
 
-export function getEvidenceForTreatment(treatmentId: string): EvidenceReference[] {
-  const treatment = getTreatment(treatmentId);
-  if (!treatment) return [];
-  return treatment.evidenceRefs
-    .map((evidenceId) => getEvidence(evidenceId))
-    .filter((item): item is EvidenceReference => Boolean(item));
+export function obterEvidenciaParaTratamento(idTratamento: string): ReferenciaEvidencia[] {
+  const tratamento = obterTratamento(idTratamento);
+  if (!tratamento) return [];
+  return tratamento.refsEvidencia
+    .map((idEvidencia) => obterEvidencia(idEvidencia))
+    .filter((item): item is ReferenciaEvidencia => Boolean(item));
 }
 
 
-export function getTreatmentLabel(treatmentId: string) {
-  return getTreatment(treatmentId)?.label ?? treatmentId;
+export function obterRotuloTratamento(idTratamento: string) {
+  return obterTratamento(idTratamento)?.rotulo ?? idTratamento;
 }
 
-export function getApplicationLabel(template: CaseTemplate, applicationId: ApplicationId) {
+export function obterRotuloAplicacao(modelo: ModeloCaso, idAplicacao: IdAplicacao) {
   return (
-    template.applicationDefinitions.find((item) => item.id === applicationId)?.label ??
-    applicationId
+    modelo.definicoesAplicacao.find((item) => item.id === idAplicacao)?.rotulo ??
+    idAplicacao
   );
 }
 
-export function getTemplateLearningTopicIds(templateId: string) {
-  const template = getCaseTemplate(templateId);
-  if (!template) return [];
+export function obterIdsTemasCaso(idModelo: string) {
+  const modelo = obterModeloCaso(idModelo);
+  if (!modelo) return [];
 
   const topicIds = new Set<string>();
 
-  for (const definition of template.observationDefinitions) {
-    for (const topicId of definition.learningTopicIds) topicIds.add(topicId);
+  for (const definition of modelo.definicoesObservacao) {
+    for (const topicId of definition.idsTemas) topicIds.add(topicId);
   }
 
-  for (const prompt of template.dialoguePrompts) {
-    for (const topicId of prompt.learningTopicIds) topicIds.add(topicId);
+  for (const prompt of modelo.promptsDialogo) {
+    for (const topicId of prompt.idsTemas) topicIds.add(topicId);
   }
 
-  for (const application of template.applicationDefinitions) {
-    for (const topicId of application.learningTopicIds) topicIds.add(topicId);
+  for (const application of modelo.definicoesAplicacao) {
+    for (const topicId of application.idsTemas) topicIds.add(topicId);
   }
 
-  for (const topicId of template.learningTopicIds) topicIds.add(topicId);
-  for (const goal of template.clinicalTargets) {
-    for (const topicId of goal.learningTopicIds) topicIds.add(topicId);
+  for (const topicId of modelo.idsTemas) topicIds.add(topicId);
+  for (const goal of modelo.objetivosClinicosAlvo) {
+    for (const topicId of goal.idsTemas) topicIds.add(topicId);
   }
-  for (const rule of template.evaluationRules) {
-    for (const topicId of rule.learningTopicIds) topicIds.add(topicId);
+  for (const rule of modelo.regrasAvaliacao) {
+    for (const topicId of rule.idsTemas) topicIds.add(topicId);
   }
 
   return Array.from(topicIds);
 }
 
-export function getRandomCase(): CaseTemplate | undefined {
-  const available = listCaseTemplates().filter((item) => item.status === "disponivel");
+export function obterCasoAleatorio(): ModeloCaso | undefined {
+  const available = listarModelosCaso().filter((item) => item.status === "disponivel");
   if (available.length === 0) return undefined;
   return available[Math.floor(Math.random() * available.length)];
 }
 
-export function getRelatedCasesForTopic(topicId: string): CaseTemplate[] {
-  const topic = getLearningTopic(topicId);
+export function obterCasosRelacionadosComTema(idTema: string): ModeloCaso[] {
+  const topic = obterTema(idTema);
   if (!topic) return [];
-  return topic.caseIds
-    .map((caseId) => getCaseTemplate(caseId))
-    .filter((item): item is CaseTemplate => Boolean(item));
+  return topic.idsCaso
+    .map((caseId) => obterModeloCaso(caseId))
+    .filter((item): item is ModeloCaso => Boolean(item));
 }
 
-export function getTreatmentsForTopic(topicId: string): TreatmentDefinition[] {
-  const topic = getLearningTopic(topicId);
+export function obterTratamentosParaTema(idTema: string): DefinicaoTratamento[] {
+  const topic = obterTema(idTema);
   if (!topic) return [];
-  return topic.treatmentIds
-    .map((treatmentId) => getTreatment(treatmentId))
-    .filter((item): item is TreatmentDefinition => Boolean(item));
+  return topic.idsTratamento
+    .map((idTratamento) => obterTratamento(idTratamento))
+    .filter((item): item is DefinicaoTratamento => Boolean(item));
 }
+
+// ─── Re-exports com nomes antigos para compatibilidade ───────────────────────
+/** @deprecated Use listarModelosCaso */
+export const listCaseTemplates = listarModelosCaso;
+/** @deprecated Use obterModeloCaso */
+export const getCaseTemplate = obterModeloCaso;
+/** @deprecated Use obterTituloCaso */
+export const getCaseTitle = obterTituloCaso;
+/** @deprecated Use obterIdsCasosPublicados */
+export const getPublishedCaseIds = obterIdsCasosPublicados;
+/** @deprecated Use obterTratamento */
+export const getTreatment = obterTratamento;
+/** @deprecated Use listarTratamentos */
+export const listTreatments = listarTratamentos;
+/** @deprecated Use listarTemas */
+export const listLearningTopics = listarTemas;
+/** @deprecated Use obterTema */
+export const getLearningTopic = obterTema;
+/** @deprecated Use obterTituloTema */
+export const getLearningTopicTitle = obterTituloTema;
+/** @deprecated Use obterEvidencia */
+export const getEvidence = obterEvidencia;
+/** @deprecated Use obterEvidenciaParaTratamento */
+export const getEvidenceForTreatment = obterEvidenciaParaTratamento;
+/** @deprecated Use obterRotuloTratamento */
+export const getTreatmentLabel = obterRotuloTratamento;
+/** @deprecated Use obterRotuloAplicacao */
+export const getApplicationLabel = obterRotuloAplicacao;
+/** @deprecated Use obterIdsTemasCaso */
+export const getTemplateLearningTopicIds = obterIdsTemasCaso;
+/** @deprecated Use obterCasoAleatorio */
+export const getRandomCase = obterCasoAleatorio;
+/** @deprecated Use obterCasosRelacionadosComTema */
+export const getRelatedCasesForTopic = obterCasosRelacionadosComTema;
+/** @deprecated Use obterTratamentosParaTema */
+export const getTreatmentsForTopic = obterTratamentosParaTema;

@@ -1,11 +1,11 @@
 import type {
-  AnnotatableTissueType,
-  TissuePin,
-  TissueZone,
-  RelativeRect,
+  TipoTecidoAnotavel,
+  MarcadorTecido,
+  ZonaTecido,
+  RetanguloRelativo,
 } from "./types.ts";
 
-function pointInRect(x: number, y: number, rect: RelativeRect): boolean {
+function pontoNoRetangulo(x: number, y: number, rect: RetanguloRelativo): boolean {
   return (
     x >= rect.x &&
     x <= rect.x + rect.w &&
@@ -14,54 +14,60 @@ function pointInRect(x: number, y: number, rect: RelativeRect): boolean {
   );
 }
 
-function pinHitsCorrectZone(pin: TissuePin, zones: TissueZone[]): boolean {
+function marcadorAtingZonaCorreta(pin: MarcadorTecido, zones: ZonaTecido[]): boolean {
   return zones.some(
     (zone) =>
-      zone.tissueType === pin.tissueType && pointInRect(pin.x, pin.y, zone.rect)
+      zone.tipoTecido === pin.tipoTecido && pontoNoRetangulo(pin.x, pin.y, zone.retangulo)
   );
 }
 
-function pinHitsAnyZone(pin: TissuePin, zones: TissueZone[]): boolean {
-  return zones.some((zone) => pointInRect(pin.x, pin.y, zone.rect));
+function marcadorAtingQualquerZona(pin: MarcadorTecido, zones: ZonaTecido[]): boolean {
+  return zones.some((zone) => pontoNoRetangulo(pin.x, pin.y, zone.retangulo));
 }
 
-export type AnnotationEvaluation = {
+export type AvaliacaoAnotacao = {
   /** Sub-score 0-1 */
-  score: number;
-  correctTypes: AnnotatableTissueType[];
-  missedTypes: AnnotatableTissueType[];
-  pinsOutOfZones: number;
+  pontuacao: number;
+  tiposCorretos: TipoTecidoAnotavel[];
+  tiposOmitidos: TipoTecidoAnotavel[];
+  marcadoresForaZona: number;
 };
+
+/** @deprecated Use AvaliacaoAnotacao */
+export type AnnotationEvaluation = AvaliacaoAnotacao;
 
 /**
  * Avalia a anotação do aluno.
  *
- * score = max(0, (acertos / total_tipos) - (pins_fora / pins_total) × 0.3)
+ * pontuacao = max(0, (acertos / total_tipos) - (pins_fora / pins_total) × 0.3)
  */
-export function evaluateAnnotation(
-  pins: TissuePin[],
-  zones: TissueZone[]
-): AnnotationEvaluation {
-  const expectedTypes = Array.from(new Set(zones.map((z) => z.tissueType)));
+export function avaliarAnotacao(
+  pins: MarcadorTecido[],
+  zones: ZonaTecido[]
+): AvaliacaoAnotacao {
+  const expectedTypes = Array.from(new Set(zones.map((z) => z.tipoTecido)));
 
-  const correctTypes: AnnotatableTissueType[] = [];
+  const tiposCorretos: TipoTecidoAnotavel[] = [];
   for (const type of expectedTypes) {
     const hasCorrectPin = pins.some(
-      (pin) => pin.tissueType === type && pinHitsCorrectZone(pin, zones)
+      (pin) => pin.tipoTecido === type && marcadorAtingZonaCorreta(pin, zones)
     );
-    if (hasCorrectPin) correctTypes.push(type);
+    if (hasCorrectPin) tiposCorretos.push(type);
   }
 
-  const missedTypes = expectedTypes.filter((t) => !correctTypes.includes(t));
-  const pinsOutOfZones = pins.filter((pin) => !pinHitsAnyZone(pin, zones)).length;
+  const tiposOmitidos = expectedTypes.filter((t) => !tiposCorretos.includes(t));
+  const marcadoresForaZona = pins.filter((pin) => !marcadorAtingQualquerZona(pin, zones)).length;
 
   if (expectedTypes.length === 0) {
-    return { score: 1, correctTypes: [], missedTypes: [], pinsOutOfZones };
+    return { pontuacao: 1, tiposCorretos: [], tiposOmitidos: [], marcadoresForaZona };
   }
 
-  const baseScore = correctTypes.length / expectedTypes.length;
-  const penaltyRatio = pins.length > 0 ? pinsOutOfZones / pins.length : 0;
-  const score = Math.max(0, baseScore - penaltyRatio * 0.3);
+  const baseScore = tiposCorretos.length / expectedTypes.length;
+  const penaltyRatio = pins.length > 0 ? marcadoresForaZona / pins.length : 0;
+  const pontuacao = Math.max(0, baseScore - penaltyRatio * 0.3);
 
-  return { score, correctTypes, missedTypes, pinsOutOfZones };
+  return { pontuacao, tiposCorretos, tiposOmitidos, marcadoresForaZona };
 }
+
+/** @deprecated Use avaliarAnotacao */
+export const evaluateAnnotation = avaliarAnotacao;

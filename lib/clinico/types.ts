@@ -1,4 +1,4 @@
-﻿// ─── Variáveis clínicas numéricas ───────────────────────────────────────────
+﻿﻿// ─── Variáveis clínicas numéricas ───────────────────────────────────────────
 
 /** Representação numérica do estado da ferida. Utilizada na avaliação por material. */
 export type VariaveisFerida = {
@@ -431,19 +431,17 @@ export type TipoTecidoAnotavel =
   | "hipergranulacao";
 
 
-/** Retângulo em coordenadas relativas à imagem (0-1) */
-export type RetanguloRelativo = {
+/** Ponto bidimensional em coordenadas relativas à imagem (0-1) */
+export type PontoBidimensional = {
   x: number;
   y: number;
-  w: number;
-  h: number;
 };
 
 
 /** Zona ground truth para um tipo de tecido na imagem da variante */
 export type ZonaTecido = {
   tipoTecido: TipoTecidoAnotavel;
-  retangulo: RetanguloRelativo;
+  poligono: PontoBidimensional[];
 };
 
 
@@ -634,4 +632,3 @@ export type ProgressoCaso = {
   melhorPontuacaoAnterior: number | null;
   concluido: boolean;
 };
-

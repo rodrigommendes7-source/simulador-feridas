@@ -1,4 +1,4 @@
-﻿import {
+﻿﻿import {
   obterRotuloAplicacao,
   obterTema,
   obterTituloTema,
@@ -839,12 +839,18 @@ export function obterTentativaIdeal(modelo: ModeloCaso): EntradaTentativa {
     idOpcaoSelecionada: q.idOpcaoCorreta,
   }));
 
-  const idealTissuePins: MarcadorTecido[] = (modelo.zonasTecido ?? []).map((zone, i) => ({
-    id: `ideal-pin-${i}`,
-    tipoTecido: zone.tipoTecido,
-    x: zone.retangulo.x + zone.retangulo.w / 2,
-    y: zone.retangulo.y + zone.retangulo.h / 2,
-  }));
+  const idealTissuePins: MarcadorTecido[] = (modelo.zonasTecido ?? []).map((zone, i) => {
+    // Calcula o centroide (ponto médio) do polígono
+    const x = zone.poligono.reduce((sum, p) => sum + p.x, 0) / zone.poligono.length;
+    const y = zone.poligono.reduce((sum, p) => sum + p.y, 0) / zone.poligono.length;
+
+    return {
+      id: `ideal-pin-${i}`,
+      tipoTecido: zone.tipoTecido,
+      x,
+      y,
+    };
+  });
 
   return {
     idsObservacao: obterMelhorSelecaoSelecoes(
@@ -922,4 +928,3 @@ export function construirRevisaoTentativa(
     ),
   };
 }
-

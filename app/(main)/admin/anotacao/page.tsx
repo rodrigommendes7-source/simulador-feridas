@@ -5,7 +5,7 @@ import { caseTemplates } from "@/data/clinico/casos";
 import { annotatableTissueDisplay } from "@/lib/clinico/display-ferida";
 import type {
   TipoTecidoAnotavel,
-  RetanguloRelativo,
+  PontoBidimensional,
   ZonaTecido,
 } from "@/lib/clinico/types";
 
@@ -23,9 +23,9 @@ export default function AdminAnotacaoPage() {
   );
   const [activeType, setActiveType] = useState<TipoTecidoAnotavel>("fibrina");
   const [zones, setZones] = useState<ZonaTecido[]>([]);
-  const [drawing, setDrawing] = useState<RetanguloRelativo | null>(null);
+  const [currentPolygon, setCurrentPolygon] = useState<PontoBidimensional[]>([]);
+  const [mousePos, setMousePos] = useState<PontoBidimensional | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
-  const dragStart = useRef<{ x: number; y: number } | null>(null);
 
   const current = useMemo(
     () => caseTemplates.find((t) => t.id === selectedCaseId),
@@ -43,34 +43,24 @@ export default function AdminAnotacaoPage() {
     };
   }
 
-  function handleMouseDown(e: React.MouseEvent) {
+  function handleImageClick(e: React.MouseEvent) {
     const coords = getRelativeCoords(e);
     if (!coords) return;
-    dragStart.current = coords;
-    setDrawing({ x: coords.x, y: coords.y, w: 0, h: 0 });
+    setCurrentPolygon((prev) => [...prev, coords]);
   }
 
   function handleMouseMove(e: React.MouseEvent) {
-    if (!dragStart.current) return;
+    if (currentPolygon.length === 0) return;
     const coords = getRelativeCoords(e);
-    if (!coords) return;
-    setDrawing({
-      x: Math.min(dragStart.current.x, coords.x),
-      y: Math.min(dragStart.current.y, coords.y),
-      w: Math.abs(coords.x - dragStart.current.x),
-      h: Math.abs(coords.y - dragStart.current.y),
-    });
+    if (coords) setMousePos(coords);
   }
 
-  function handleMouseUp() {
-    if (!drawing || drawing.w < 0.01 || drawing.h < 0.01) {
-      setDrawing(null);
-      dragStart.current = null;
-      return;
+  function handleFinishPolygon() {
+    if (currentPolygon.length >= 3) {
+      setZones((prev) => [...prev, { tipoTecido: activeType, poligono: currentPolygon }]);
     }
-    setZones((prev) => [...prev, { tipoTecido: activeType, retangulo: drawing! }]);
-    setDrawing(null);
-    dragStart.current = null;
+    setCurrentPolygon([]);
+    setMousePos(null);
   }
 
   function removeZone(index: number) {
@@ -79,7 +69,23 @@ export default function AdminAnotacaoPage() {
 
   function loadFromTemplate() {
     if (!current) return;
-    setZones(current.zonasTecido ?? []);
+    // Suporta carregamento de retângulos antigos (convertendo-os) e polígonos novos
+    const loadedZones = (current.zonasTecido ?? []).map((z: any) => {
+      if (z.poligono) return z;
+      if (z.retangulo) {
+        return {
+          tipoTecido: z.tipoTecido,
+          poligono: [
+            { x: z.retangulo.x, y: z.retangulo.y },
+            { x: z.retangulo.x + z.retangulo.w, y: z.retangulo.y },
+            { x: z.retangulo.x + z.retangulo.w, y: z.retangulo.y + z.retangulo.h },
+            { x: z.retangulo.x, y: z.retangulo.y + z.retangulo.h },
+          ]
+        };
+      }
+      return z;
+    });
+    setZones(loadedZones as ZonaTecido[]);
   }
 
   function copyJson() {
@@ -111,8 +117,8 @@ export default function AdminAnotacaoPage() {
           className="text-body"
           style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}
         >
-          Arrastar para desenhar uma zona → mudar tipo → desenhar próxima zona → copiar JSON →
-              colar no campo <code>zonasTecido</code> do caso em{" "}
+          Clicar para adicionar vértices do polígono → Clicar "Concluir Forma" → desenhar próxima zona → copiar JSON →
+          colar no campo <code>zonasTecido</code> do caso em{" "}
           <code>data/clinical/casos.ts</code>.
         </p>
       </div>
@@ -196,17 +202,26 @@ export default function AdminAnotacaoPage() {
             </button>
           );
         })}
+
+        {currentPolygon.length > 0 && (
+          <div style={{ display: "flex", gap: "var(--space-sm)", marginLeft: "auto" }}>
+            <button type="button" className="btn btn-primary" onClick={handleFinishPolygon}>
+              Concluir Forma
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => setCurrentPolygon([])}>
+              Cancelar
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Imagem com desenho */}
       <div
         ref={imageRef}
-        onMouseDown={handleMouseDown}
+        onClick={handleImageClick}
         onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
         onMouseLeave={() => {
-          setDrawing(null);
-          dragStart.current = null;
+          setMousePos(null);
         }}
         style={{
           position: "relative",
@@ -225,44 +240,62 @@ export default function AdminAnotacaoPage() {
           draggable={false}
         />
 
-        {zones.map((zone, i) => {
-          const display = annotatableTissueDisplay[zone.tipoTecido];
-          return (
-            <div
-              key={i}
-              onClick={(e) => {
-                e.stopPropagation();
-                removeZone(i);
-              }}
-              title={`${display.rotulo} — clicar para remover`}
-              style={{
-                position: "absolute",
-                left: `${zone.retangulo.x * 100}%`,
-                top: `${zone.retangulo.y * 100}%`,
-                width: `${zone.retangulo.w * 100}%`,
-                height: `${zone.retangulo.h * 100}%`,
-                border: `2px solid ${display.color}`,
-                background: `${display.color}44`,
-                cursor: "pointer",
-              }}
-            />
-          );
-        })}
+        <svg
+          viewBox="0 0 1000 1000"
+          preserveAspectRatio="none"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+          }}
+        >
+          {zones.map((zone, i) => {
+            const display = annotatableTissueDisplay[zone.tipoTecido];
+            const pointsStr = zone.poligono.map(p => `${p.x * 1000},${p.y * 1000}`).join(" ");
+            return (
+              <polygon
+                key={i}
+                points={pointsStr}
+                fill={`${display.color}44`}
+                stroke={display.color}
+                strokeWidth="2"
+                style={{ pointerEvents: "auto", cursor: "pointer" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeZone(i);
+                }}
+              >
+                <title>{display.rotulo} — clicar para remover</title>
+              </polygon>
+            );
+          })}
 
-        {drawing && (
-          <div
-            style={{
-              position: "absolute",
-              left: `${drawing.x * 100}%`,
-              top: `${drawing.y * 100}%`,
-              width: `${drawing.w * 100}%`,
-              height: `${drawing.h * 100}%`,
-              border: `2px dashed ${annotatableTissueDisplay[activeType].color}`,
-              background: `${annotatableTissueDisplay[activeType].color}22`,
-              pointerEvents: "none",
-            }}
-          />
-        )}
+          {currentPolygon.length > 0 && (
+            <polyline
+              points={
+                currentPolygon.map(p => `${p.x * 1000},${p.y * 1000}`).join(" ") +
+                (mousePos ? ` ${mousePos.x * 1000},${mousePos.y * 1000}` : "")
+              }
+              fill="none"
+              stroke={annotatableTissueDisplay[activeType].color}
+              strokeWidth="2"
+              strokeDasharray="4"
+            />
+          )}
+          
+          {currentPolygon.map((p, i) => (
+            <circle
+              key={`cp-${i}`}
+              cx={p.x * 1000}
+              cy={p.y * 1000}
+              r="4"
+              fill={annotatableTissueDisplay[activeType].color}
+            />
+          ))}
+        </svg>
       </div>
 
       {/* Output JSON */}

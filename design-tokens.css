@@ -835,9 +835,36 @@ body {
   }
 }
 
+/* Suporta tanto o atributo manual como o setting do sistema operativo (se não for forçado) */
+:root[data-theme="light"] {
+  --color-base:           #F4F6F9;
+  --color-surface:        #FFFFFF;
+  --color-elevated:       #E8EDF3;
+  --color-border:         #B8C8D8;
+  --color-border-subtle:  #D0DCE8;
+
+  --color-text-primary:   #0D1B2A;
+  --color-text-secondary: #4A6080;
+  --color-text-disabled:  #A8BDD0;
+
+  --color-success-subtle: rgba(28, 120, 88, 0.10);
+  --color-success-border: rgba(28, 120, 88, 0.22);
+
+  --color-warning-subtle: rgba(180, 100, 10, 0.10);
+  --color-warning-border: rgba(180, 100, 10, 0.22);
+
+  --color-error-subtle:   rgba(160, 40, 46, 0.10);
+  --color-error-border:   rgba(160, 40, 46, 0.22);
+
+  --color-info-subtle:    rgba(37, 99, 235, 0.10);
+  --color-info-border:    rgba(37, 99, 235, 0.20);
+
+  --border-default:  0.5px solid var(--color-border-subtle);
+  --border-hover:    0.5px solid var(--color-border);
+}
 
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --color-base:           #F4F6F9;
     --color-surface:        #FFFFFF;
     --color-elevated:       #E8EDF3;

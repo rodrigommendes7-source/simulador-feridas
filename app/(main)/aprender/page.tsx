@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+﻿﻿import Link from "next/link";
 import {
   obterEvidencia,
   obterTema,
@@ -48,7 +48,7 @@ export default async function LearningPage({
     : resolvedSearchParams.motivo;
   const activeTopic = topics.find((topic) => topic.id === topicParam) ?? topics[0];
   const relatedTreatments = obterTratamentosParaTema(activeTopic.id);
-  const relatedCases = obterCasosRelacionadosComTema(activeTopic.id);
+  const relatedCases = obterCasosRelacionadosComTema(activeTopic.id).filter((c) => c.status === "disponivel");
   const relatedTopics = activeTopic.idsTopicoRelacionado
     .map((topicId) => obterTema(topicId))
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
@@ -500,48 +500,50 @@ export default async function LearningPage({
             </div>
 
             {/* Casos em que este tema é central */}
-            <div
-              style={{
-                background: "var(--color-surface)",
-                border: "var(--border-default)",
-                borderRadius: "var(--radius-xl)",
-                padding: "var(--space-xl)",
-              }}
-            >
-              <p className="text-label" style={{ color: "var(--color-warning)" }}>
-                Casos em que este tema é central
-              </p>
+            {relatedCases.length > 0 && (
               <div
-                className="grid md:grid-cols-2"
-                style={{ marginTop: "var(--space-md)", gap: "var(--space-sm)" }}
+                style={{
+                  background: "var(--color-surface)",
+                  border: "var(--border-default)",
+                  borderRadius: "var(--radius-xl)",
+                  padding: "var(--space-xl)",
+                }}
               >
-                {relatedCases.map((caseItem) => (
-                  <Link
-                    key={caseItem.id}
-                    href={`/casos/${caseItem.id}`}
-                    className="card card-clickable"
-                  >
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-xs)" }}>
-                      <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
-                        {caseItem.tituloAbreviado}
-                      </p>
-                      <span className={caseDifficultyBadgeClass(caseItem.dificuldade)}>
-                        {caseDifficultyLabel(caseItem.dificuldade)}
-                      </span>
-                    </div>
-                    <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
-                      {capitalizeSentence(caseItem.titulo)}
-                    </p>
-                    <p
-                      className="text-label"
-                      style={{ marginTop: "var(--space-sm)", color: "var(--color-warning)" }}
+                <p className="text-label" style={{ color: "var(--color-warning)" }}>
+                  Casos em que este tema é central
+                </p>
+                <div
+                  className="grid md:grid-cols-2"
+                  style={{ marginTop: "var(--space-md)", gap: "var(--space-sm)" }}
+                >
+                  {relatedCases.map((caseItem) => (
+                    <Link
+                      key={caseItem.id}
+                      href={`/casos/${caseItem.id}`}
+                      className="card card-clickable"
                     >
-                      Treina {activeTopic.titulo.toLowerCase()} neste contexto clínico.
-                    </p>
-                  </Link>
-                ))}
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-xs)" }}>
+                        <p style={{ fontWeight: "var(--weight-medium)", color: "var(--color-text-primary)" }}>
+                          {caseItem.tituloAbreviado}
+                        </p>
+                        <span className={caseDifficultyBadgeClass(caseItem.dificuldade)}>
+                          {caseDifficultyLabel(caseItem.dificuldade)}
+                        </span>
+                      </div>
+                      <p className="text-body" style={{ marginTop: "var(--space-xs)" }}>
+                        {capitalizeSentence(caseItem.titulo)}
+                      </p>
+                      <p
+                        className="text-label"
+                        style={{ marginTop: "var(--space-sm)", color: "var(--color-warning)" }}
+                      >
+                        Treina {activeTopic.titulo.toLowerCase()} neste contexto clínico.
+                      </p>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Temas relacionados */}
             <div

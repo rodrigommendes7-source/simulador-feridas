@@ -120,7 +120,7 @@ const cases: ModeloCaso[] = [
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
     objetivosVisuais: {
-    tecidos: ["fibrina", "necrose"],
+    tecidos: ["granulacao", "fibrina"],
     exsudado: ["seroso"],
     bordos: ["rubor"],
     },
@@ -207,165 +207,6 @@ const cases: ModeloCaso[] = [
       {
         "x": 0.395625,
         "y": 0.5242912482419996
-      }
-    ]
-  },
-  {
-    "tipoTecido": "necrose",
-    "poligono": [
-      {
-        "x": 0.474375,
-        "y": 0.5290285968072245
-      },
-      {
-        "x": 0.485625,
-        "y": 0.5542944558217573
-      },
-      {
-        "x": 0.496875,
-        "y": 0.5479779910681241
-      },
-      {
-        "x": 0.475625,
-        "y": 0.5306077129956328
-      }
-    ]
-  },
-  {
-    "tipoTecido": "necrose",
-    "poligono": [
-      {
-        "x": 0.494375,
-        "y": 0.48639245972020034
-      },
-      {
-        "x": 0.490625,
-        "y": 0.46270571689407586
-      },
-      {
-        "x": 0.471875,
-        "y": 0.46744306545930076
-      },
-      {
-        "x": 0.448125,
-        "y": 0.47691776258975055
-      },
-      {
-        "x": 0.463125,
-        "y": 0.4879715759086086
-      },
-      {
-        "x": 0.490625,
-        "y": 0.4879715759086086
-      }
-    ]
-  },
-  {
-    "tipoTecido": "fibrina",
-    "poligono": [
-      {
-        "x": 0.484375,
-        "y": 0.6095635224160477
-      },
-      {
-        "x": 0.499375,
-        "y": 0.6095635224160477
-      },
-      {
-        "x": 0.510625,
-        "y": 0.5969305929087814
-      },
-      {
-        "x": 0.531875,
-        "y": 0.5795603148362901
-      },
-      {
-        "x": 0.549375,
-        "y": 0.5795603148362901
-      },
-      {
-        "x": 0.566875,
-        "y": 0.5700856177058402
-      },
-      {
-        "x": 0.566875,
-        "y": 0.5416615263144908
-      },
-      {
-        "x": 0.558125,
-        "y": 0.532186829184041
-      },
-      {
-        "x": 0.561875,
-        "y": 0.5037627377926917
-      },
-      {
-        "x": 0.549375,
-        "y": 0.4879715759086086
-      },
-      {
-        "x": 0.524375,
-        "y": 0.48007599496656717
-      },
-      {
-        "x": 0.496875,
-        "y": 0.47218041402452565
-      },
-      {
-        "x": 0.475625,
-        "y": 0.45954748451725924
-      },
-      {
-        "x": 0.455625,
-        "y": 0.4658639492708925
-      },
-      {
-        "x": 0.441875,
-        "y": 0.48165511115497545
-      },
-      {
-        "x": 0.425625,
-        "y": 0.49902538922746675
-      },
-      {
-        "x": 0.414375,
-        "y": 0.5100792025463249
-      },
-      {
-        "x": 0.429375,
-        "y": 0.5132374349231414
-      },
-      {
-        "x": 0.448125,
-        "y": 0.5085000863579165
-      },
-      {
-        "x": 0.455625,
-        "y": 0.5227121320535912
-      },
-      {
-        "x": 0.463125,
-        "y": 0.5242912482419996
-      },
-      {
-        "x": 0.459375,
-        "y": 0.5463988748797157
-      },
-      {
-        "x": 0.448125,
-        "y": 0.5779811986478818
-      },
-      {
-        "x": 0.451875,
-        "y": 0.5937723605319648
-      },
-      {
-        "x": 0.470625,
-        "y": 0.6032470576624146
-      },
-      {
-        "x": 0.490625,
-        "y": 0.6095635224160477
       }
     ]
   },
@@ -549,6 +390,87 @@ const cases: ModeloCaso[] = [
         "y": 0.6143008709812726
       }
     ]
+  },
+  {
+    "tipoTecido": "fibrina",
+    "poligono": [
+      {
+        "x": 0.418125,
+        "y": 0.5116583187347331
+      },
+      {
+        "x": 0.438125,
+        "y": 0.48165511115497545
+      },
+      {
+        "x": 0.476875,
+        "y": 0.46744306545930076
+      },
+      {
+        "x": 0.519375,
+        "y": 0.47218041402452565
+      },
+      {
+        "x": 0.549375,
+        "y": 0.48481334353179206
+      },
+      {
+        "x": 0.561875,
+        "y": 0.49112980828542524
+      },
+      {
+        "x": 0.556875,
+        "y": 0.5132374349231414
+      },
+      {
+        "x": 0.556875,
+        "y": 0.5274494806188161
+      },
+      {
+        "x": 0.569375,
+        "y": 0.5448197586913075
+      },
+      {
+        "x": 0.563125,
+        "y": 0.5700856177058402
+      },
+      {
+        "x": 0.536875,
+        "y": 0.5779811986478818
+      },
+      {
+        "x": 0.491875,
+        "y": 0.6127217547928644
+      },
+      {
+        "x": 0.458125,
+        "y": 0.5969305929087814
+      },
+      {
+        "x": 0.450625,
+        "y": 0.5795603148362901
+      },
+      {
+        "x": 0.455625,
+        "y": 0.5542944558217573
+      },
+      {
+        "x": 0.463125,
+        "y": 0.5353450615608577
+      },
+      {
+        "x": 0.456875,
+        "y": 0.5195538996767747
+      },
+      {
+        "x": 0.430625,
+        "y": 0.5148165511115498
+      },
+      {
+        "x": 0.419375,
+        "y": 0.5116583187347331
+      }
+    ]
   }
     ],
     idsTemas: ["tecidos-e-leito", "desbridamento", "gestao-exsudado", "decisao-clinica"],
@@ -578,7 +500,7 @@ const cases: ModeloCaso[] = [
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
     objetivosVisuais: {
-    tecidos: ["fibrina"],
+    tecidos: ["granulacao", "fibrina"],
     exsudado: ["hematico"],
     bordos: ["integra"],
     },
@@ -2184,9 +2106,9 @@ const cases: ModeloCaso[] = [
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
     objetivosVisuais: {
-    tecidos: ["fibrina", "granulacao"],
+    tecidos: ["granulacao", "fibrina"],
     exsudado: ["purulento"],
-    bordos: ["rubor", "maceracao"],
+    bordos: ["rubor"],
     },
     tituloCenario: "Úlcera venosa com perilesão reativa",
     contextoPaciente: "Utente de 71 anos com insuficiência venosa crónica bilateral, úlcera venosa extensa com esfacelo amarelo abundante, lesões satélite e perilesão papular/petequial muito reativa.",
@@ -2812,7 +2734,7 @@ const cases: ModeloCaso[] = [
     objetivosVisuais: {
     tecidos: ["hipergranulacao"],
     exsudado: ["seroso"],
-    bordos: ["maceracao"],
+    bordos: ["integra"],
     },
     tituloCenario: "Queimadura com tecido exuberante",
     contextoPaciente: "Utente com ferida venosa de evolução longa, com granulação exuberante vermelho-vivo que ultrapassa o plano da pele, inibindo a migração epitelial. Sem sinais de infeção.",
@@ -3186,7 +3108,7 @@ const cases: ModeloCaso[] = [
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
     objetivosVisuais: {
-    tecidos: ["necrose", "fibrina"],
+    tecidos: ["fibrina", "necrose"],
     exsudado: ["purulento"],
     bordos: ["rubor"],
     },
@@ -3510,9 +3432,9 @@ const cases: ModeloCaso[] = [
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
     objetivosVisuais: {
-    tecidos: ["necrose", "fibrina"],
+    tecidos: ["fibrina", "granulacao", "necrose", "epitelial"],
     exsudado: ["seroso"],
-    bordos: ["pele-seca"],
+    bordos: ["integra"],
     },
     tituloCenario: "Queimadura profunda",
     contextoPaciente: "Utente com queimadura profunda extensa no membro inferior, com escara negra periférica, esfacelo amarelo e biofilme gelatinoso central. Sinais de colonização crítica.",
@@ -4442,7 +4364,7 @@ const cases: ModeloCaso[] = [
     definicoesObservacao: observationDefinitions,
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
-    objetivosVisuais: { tecidos: ["fibrina"], exsudado: ["seroso"], bordos: ["integra"] },
+    objetivosVisuais: { tecidos: ["fibrina"], exsudado: ["seroso"], bordos: ["rubor"] },
     tituloCenario: "Lesão plantar do pé diabético",
     contextoPaciente: "Utente de 64 anos com diabetes mellitus tipo 2 mal controlada, neuropatia periférica conhecida, lesão plantar lateral notada há 3 semanas.",
     bannerPaciente: "Lesão plantar lateral em pé diabético — © Medetec Medical Images (medetec.co.uk)",
@@ -4585,7 +4507,7 @@ const cases: ModeloCaso[] = [
     definicoesObservacao: observationDefinitions,
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
-    objetivosVisuais: { tecidos: ["granulacao"], exsudado: ["seroso", "hematico"], bordos: ["pele-seca"] },
+    objetivosVisuais: { tecidos: ["granulacao", "fibrina"], exsudado: ["seroso", "hematico"], bordos: ["integra"] },
     tituloCenario: "Laceração em pele geriátrica",
     contextoPaciente: "Utente de 82 anos com pele frágil por idade e corticoterapia crónica, lesão após pequeno trauma há 2 dias.",
     bannerPaciente: "Skin tear geriátrica — © Medetec Medical Images (medetec.co.uk)",
@@ -5110,7 +5032,7 @@ const cases: ModeloCaso[] = [
     definicoesObservacao: observationDefinitions,
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
-    objetivosVisuais: { tecidos: ["granulacao"], exsudado: ["seroso"], bordos: ["maceracao"] },
+    objetivosVisuais: { tecidos: ["fibrina"], exsudado: ["seroso"], bordos: ["maceracao"] },
     tituloCenario: "Úlcera venosa com maceração perilesional",
     contextoPaciente: "Utente de 72 anos, úlcera de perna com mais de 6 meses de evolução, com história de IVC e edema dos membros inferiores. Sem sinais de infeção sistémica.",
     bannerPaciente: "Úlcera venosa exsudativa com maceração — © Medetec Medical Images (medetec.co.uk)",
@@ -5354,7 +5276,7 @@ const cases: ModeloCaso[] = [
     definicoesObservacao: observationDefinitions,
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
-    objetivosVisuais: { tecidos: ["necrose", "fibrina"], exsudado: ["seroso", "purulento"], bordos: ["rubor"] },
+    objetivosVisuais: { tecidos: ["fibrina", "necrose"], exsudado: ["seroso", "purulento"], bordos: ["rubor"] },
     tituloCenario: "Ferida pós-picada de inseto",
     contextoPaciente: "Utente de 56 anos com lesão pós-picada de inseto há 10 dias, com agravamento progressivo nos últimos 3-4 dias.",
     bannerPaciente: "Ferida necrótica pós-picada — © Medetec Medical Images (medetec.co.uk)",
@@ -5794,7 +5716,7 @@ const cases: ModeloCaso[] = [
     definicoesObservacao: observationDefinitions,
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
-    objetivosVisuais: { tecidos: ["granulacao"], exsudado: ["seroso"], bordos: ["maceracao"] },
+    objetivosVisuais: { tecidos: ["granulacao"], exsudado: ["seroso"], bordos: ["rubor"] },
     tituloCenario: "Úlcera venosa da coxa em obesidade",
     contextoPaciente: "Utente de 64 anos, IMC 42, com edema crónico dos membros inferiores e mobilidade limitada. Úlcera presente há cerca de 4 meses.",
     bannerPaciente: "Úlcera venosa da coxa em obesidade — © Medetec Medical Images (medetec.co.uk)",
@@ -6284,7 +6206,7 @@ const cases: ModeloCaso[] = [
     definicoesObservacao: observationDefinitions,
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
-    objetivosVisuais: { tecidos: ["fibrina"], exsudado: ["seroso"], bordos: ["integra"] },
+    objetivosVisuais: { tecidos: ["granulacao", "fibrina"], exsudado: ["seroso"], bordos: ["maceracao"] },
     tituloCenario: "UPP categoria II do calcâneo",
     contextoPaciente: "Utente de 76 anos, internado há 8 dias por descompensação de IC, com mobilidade muito reduzida.",
     bannerPaciente: "UPP de calcâneo categoria II — © Medetec Medical Images (medetec.co.uk)",
@@ -6367,7 +6289,1010 @@ const cases: ModeloCaso[] = [
     motivo: "Penso rápido aderente pode causar trauma na remoção sobre tecido frágil.",
     idsTemas: ["decisao-clinica"] },
     ],
-    zonasTecido: [],
+    zonasTecido: [
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.315625,
+        "y": 0.548784233427182
+      },
+      {
+        "x": 0.334375,
+        "y": 0.570079344765805
+      },
+      {
+        "x": 0.360625,
+        "y": 0.5799078576913232
+      },
+      {
+        "x": 0.380625,
+        "y": 0.5536984898899411
+      },
+      {
+        "x": 0.386875,
+        "y": 0.5389557205016636
+      },
+      {
+        "x": 0.388125,
+        "y": 0.5225748656257998
+      },
+      {
+        "x": 0.396875,
+        "y": 0.527489122088559
+      },
+      {
+        "x": 0.411875,
+        "y": 0.5192986946506271
+      },
+      {
+        "x": 0.420625,
+        "y": 0.506194010749936
+      },
+      {
+        "x": 0.424375,
+        "y": 0.48326081392372666
+      },
+      {
+        "x": 0.433125,
+        "y": 0.4734323009982083
+      },
+      {
+        "x": 0.435625,
+        "y": 0.4652418735602764
+      },
+      {
+        "x": 0.420625,
+        "y": 0.4685180445354492
+      },
+      {
+        "x": 0.399375,
+        "y": 0.4701561300230356
+      },
+      {
+        "x": 0.381875,
+        "y": 0.4734323009982083
+      },
+      {
+        "x": 0.378125,
+        "y": 0.4898131558740722
+      },
+      {
+        "x": 0.360625,
+        "y": 0.4947274123368313
+      },
+      {
+        "x": 0.355625,
+        "y": 0.506194010749936
+      },
+      {
+        "x": 0.355625,
+        "y": 0.5258510366009727
+      },
+      {
+        "x": 0.361875,
+        "y": 0.5455080624520092
+      },
+      {
+        "x": 0.361875,
+        "y": 0.561888917327873
+      },
+      {
+        "x": 0.354375,
+        "y": 0.5635270028154594
+      },
+      {
+        "x": 0.331875,
+        "y": 0.5553365753775276
+      },
+      {
+        "x": 0.316875,
+        "y": 0.5455080624520092
+      }
+    ]
+  },
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.310625,
+        "y": 0.44394676222165347
+      },
+      {
+        "x": 0.301875,
+        "y": 0.4193754799078577
+      },
+      {
+        "x": 0.316875,
+        "y": 0.4046327105195802
+      },
+      {
+        "x": 0.325625,
+        "y": 0.4013565395444075
+      },
+      {
+        "x": 0.334375,
+        "y": 0.41609930893268493
+      },
+      {
+        "x": 0.346875,
+        "y": 0.4210135653954441
+      },
+      {
+        "x": 0.360625,
+        "y": 0.4210135653954441
+      },
+      {
+        "x": 0.360625,
+        "y": 0.43248016380854876
+      },
+      {
+        "x": 0.345625,
+        "y": 0.44394676222165347
+      },
+      {
+        "x": 0.336875,
+        "y": 0.4472229331968262
+      },
+      {
+        "x": 0.323125,
+        "y": 0.4472229331968262
+      },
+      {
+        "x": 0.316875,
+        "y": 0.4472229331968262
+      }
+    ]
+  },
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.364375,
+        "y": 0.4783465574609675
+      },
+      {
+        "x": 0.358125,
+        "y": 0.46196570258510367
+      },
+      {
+        "x": 0.340625,
+        "y": 0.46687995904786284
+      },
+      {
+        "x": 0.334375,
+        "y": 0.4767084719733811
+      },
+      {
+        "x": 0.353125,
+        "y": 0.4783465574609675
+      },
+      {
+        "x": 0.363125,
+        "y": 0.4767084719733811
+      }
+    ]
+  },
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.534375,
+        "y": 0.4472229331968262
+      },
+      {
+        "x": 0.516875,
+        "y": 0.4472229331968262
+      },
+      {
+        "x": 0.504375,
+        "y": 0.46196570258510367
+      },
+      {
+        "x": 0.510625,
+        "y": 0.4701561300230356
+      },
+      {
+        "x": 0.520625,
+        "y": 0.46196570258510367
+      },
+      {
+        "x": 0.528125,
+        "y": 0.45377527514717175
+      },
+      {
+        "x": 0.529375,
+        "y": 0.4488610186844126
+      }
+    ]
+  },
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.518125,
+        "y": 0.5405938059892501
+      },
+      {
+        "x": 0.513125,
+        "y": 0.561888917327873
+      },
+      {
+        "x": 0.529375,
+        "y": 0.5733555157409778
+      },
+      {
+        "x": 0.541875,
+        "y": 0.5668031737906322
+      },
+      {
+        "x": 0.551875,
+        "y": 0.5536984898899411
+      },
+      {
+        "x": 0.568125,
+        "y": 0.5258510366009727
+      },
+      {
+        "x": 0.575625,
+        "y": 0.5111082672126952
+      },
+      {
+        "x": 0.590625,
+        "y": 0.46196570258510367
+      },
+      {
+        "x": 0.599375,
+        "y": 0.4373944202713079
+      },
+      {
+        "x": 0.594375,
+        "y": 0.40299462503199385
+      },
+      {
+        "x": 0.584375,
+        "y": 0.3833375991809573
+      },
+      {
+        "x": 0.575625,
+        "y": 0.37678525723061174
+      },
+      {
+        "x": 0.570625,
+        "y": 0.40299462503199385
+      },
+      {
+        "x": 0.568125,
+        "y": 0.4308420783209624
+      },
+      {
+        "x": 0.568125,
+        "y": 0.45868953160993087
+      },
+      {
+        "x": 0.566875,
+        "y": 0.48326081392372666
+      },
+      {
+        "x": 0.556875,
+        "y": 0.506194010749936
+      },
+      {
+        "x": 0.534375,
+        "y": 0.5324033785513181
+      },
+      {
+        "x": 0.524375,
+        "y": 0.5389557205016636
+      }
+    ]
+  },
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.434375,
+        "y": 0.30470949577681083
+      },
+      {
+        "x": 0.429375,
+        "y": 0.34566163296647046
+      },
+      {
+        "x": 0.433125,
+        "y": 0.3702329152802662
+      },
+      {
+        "x": 0.429375,
+        "y": 0.4095469669823394
+      },
+      {
+        "x": 0.455625,
+        "y": 0.40627079600716665
+      },
+      {
+        "x": 0.469375,
+        "y": 0.41118505246992576
+      },
+      {
+        "x": 0.481875,
+        "y": 0.38497568466854365
+      },
+      {
+        "x": 0.503125,
+        "y": 0.365318658817507
+      },
+      {
+        "x": 0.526875,
+        "y": 0.3587663168671615
+      },
+      {
+        "x": 0.536875,
+        "y": 0.3833375991809573
+      },
+      {
+        "x": 0.548125,
+        "y": 0.3833375991809573
+      },
+      {
+        "x": 0.555625,
+        "y": 0.3620424878423343
+      },
+      {
+        "x": 0.548125,
+        "y": 0.3325569490657794
+      },
+      {
+        "x": 0.528125,
+        "y": 0.31617609418991555
+      },
+      {
+        "x": 0.501875,
+        "y": 0.2997952393140517
+      },
+      {
+        "x": 0.470625,
+        "y": 0.2965190683388789
+      },
+      {
+        "x": 0.436875,
+        "y": 0.30470949577681083
+      }
+    ]
+  },
+  {
+    "tipoTecido": "fibrina",
+    "poligono": [
+      {
+        "x": 0.309375,
+        "y": 0.5422318914768365
+      },
+      {
+        "x": 0.329375,
+        "y": 0.5471461479395956
+      },
+      {
+        "x": 0.353125,
+        "y": 0.5569746608651139
+      },
+      {
+        "x": 0.360625,
+        "y": 0.5553365753775276
+      },
+      {
+        "x": 0.353125,
+        "y": 0.5307652930637318
+      },
+      {
+        "x": 0.351875,
+        "y": 0.4980035833120041
+      },
+      {
+        "x": 0.358125,
+        "y": 0.4881750703864858
+      },
+      {
+        "x": 0.358125,
+        "y": 0.47998464294855386
+      },
+      {
+        "x": 0.341875,
+        "y": 0.48489889941131303
+      },
+      {
+        "x": 0.334375,
+        "y": 0.48489889941131303
+      },
+      {
+        "x": 0.329375,
+        "y": 0.47998464294855386
+      },
+      {
+        "x": 0.326875,
+        "y": 0.4783465574609675
+      },
+      {
+        "x": 0.326875,
+        "y": 0.4767084719733811
+      },
+      {
+        "x": 0.334375,
+        "y": 0.46687995904786284
+      },
+      {
+        "x": 0.344375,
+        "y": 0.45868953160993087
+      },
+      {
+        "x": 0.355625,
+        "y": 0.4570514461223445
+      },
+      {
+        "x": 0.355625,
+        "y": 0.44394676222165347
+      },
+      {
+        "x": 0.345625,
+        "y": 0.4488610186844126
+      },
+      {
+        "x": 0.328125,
+        "y": 0.45049910417199895
+      },
+      {
+        "x": 0.318125,
+        "y": 0.45049910417199895
+      },
+      {
+        "x": 0.309375,
+        "y": 0.44394676222165347
+      },
+      {
+        "x": 0.304375,
+        "y": 0.43248016380854876
+      },
+      {
+        "x": 0.300625,
+        "y": 0.4177373944202713
+      },
+      {
+        "x": 0.311875,
+        "y": 0.407908881494753
+      },
+      {
+        "x": 0.318125,
+        "y": 0.3964422830816483
+      },
+      {
+        "x": 0.318125,
+        "y": 0.3833375991809573
+      },
+      {
+        "x": 0.313125,
+        "y": 0.3685948297926798
+      },
+      {
+        "x": 0.299375,
+        "y": 0.3489378039416432
+      },
+      {
+        "x": 0.274375,
+        "y": 0.3472997184540568
+      },
+      {
+        "x": 0.260625,
+        "y": 0.3571282313795751
+      },
+      {
+        "x": 0.250625,
+        "y": 0.3685948297926798
+      },
+      {
+        "x": 0.240625,
+        "y": 0.3882518556437164
+      },
+      {
+        "x": 0.233125,
+        "y": 0.407908881494753
+      },
+      {
+        "x": 0.226875,
+        "y": 0.4390325057588943
+      },
+      {
+        "x": 0.229375,
+        "y": 0.46196570258510367
+      },
+      {
+        "x": 0.251875,
+        "y": 0.47179421551062195
+      },
+      {
+        "x": 0.266875,
+        "y": 0.4767084719733811
+      },
+      {
+        "x": 0.271875,
+        "y": 0.4865369848988994
+      },
+      {
+        "x": 0.279375,
+        "y": 0.5094701817251088
+      },
+      {
+        "x": 0.286875,
+        "y": 0.5176606091630407
+      },
+      {
+        "x": 0.295625,
+        "y": 0.5324033785513181
+      },
+      {
+        "x": 0.301875,
+        "y": 0.5438699769644229
+      },
+      {
+        "x": 0.311875,
+        "y": 0.5455080624520092
+      }
+    ]
+  },
+  {
+    "tipoTecido": "fibrina",
+    "poligono": [
+      {
+        "x": 0.311875,
+        "y": 0.35549014589198874
+      },
+      {
+        "x": 0.321875,
+        "y": 0.39808036856923473
+      },
+      {
+        "x": 0.326875,
+        "y": 0.39808036856923473
+      },
+      {
+        "x": 0.333125,
+        "y": 0.4046327105195802
+      },
+      {
+        "x": 0.341875,
+        "y": 0.41118505246992576
+      },
+      {
+        "x": 0.353125,
+        "y": 0.4177373944202713
+      },
+      {
+        "x": 0.365625,
+        "y": 0.4177373944202713
+      },
+      {
+        "x": 0.373125,
+        "y": 0.4210135653954441
+      },
+      {
+        "x": 0.384375,
+        "y": 0.4210135653954441
+      },
+      {
+        "x": 0.403125,
+        "y": 0.41446122344509856
+      },
+      {
+        "x": 0.424375,
+        "y": 0.41446122344509856
+      },
+      {
+        "x": 0.426875,
+        "y": 0.41118505246992576
+      },
+      {
+        "x": 0.426875,
+        "y": 0.3882518556437164
+      },
+      {
+        "x": 0.429375,
+        "y": 0.3685948297926798
+      },
+      {
+        "x": 0.426875,
+        "y": 0.352213974916816
+      },
+      {
+        "x": 0.426875,
+        "y": 0.33419503455336574
+      },
+      {
+        "x": 0.429375,
+        "y": 0.3112618377271564
+      },
+      {
+        "x": 0.420625,
+        "y": 0.30470949577681083
+      },
+      {
+        "x": 0.393125,
+        "y": 0.2981571538264653
+      },
+      {
+        "x": 0.374375,
+        "y": 0.30470949577681083
+      },
+      {
+        "x": 0.353125,
+        "y": 0.3227284361402611
+      },
+      {
+        "x": 0.338125,
+        "y": 0.3325569490657794
+      },
+      {
+        "x": 0.325625,
+        "y": 0.3407473765037113
+      },
+      {
+        "x": 0.314375,
+        "y": 0.352213974916816
+      }
+    ]
+  },
+  {
+    "tipoTecido": "fibrina",
+    "poligono": [
+      {
+        "x": 0.351875,
+        "y": 0.5930125415920143
+      },
+      {
+        "x": 0.380625,
+        "y": 0.6028410545175327
+      },
+      {
+        "x": 0.410625,
+        "y": 0.6028410545175327
+      },
+      {
+        "x": 0.431875,
+        "y": 0.6077553109802918
+      },
+      {
+        "x": 0.463125,
+        "y": 0.604479140005119
+      },
+      {
+        "x": 0.484375,
+        "y": 0.5946506270796007
+      },
+      {
+        "x": 0.519375,
+        "y": 0.5946506270796007
+      },
+      {
+        "x": 0.529375,
+        "y": 0.5799078576913232
+      },
+      {
+        "x": 0.514375,
+        "y": 0.5668031737906322
+      },
+      {
+        "x": 0.505625,
+        "y": 0.5569746608651139
+      },
+      {
+        "x": 0.513125,
+        "y": 0.5389557205016636
+      },
+      {
+        "x": 0.516875,
+        "y": 0.5291272075761454
+      },
+      {
+        "x": 0.524375,
+        "y": 0.527489122088559
+      },
+      {
+        "x": 0.534375,
+        "y": 0.5192986946506271
+      },
+      {
+        "x": 0.541875,
+        "y": 0.5111082672126952
+      },
+      {
+        "x": 0.554375,
+        "y": 0.4996416687995905
+      },
+      {
+        "x": 0.560625,
+        "y": 0.4865369848988994
+      },
+      {
+        "x": 0.566875,
+        "y": 0.4603276170975173
+      },
+      {
+        "x": 0.565625,
+        "y": 0.44230867673406704
+      },
+      {
+        "x": 0.566875,
+        "y": 0.42265165088303047
+      },
+      {
+        "x": 0.565625,
+        "y": 0.4013565395444075
+      },
+      {
+        "x": 0.569375,
+        "y": 0.38497568466854365
+      },
+      {
+        "x": 0.581875,
+        "y": 0.3702329152802662
+      },
+      {
+        "x": 0.590625,
+        "y": 0.3587663168671615
+      },
+      {
+        "x": 0.585625,
+        "y": 0.34238546199129766
+      },
+      {
+        "x": 0.575625,
+        "y": 0.3325569490657794
+      },
+      {
+        "x": 0.560625,
+        "y": 0.3276426926030202
+      },
+      {
+        "x": 0.559375,
+        "y": 0.34566163296647046
+      },
+      {
+        "x": 0.559375,
+        "y": 0.3604044023547479
+      },
+      {
+        "x": 0.555625,
+        "y": 0.37187100076785257
+      },
+      {
+        "x": 0.553125,
+        "y": 0.3833375991809573
+      },
+      {
+        "x": 0.548125,
+        "y": 0.39316611210647556
+      },
+      {
+        "x": 0.545625,
+        "y": 0.4013565395444075
+      },
+      {
+        "x": 0.541875,
+        "y": 0.41282313795751213
+      },
+      {
+        "x": 0.538125,
+        "y": 0.4308420783209624
+      },
+      {
+        "x": 0.538125,
+        "y": 0.44394676222165347
+      },
+      {
+        "x": 0.529375,
+        "y": 0.4570514461223445
+      },
+      {
+        "x": 0.520625,
+        "y": 0.4652418735602764
+      },
+      {
+        "x": 0.510625,
+        "y": 0.4734323009982083
+      },
+      {
+        "x": 0.503125,
+        "y": 0.4701561300230356
+      },
+      {
+        "x": 0.496875,
+        "y": 0.4652418735602764
+      },
+      {
+        "x": 0.481875,
+        "y": 0.4652418735602764
+      },
+      {
+        "x": 0.464375,
+        "y": 0.46687995904786284
+      },
+      {
+        "x": 0.450625,
+        "y": 0.46687995904786284
+      },
+      {
+        "x": 0.441875,
+        "y": 0.4685180445354492
+      },
+      {
+        "x": 0.439375,
+        "y": 0.46687995904786284
+      },
+      {
+        "x": 0.436875,
+        "y": 0.47507038648579475
+      },
+      {
+        "x": 0.429375,
+        "y": 0.48326081392372666
+      },
+      {
+        "x": 0.426875,
+        "y": 0.5012797542871769
+      },
+      {
+        "x": 0.420625,
+        "y": 0.5192986946506271
+      },
+      {
+        "x": 0.405625,
+        "y": 0.5291272075761454
+      },
+      {
+        "x": 0.391875,
+        "y": 0.5324033785513181
+      },
+      {
+        "x": 0.388125,
+        "y": 0.5471461479395956
+      },
+      {
+        "x": 0.378125,
+        "y": 0.5668031737906322
+      },
+      {
+        "x": 0.373125,
+        "y": 0.5733555157409778
+      },
+      {
+        "x": 0.368125,
+        "y": 0.5848221141540824
+      },
+      {
+        "x": 0.358125,
+        "y": 0.5897363706168416
+      }
+    ]
+  },
+  {
+    "tipoTecido": "fibrina",
+    "poligono": [
+      {
+        "x": 0.545625,
+        "y": 0.3882518556437164
+      },
+      {
+        "x": 0.534375,
+        "y": 0.3833375991809573
+      },
+      {
+        "x": 0.529375,
+        "y": 0.3702329152802662
+      },
+      {
+        "x": 0.521875,
+        "y": 0.3685948297926798
+      },
+      {
+        "x": 0.510625,
+        "y": 0.3685948297926798
+      },
+      {
+        "x": 0.501875,
+        "y": 0.37678525723061174
+      },
+      {
+        "x": 0.493125,
+        "y": 0.3833375991809573
+      },
+      {
+        "x": 0.479375,
+        "y": 0.3997184540568211
+      },
+      {
+        "x": 0.473125,
+        "y": 0.41118505246992576
+      },
+      {
+        "x": 0.463125,
+        "y": 0.41282313795751213
+      },
+      {
+        "x": 0.448125,
+        "y": 0.41282313795751213
+      },
+      {
+        "x": 0.433125,
+        "y": 0.41282313795751213
+      },
+      {
+        "x": 0.421875,
+        "y": 0.4177373944202713
+      },
+      {
+        "x": 0.393125,
+        "y": 0.42265165088303047
+      },
+      {
+        "x": 0.375625,
+        "y": 0.4259278218582032
+      },
+      {
+        "x": 0.359375,
+        "y": 0.44394676222165347
+      },
+      {
+        "x": 0.359375,
+        "y": 0.45868953160993087
+      },
+      {
+        "x": 0.365625,
+        "y": 0.46687995904786284
+      },
+      {
+        "x": 0.363125,
+        "y": 0.4881750703864858
+      },
+      {
+        "x": 0.376875,
+        "y": 0.4865369848988994
+      },
+      {
+        "x": 0.385625,
+        "y": 0.4701561300230356
+      },
+      {
+        "x": 0.404375,
+        "y": 0.4685180445354492
+      },
+      {
+        "x": 0.428125,
+        "y": 0.4652418735602764
+      },
+      {
+        "x": 0.460625,
+        "y": 0.4652418735602764
+      },
+      {
+        "x": 0.498125,
+        "y": 0.46196570258510367
+      },
+      {
+        "x": 0.519375,
+        "y": 0.44558484770923984
+      },
+      {
+        "x": 0.535625,
+        "y": 0.44394676222165347
+      },
+      {
+        "x": 0.541875,
+        "y": 0.40627079600716665
+      },
+      {
+        "x": 0.546875,
+        "y": 0.3915280266188892
+      }
+    ]
+  }
+    ],
     idsTemas: ["tecidos-e-leito", "desbridamento", "escolha-do-penso", "decisao-clinica"],
     planoRecomendado: {
     minimo: ["Limpeza com soro fisiológico", "Desbridamento enzimático da fibrina", "Hidrocolóide fino protetor", "Penso simples"],
@@ -6481,7 +7406,214 @@ const cases: ModeloCaso[] = [
     motivo: "Penso rápido aderente é insuficiente para ferida profunda exsudativa e adere à fibrina/necrose.",
     idsTemas: ["decisao-clinica"] },
     ],
-    zonasTecido: [],
+    zonasTecido: [
+  {
+    "tipoTecido": "fibrina",
+    "poligono": [
+      {
+        "x": 0.408125,
+        "y": 0.3810959892772451
+      },
+      {
+        "x": 0.388125,
+        "y": 0.43388493659140115
+      },
+      {
+        "x": 0.368125,
+        "y": 0.4751263016805856
+      },
+      {
+        "x": 0.358125,
+        "y": 0.5097690483555005
+      },
+      {
+        "x": 0.340625,
+        "y": 0.5361635220125787
+      },
+      {
+        "x": 0.344375,
+        "y": 0.5625579956696567
+      },
+      {
+        "x": 0.374375,
+        "y": 0.5757552324981957
+      },
+      {
+        "x": 0.398125,
+        "y": 0.5774048871017631
+      },
+      {
+        "x": 0.433125,
+        "y": 0.5708062686874935
+      },
+      {
+        "x": 0.478125,
+        "y": 0.5609083410660893
+      },
+      {
+        "x": 0.499375,
+        "y": 0.5460614496339828
+      },
+      {
+        "x": 0.516875,
+        "y": 0.5411124858232808
+      },
+      {
+        "x": 0.523125,
+        "y": 0.5642076502732241
+      },
+      {
+        "x": 0.530625,
+        "y": 0.5889524693267347
+      },
+      {
+        "x": 0.538125,
+        "y": 0.6021497061552737
+      },
+      {
+        "x": 0.545625,
+        "y": 0.5807041963088978
+      },
+      {
+        "x": 0.556875,
+        "y": 0.5543097226518198
+      },
+      {
+        "x": 0.571875,
+        "y": 0.5345138674090112
+      },
+      {
+        "x": 0.593125,
+        "y": 0.5180173213733374
+      },
+      {
+        "x": 0.610625,
+        "y": 0.5081193937519332
+      },
+      {
+        "x": 0.625625,
+        "y": 0.4932725023198268
+      },
+      {
+        "x": 0.623125,
+        "y": 0.46687802866274875
+      },
+      {
+        "x": 0.606875,
+        "y": 0.4421332096092381
+      },
+      {
+        "x": 0.610625,
+        "y": 0.39594288070935146
+      },
+      {
+        "x": 0.614375,
+        "y": 0.3794463346736777
+      },
+      {
+        "x": 0.575625,
+        "y": 0.3497525518094649
+      },
+      {
+        "x": 0.548125,
+        "y": 0.34480358799876276
+      },
+      {
+        "x": 0.510625,
+        "y": 0.3398546241880606
+      },
+      {
+        "x": 0.479375,
+        "y": 0.35140220641303227
+      },
+      {
+        "x": 0.450625,
+        "y": 0.3645994432415713
+      },
+      {
+        "x": 0.426875,
+        "y": 0.3744973708629756
+      },
+      {
+        "x": 0.411875,
+        "y": 0.3794463346736777
+      }
+    ]
+  },
+  {
+    "tipoTecido": "necrose",
+    "poligono": [
+      {
+        "x": 0.585625,
+        "y": 0.10230436127435819
+      },
+      {
+        "x": 0.538125,
+        "y": 0.15179399938137952
+      },
+      {
+        "x": 0.500625,
+        "y": 0.20458294669553562
+      },
+      {
+        "x": 0.466875,
+        "y": 0.24582431178472008
+      },
+      {
+        "x": 0.438125,
+        "y": 0.29201464068460664
+      },
+      {
+        "x": 0.424375,
+        "y": 0.3266573873595216
+      },
+      {
+        "x": 0.410625,
+        "y": 0.3711980616558408
+      },
+      {
+        "x": 0.520625,
+        "y": 0.3332560057737911
+      },
+      {
+        "x": 0.589375,
+        "y": 0.3497525518094649
+      },
+      {
+        "x": 0.615625,
+        "y": 0.3711980616558408
+      },
+      {
+        "x": 0.643125,
+        "y": 0.32830704196308896
+      },
+      {
+        "x": 0.683125,
+        "y": 0.29861325909887615
+      },
+      {
+        "x": 0.701875,
+        "y": 0.24087534797401794
+      },
+      {
+        "x": 0.694375,
+        "y": 0.1897360552634292
+      },
+      {
+        "x": 0.663125,
+        "y": 0.15179399938137952
+      },
+      {
+        "x": 0.588125,
+        "y": 0.11715125270646458
+      },
+      {
+        "x": 0.584375,
+        "y": 0.10395401587792556
+      }
+    ]
+  }
+    ],
     idsTemas: ["tecidos-e-leito", "desbridamento", "antimicrobianos", "biofilme", "gestao-exsudado", "escolha-do-penso", "decisao-clinica", "sinais-de-alarme"],
     planoRecomendado: {
     minimo: ["Limpeza com soro fisiológico", "Desbridamento enzimático (colagenase)", "Antimicrobiano tópico com prata", "Cobertura secundária absorvente", "Penso simples protetor", "Sinalizar a equipa médica"],
@@ -6587,7 +7719,145 @@ const cases: ModeloCaso[] = [
     motivo: "Penso rápido aderente é insuficiente para ferida com cavidade e exsudado moderado.",
     idsTemas: ["decisao-clinica"] },
     ],
-    zonasTecido: [],
+    zonasTecido: [
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.361875,
+        "y": 0.4256366635735643
+      },
+      {
+        "x": 0.389375,
+        "y": 0.4487318280235076
+      },
+      {
+        "x": 0.400625,
+        "y": 0.4751263016805856
+      },
+      {
+        "x": 0.413125,
+        "y": 0.5015207753376637
+      },
+      {
+        "x": 0.433125,
+        "y": 0.5279152489947417
+      },
+      {
+        "x": 0.458125,
+        "y": 0.5477111042375503
+      },
+      {
+        "x": 0.478125,
+        "y": 0.5625579956696567
+      },
+      {
+        "x": 0.504375,
+        "y": 0.5807041963088978
+      },
+      {
+        "x": 0.534375,
+        "y": 0.6021497061552737
+      },
+      {
+        "x": 0.550625,
+        "y": 0.6087483245695432
+      },
+      {
+        "x": 0.584375,
+        "y": 0.6087483245695432
+      },
+      {
+        "x": 0.621875,
+        "y": 0.6087483245695432
+      },
+      {
+        "x": 0.645625,
+        "y": 0.6005000515517064
+      },
+      {
+        "x": 0.671875,
+        "y": 0.5840035055160325
+      },
+      {
+        "x": 0.690625,
+        "y": 0.5642076502732241
+      },
+      {
+        "x": 0.703125,
+        "y": 0.5460614496339828
+      },
+      {
+        "x": 0.706875,
+        "y": 0.5180173213733374
+      },
+      {
+        "x": 0.695625,
+        "y": 0.4916228477162594
+      },
+      {
+        "x": 0.675625,
+        "y": 0.47017733786988347
+      },
+      {
+        "x": 0.648125,
+        "y": 0.4421332096092381
+      },
+      {
+        "x": 0.628125,
+        "y": 0.4239870089699969
+      },
+      {
+        "x": 0.598125,
+        "y": 0.40584080833075575
+      },
+      {
+        "x": 0.583125,
+        "y": 0.3942932261057841
+      },
+      {
+        "x": 0.549375,
+        "y": 0.3843952984843798
+      },
+      {
+        "x": 0.528125,
+        "y": 0.37614702546654294
+      },
+      {
+        "x": 0.491875,
+        "y": 0.36624909784513865
+      },
+      {
+        "x": 0.455625,
+        "y": 0.3744973708629756
+      },
+      {
+        "x": 0.423125,
+        "y": 0.3843952984843798
+      },
+      {
+        "x": 0.400625,
+        "y": 0.38934426229508196
+      },
+      {
+        "x": 0.375625,
+        "y": 0.39924218991648625
+      },
+      {
+        "x": 0.365625,
+        "y": 0.4041911537271884
+      },
+      {
+        "x": 0.356875,
+        "y": 0.42233735436642955
+      },
+      {
+        "x": 0.360625,
+        "y": 0.43388493659140115
+      }
+    ]
+  }
+    ],
     idsTemas: ["tecidos-e-leito", "gestao-exsudado", "escolha-do-penso", "decisao-clinica"],
     planoRecomendado: {
     minimo: ["Limpeza com soro fisiológico", "Material de preenchimento absorvente na cavidade", "Cobertura secundária com espuma", "Penso simples protetor"],
@@ -6613,7 +7883,7 @@ const cases: ModeloCaso[] = [
     definicoesObservacao: observationDefinitions,
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
-    objetivosVisuais: { tecidos: ["epitelial", "granulacao"], exsudado: ["seroso"], bordos: ["integra"] },
+    objetivosVisuais: { tecidos: ["granulacao", "epitelial"], exsudado: ["seroso"], bordos: ["integra"] },
     tituloCenario: "Queimadura de espessura parcial — cabeça",
     contextoPaciente: "Utente de 42 anos, queimadura térmica acidental há 48h. Bolha parcialmente rota, base eritematosa e húmida, muito dolorosa ao toque.",
     bannerPaciente: "Queimadura espessura parcial — cabeça — © Medetec Medical Images (medetec.co.uk)",
@@ -6687,7 +7957,541 @@ const cases: ModeloCaso[] = [
     motivo: "Penso rápido aderente é contraindicado em queimaduras — causa dor intensa e remoção traumática.",
     idsTemas: ["decisao-clinica", "escolha-do-penso"] },
     ],
-    zonasTecido: [],
+    zonasTecido: [
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.469375,
+        "y": 0.41518720837601003
+      },
+      {
+        "x": 0.443125,
+        "y": 0.3969784909525435
+      },
+      {
+        "x": 0.425625,
+        "y": 0.38059064527142367
+      },
+      {
+        "x": 0.416875,
+        "y": 0.37876977352907704
+      },
+      {
+        "x": 0.421875,
+        "y": 0.40244110617958345
+      },
+      {
+        "x": 0.426875,
+        "y": 0.4261124388300899
+      },
+      {
+        "x": 0.445625,
+        "y": 0.4479628997382497
+      },
+      {
+        "x": 0.445625,
+        "y": 0.4261124388300899
+      },
+      {
+        "x": 0.455625,
+        "y": 0.4188289518607033
+      },
+      {
+        "x": 0.475625,
+        "y": 0.41700808011835666
+      }
+    ]
+  },
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.391875,
+        "y": 0.40244110617958345
+      },
+      {
+        "x": 0.400625,
+        "y": 0.45160464322294297
+      },
+      {
+        "x": 0.399375,
+        "y": 0.4661716171617162
+      },
+      {
+        "x": 0.386875,
+        "y": 0.4333959257994765
+      },
+      {
+        "x": 0.375625,
+        "y": 0.4261124388300899
+      },
+      {
+        "x": 0.375625,
+        "y": 0.4479628997382497
+      },
+      {
+        "x": 0.375625,
+        "y": 0.4661716171617162
+      },
+      {
+        "x": 0.355625,
+        "y": 0.4479628997382497
+      },
+      {
+        "x": 0.334375,
+        "y": 0.43521679754182313
+      },
+      {
+        "x": 0.344375,
+        "y": 0.42064982360305
+      },
+      {
+        "x": 0.366875,
+        "y": 0.41518720837601003
+      },
+      {
+        "x": 0.380625,
+        "y": 0.40608284966427677
+      },
+      {
+        "x": 0.389375,
+        "y": 0.3987993626948902
+      }
+    ]
+  },
+  {
+    "tipoTecido": "epitelial",
+    "poligono": [
+      {
+        "x": 0.388125,
+        "y": 0.3969784909525435
+      },
+      {
+        "x": 0.396875,
+        "y": 0.4006202344372368
+      },
+      {
+        "x": 0.401875,
+        "y": 0.4333959257994765
+      },
+      {
+        "x": 0.404375,
+        "y": 0.45342551496528966
+      },
+      {
+        "x": 0.416875,
+        "y": 0.46435074541936955
+      },
+      {
+        "x": 0.428125,
+        "y": 0.46252987367702286
+      },
+      {
+        "x": 0.434375,
+        "y": 0.4570672584499829
+      },
+      {
+        "x": 0.443125,
+        "y": 0.45342551496528966
+      },
+      {
+        "x": 0.430625,
+        "y": 0.446142027995903
+      },
+      {
+        "x": 0.425625,
+        "y": 0.43157505405712987
+      },
+      {
+        "x": 0.421875,
+        "y": 0.42064982360305
+      },
+      {
+        "x": 0.415625,
+        "y": 0.40244110617958345
+      },
+      {
+        "x": 0.414375,
+        "y": 0.3878741322408103
+      },
+      {
+        "x": 0.410625,
+        "y": 0.3751280300443838
+      },
+      {
+        "x": 0.418125,
+        "y": 0.3751280300443838
+      },
+      {
+        "x": 0.429375,
+        "y": 0.38059064527142367
+      },
+      {
+        "x": 0.441875,
+        "y": 0.39151587572550356
+      },
+      {
+        "x": 0.455625,
+        "y": 0.4006202344372368
+      },
+      {
+        "x": 0.463125,
+        "y": 0.4079037214066234
+      },
+      {
+        "x": 0.473125,
+        "y": 0.41518720837601003
+      },
+      {
+        "x": 0.480625,
+        "y": 0.41518720837601003
+      },
+      {
+        "x": 0.493125,
+        "y": 0.40244110617958345
+      },
+      {
+        "x": 0.486875,
+        "y": 0.38059064527142367
+      },
+      {
+        "x": 0.481875,
+        "y": 0.36966541481734383
+      },
+      {
+        "x": 0.463125,
+        "y": 0.3623819278479572
+      },
+      {
+        "x": 0.444375,
+        "y": 0.3623819278479572
+      },
+      {
+        "x": 0.429375,
+        "y": 0.3623819278479572
+      },
+      {
+        "x": 0.414375,
+        "y": 0.36784454307499714
+      },
+      {
+        "x": 0.396875,
+        "y": 0.3733071583020371
+      },
+      {
+        "x": 0.389375,
+        "y": 0.39333674746785025
+      }
+    ]
+  },
+  {
+    "tipoTecido": "epitelial",
+    "poligono": [
+      {
+        "x": 0.329375,
+        "y": 0.4261124388300899
+      },
+      {
+        "x": 0.326875,
+        "y": 0.45160464322294297
+      },
+      {
+        "x": 0.333125,
+        "y": 0.47345510413110276
+      },
+      {
+        "x": 0.369375,
+        "y": 0.4898429498122226
+      },
+      {
+        "x": 0.389375,
+        "y": 0.5007681802663025
+      },
+      {
+        "x": 0.400625,
+        "y": 0.5116934107203824
+      },
+      {
+        "x": 0.429375,
+        "y": 0.5226186411744623
+      },
+      {
+        "x": 0.450625,
+        "y": 0.5535734607943553
+      },
+      {
+        "x": 0.459375,
+        "y": 0.549931717309662
+      },
+      {
+        "x": 0.473125,
+        "y": 0.5408273585979287
+      },
+      {
+        "x": 0.484375,
+        "y": 0.5207977694321156
+      },
+      {
+        "x": 0.481875,
+        "y": 0.5171560259474224
+      },
+      {
+        "x": 0.464375,
+        "y": 0.5044099237509958
+      },
+      {
+        "x": 0.459375,
+        "y": 0.4898429498122226
+      },
+      {
+        "x": 0.458125,
+        "y": 0.47527597587344944
+      },
+      {
+        "x": 0.466875,
+        "y": 0.46252987367702286
+      },
+      {
+        "x": 0.475625,
+        "y": 0.4588881301923296
+      },
+      {
+        "x": 0.485625,
+        "y": 0.4588881301923296
+      },
+      {
+        "x": 0.491875,
+        "y": 0.4570672584499829
+      },
+      {
+        "x": 0.496875,
+        "y": 0.446142027995903
+      },
+      {
+        "x": 0.496875,
+        "y": 0.4297541823147832
+      },
+      {
+        "x": 0.495625,
+        "y": 0.41700808011835666
+      },
+      {
+        "x": 0.484375,
+        "y": 0.4188289518607033
+      },
+      {
+        "x": 0.475625,
+        "y": 0.4261124388300899
+      },
+      {
+        "x": 0.459375,
+        "y": 0.4261124388300899
+      },
+      {
+        "x": 0.451875,
+        "y": 0.44250028451120976
+      },
+      {
+        "x": 0.449375,
+        "y": 0.45342551496528966
+      },
+      {
+        "x": 0.440625,
+        "y": 0.4588881301923296
+      },
+      {
+        "x": 0.430625,
+        "y": 0.4679924889040628
+      },
+      {
+        "x": 0.415625,
+        "y": 0.4679924889040628
+      },
+      {
+        "x": 0.401875,
+        "y": 0.46070900193467623
+      },
+      {
+        "x": 0.390625,
+        "y": 0.4479628997382497
+      },
+      {
+        "x": 0.380625,
+        "y": 0.4333959257994765
+      },
+      {
+        "x": 0.381875,
+        "y": 0.46435074541936955
+      },
+      {
+        "x": 0.361875,
+        "y": 0.46252987367702286
+      },
+      {
+        "x": 0.331875,
+        "y": 0.43885854102651645
+      }
+    ]
+  },
+  {
+    "tipoTecido": "granulacao",
+    "poligono": [
+      {
+        "x": 0.594375,
+        "y": 0.7629737111642199
+      },
+      {
+        "x": 0.598125,
+        "y": 0.7101684306361671
+      },
+      {
+        "x": 0.600625,
+        "y": 0.6810344827586207
+      },
+      {
+        "x": 0.591875,
+        "y": 0.6300500739729146
+      },
+      {
+        "x": 0.584375,
+        "y": 0.5936326391259815
+      },
+      {
+        "x": 0.578125,
+        "y": 0.5517525890520086
+      },
+      {
+        "x": 0.569375,
+        "y": 0.5025890520086491
+      },
+      {
+        "x": 0.560625,
+        "y": 0.47527597587344944
+      },
+      {
+        "x": 0.553125,
+        "y": 0.4552463867076363
+      },
+      {
+        "x": 0.521875,
+        "y": 0.42793331057243655
+      },
+      {
+        "x": 0.506875,
+        "y": 0.3987993626948902
+      },
+      {
+        "x": 0.501875,
+        "y": 0.3769489017867304
+      },
+      {
+        "x": 0.488125,
+        "y": 0.36966541481734383
+      },
+      {
+        "x": 0.495625,
+        "y": 0.4097245931489701
+      },
+      {
+        "x": 0.499375,
+        "y": 0.4406794127688631
+      },
+      {
+        "x": 0.501875,
+        "y": 0.4679924889040628
+      },
+      {
+        "x": 0.488125,
+        "y": 0.4716342323887561
+      },
+      {
+        "x": 0.475625,
+        "y": 0.4716342323887561
+      },
+      {
+        "x": 0.468125,
+        "y": 0.48438033458518265
+      },
+      {
+        "x": 0.468125,
+        "y": 0.5007681802663025
+      },
+      {
+        "x": 0.479375,
+        "y": 0.513514282462729
+      },
+      {
+        "x": 0.488125,
+        "y": 0.5317229998861955
+      },
+      {
+        "x": 0.476875,
+        "y": 0.5535734607943553
+      },
+      {
+        "x": 0.468125,
+        "y": 0.5608569477637418
+      },
+      {
+        "x": 0.453125,
+        "y": 0.5626778195060885
+      },
+      {
+        "x": 0.450625,
+        "y": 0.5845282804142483
+      },
+      {
+        "x": 0.474375,
+        "y": 0.6100204848071014
+      },
+      {
+        "x": 0.478125,
+        "y": 0.6227665870035279
+      },
+      {
+        "x": 0.498125,
+        "y": 0.642796176169341
+      },
+      {
+        "x": 0.508125,
+        "y": 0.6500796631387277
+      },
+      {
+        "x": 0.519375,
+        "y": 0.6555422783657676
+      },
+      {
+        "x": 0.535625,
+        "y": 0.6555422783657676
+      },
+      {
+        "x": 0.556875,
+        "y": 0.6664675088198475
+      },
+      {
+        "x": 0.563125,
+        "y": 0.6755718675315807
+      },
+      {
+        "x": 0.566875,
+        "y": 0.7138101741208603
+      },
+      {
+        "x": 0.566875,
+        "y": 0.7301980198019802
+      },
+      {
+        "x": 0.576875,
+        "y": 0.7556902241948332
+      },
+      {
+        "x": 0.584375,
+        "y": 0.7611528394218732
+      }
+    ]
+  }
+    ],
     idsTemas: ["decisao-clinica", "gestao-exsudado", "escolha-do-penso", "fixacao-e-remocao", "antimicrobianos"],
     planoRecomendado: {
     minimo: ["Limpeza com soro fisiológico (irrigação gentil)", "Interface não aderente (Mepitel One ou Urgotul)", "Cobertura secundária absorvente (espuma ou alginato)", "Penso simples de fixação"],
@@ -6713,7 +8517,7 @@ const cases: ModeloCaso[] = [
     definicoesObservacao: observationDefinitions,
     promptsDialogo: dialoguePrompts,
     definicoesAplicacao: applicationDefinitions,
-    objetivosVisuais: { tecidos: ["fibrina", "granulacao"], exsudado: ["seroso", "hematico"], bordos: ["pele-seca"] },
+    objetivosVisuais: { tecidos: ["fibrina"], exsudado: ["seroso", "hematico"], bordos: ["integra"] },
     tituloCenario: "Queimadura extensa da coxa",
     contextoPaciente: "Utente de 55 anos, queimadura por chama há 72h, extensa — ≈15% SCT coxa direita. Base pálida com áreas de fibrina, insensível ao toque leve. Sem febre mas leucocitose ligeira.",
     bannerPaciente: "Queimadura extensa coxa — © Medetec Medical Images (medetec.co.uk)",
@@ -6792,7 +8596,490 @@ const cases: ModeloCaso[] = [
     motivo: "Penso rápido aderente é contraindicado em queimaduras extensas.",
     idsTemas: ["decisao-clinica", "escolha-do-penso"] },
     ],
-    zonasTecido: [],
+    zonasTecido: [
+  {
+    "tipoTecido": "fibrina",
+    "poligono": [
+      {
+        "x": 0.206875,
+        "y": 0.45719983332341213
+      },
+      {
+        "x": 0.254375,
+        "y": 0.5181558426096792
+      },
+      {
+        "x": 0.280625,
+        "y": 0.5524435978332044
+      },
+      {
+        "x": 0.320625,
+        "y": 0.5676826001547711
+      },
+      {
+        "x": 0.359375,
+        "y": 0.5810167271861421
+      },
+      {
+        "x": 0.404375,
+        "y": 0.5867313530567295
+      },
+      {
+        "x": 0.440625,
+        "y": 0.6000654800881005
+      },
+      {
+        "x": 0.474375,
+        "y": 0.6133996071194714
+      },
+      {
+        "x": 0.486875,
+        "y": 0.6400678611822133
+      },
+      {
+        "x": 0.519375,
+        "y": 0.6743556164057385
+      },
+      {
+        "x": 0.571875,
+        "y": 0.691499494017501
+      },
+      {
+        "x": 0.605625,
+        "y": 0.7086433716292636
+      },
+      {
+        "x": 0.610625,
+        "y": 0.7334067504018096
+      },
+      {
+        "x": 0.623125,
+        "y": 0.7448360021429847
+      },
+      {
+        "x": 0.649375,
+        "y": 0.7315018751116138
+      },
+      {
+        "x": 0.671875,
+        "y": 0.7086433716292636
+      },
+      {
+        "x": 0.695625,
+        "y": 0.6895946187273052
+      },
+      {
+        "x": 0.708125,
+        "y": 0.6838799928567176
+      },
+      {
+        "x": 0.719375,
+        "y": 0.7105482469194595
+      },
+      {
+        "x": 0.735625,
+        "y": 0.7353116256920055
+      },
+      {
+        "x": 0.783125,
+        "y": 0.7448360021429847
+      },
+      {
+        "x": 0.809375,
+        "y": 0.7334067504018096
+      },
+      {
+        "x": 0.840625,
+        "y": 0.7200726233704388
+      },
+      {
+        "x": 0.835625,
+        "y": 0.7048336210488719
+      },
+      {
+        "x": 0.820625,
+        "y": 0.6762604916959343
+      },
+      {
+        "x": 0.790625,
+        "y": 0.6457824870528007
+      },
+      {
+        "x": 0.776875,
+        "y": 0.6362581106018216
+      },
+      {
+        "x": 0.769375,
+        "y": 0.619114232990059
+      },
+      {
+        "x": 0.783125,
+        "y": 0.5981606047979047
+      },
+      {
+        "x": 0.793125,
+        "y": 0.594350854217513
+      },
+      {
+        "x": 0.809375,
+        "y": 0.6153044824096673
+      },
+      {
+        "x": 0.816875,
+        "y": 0.641972736472409
+      },
+      {
+        "x": 0.826875,
+        "y": 0.6514971129233883
+      },
+      {
+        "x": 0.838125,
+        "y": 0.6362581106018216
+      },
+      {
+        "x": 0.835625,
+        "y": 0.6095898565390797
+      },
+      {
+        "x": 0.844375,
+        "y": 0.5905411036371213
+      },
+      {
+        "x": 0.861875,
+        "y": 0.5714923507351628
+      },
+      {
+        "x": 0.880625,
+        "y": 0.5562533484135961
+      },
+      {
+        "x": 0.895625,
+        "y": 0.5467289719626168
+      },
+      {
+        "x": 0.899375,
+        "y": 0.5352997202214418
+      },
+      {
+        "x": 0.888125,
+        "y": 0.4762485862253706
+      },
+      {
+        "x": 0.880625,
+        "y": 0.4552949580332163
+      },
+      {
+        "x": 0.870625,
+        "y": 0.4324364545508661
+      },
+      {
+        "x": 0.864375,
+        "y": 0.4286267039704744
+      },
+      {
+        "x": 0.850625,
+        "y": 0.4267218286802786
+      },
+      {
+        "x": 0.834375,
+        "y": 0.43053157926067026
+      },
+      {
+        "x": 0.813125,
+        "y": 0.4438657062920412
+      },
+      {
+        "x": 0.788125,
+        "y": 0.4495803321626287
+      },
+      {
+        "x": 0.768125,
+        "y": 0.45148520745282456
+      },
+      {
+        "x": 0.758125,
+        "y": 0.45148520745282456
+      },
+      {
+        "x": 0.746875,
+        "y": 0.45910470861360797
+      },
+      {
+        "x": 0.743125,
+        "y": 0.4762485862253706
+      },
+      {
+        "x": 0.738125,
+        "y": 0.5086314661586999
+      },
+      {
+        "x": 0.723125,
+        "y": 0.5143460920292875
+      },
+      {
+        "x": 0.703125,
+        "y": 0.506726590868504
+      },
+      {
+        "x": 0.693125,
+        "y": 0.470533960354783
+      },
+      {
+        "x": 0.684375,
+        "y": 0.45910470861360797
+      },
+      {
+        "x": 0.655625,
+        "y": 0.45148520745282456
+      },
+      {
+        "x": 0.621875,
+        "y": 0.4381510804214537
+      },
+      {
+        "x": 0.580625,
+        "y": 0.42481695339008274
+      },
+      {
+        "x": 0.556875,
+        "y": 0.4114828263587118
+      },
+      {
+        "x": 0.529375,
+        "y": 0.3752901958449908
+      },
+      {
+        "x": 0.510625,
+        "y": 0.32957318888029047
+      },
+      {
+        "x": 0.501875,
+        "y": 0.2914756830763736
+      },
+      {
+        "x": 0.503125,
+        "y": 0.2362342996606941
+      },
+      {
+        "x": 0.506875,
+        "y": 0.19051729269599382
+      },
+      {
+        "x": 0.510625,
+        "y": 0.15241978689207691
+      },
+      {
+        "x": 0.508125,
+        "y": 0.12194178224894339
+      },
+      {
+        "x": 0.501875,
+        "y": 0.0971784034763974
+      },
+      {
+        "x": 0.489375,
+        "y": 0.0800345258646348
+      },
+      {
+        "x": 0.473125,
+        "y": 0.07622477528424311
+      },
+      {
+        "x": 0.445625,
+        "y": 0.07622477528424311
+      },
+      {
+        "x": 0.438125,
+        "y": 0.07622477528424311
+      },
+      {
+        "x": 0.423125,
+        "y": 0.08193940115483064
+      },
+      {
+        "x": 0.386875,
+        "y": 0.08955890231561403
+      },
+      {
+        "x": 0.366875,
+        "y": 0.09146377760580987
+      },
+      {
+        "x": 0.349375,
+        "y": 0.09908327876659324
+      },
+      {
+        "x": 0.336875,
+        "y": 0.10289302934698494
+      },
+      {
+        "x": 0.304375,
+        "y": 0.10289302934698494
+      },
+      {
+        "x": 0.296875,
+        "y": 0.10289302934698494
+      },
+      {
+        "x": 0.285625,
+        "y": 0.10670277992737663
+      },
+      {
+        "x": 0.261875,
+        "y": 0.11241740579796416
+      },
+      {
+        "x": 0.225625,
+        "y": 0.12194178224894339
+      },
+      {
+        "x": 0.205625,
+        "y": 0.1276564081195309
+      },
+      {
+        "x": 0.180625,
+        "y": 0.139085659860706
+      },
+      {
+        "x": 0.179375,
+        "y": 0.1486100363116852
+      },
+      {
+        "x": 0.179375,
+        "y": 0.16575391392344782
+      },
+      {
+        "x": 0.181875,
+        "y": 0.1809929162450146
+      },
+      {
+        "x": 0.183125,
+        "y": 0.20004166914697302
+      },
+      {
+        "x": 0.183125,
+        "y": 0.23432942437049825
+      },
+      {
+        "x": 0.183125,
+        "y": 0.2629025537234359
+      },
+      {
+        "x": 0.183125,
+        "y": 0.2838561819155902
+      },
+      {
+        "x": 0.181875,
+        "y": 0.3162390618489196
+      },
+      {
+        "x": 0.186875,
+        "y": 0.34481219120185724
+      },
+      {
+        "x": 0.199375,
+        "y": 0.3676706946842074
+      },
+      {
+        "x": 0.203125,
+        "y": 0.38862432287636167
+      },
+      {
+        "x": 0.203125,
+        "y": 0.4114828263587118
+      },
+      {
+        "x": 0.204375,
+        "y": 0.43624620513125784
+      },
+      {
+        "x": 0.204375,
+        "y": 0.4476754568724329
+      },
+      {
+        "x": 0.210625,
+        "y": 0.4533900827430204
+      },
+      {
+        "x": 0.218125,
+        "y": 0.4648193344841955
+      },
+      {
+        "x": 0.219375,
+        "y": 0.4743437109351747
+      }
+    ]
+  },
+  {
+    "tipoTecido": "fibrina",
+    "poligono": [
+      {
+        "x": 0.925625,
+        "y": 0.40005357461753677
+      },
+      {
+        "x": 0.916875,
+        "y": 0.4533900827430204
+      },
+      {
+        "x": 0.928125,
+        "y": 0.4972022144175249
+      },
+      {
+        "x": 0.943125,
+        "y": 0.5219655931900709
+      },
+      {
+        "x": 0.956875,
+        "y": 0.4876778379665456
+      },
+      {
+        "x": 0.974375,
+        "y": 0.46672420977439133
+      },
+      {
+        "x": 0.990625,
+        "y": 0.45910470861360797
+      },
+      {
+        "x": 0.998125,
+        "y": 0.42481695339008274
+      },
+      {
+        "x": 0.995625,
+        "y": 0.41338770164890765
+      },
+      {
+        "x": 0.978125,
+        "y": 0.4191023275194952
+      },
+      {
+        "x": 0.966875,
+        "y": 0.43624620513125784
+      },
+      {
+        "x": 0.961875,
+        "y": 0.43053157926067026
+      },
+      {
+        "x": 0.964375,
+        "y": 0.40386332519792845
+      },
+      {
+        "x": 0.955625,
+        "y": 0.40005357461753677
+      },
+      {
+        "x": 0.934375,
+        "y": 0.40005357461753677
+      },
+      {
+        "x": 0.928125,
+        "y": 0.40005357461753677
+      }
+    ]
+  }
+    ],
     idsTemas: ["decisao-clinica", "antimicrobianos", "gestao-exsudado", "escolha-do-penso", "fixacao-e-remocao"],
     planoRecomendado: {
     minimo: ["Limpeza com Octenilin-solução ou soro fisiológico", "Interface não aderente (Mepitel One)", "Cobertura antimicrobiana com prata (Aquacel Ag / Allevyn Ag)", "Fixação com ligadura não compressiva"],
@@ -6810,7 +9097,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "intermedio",
     ordem: 21,
     minutosEstimados: 10,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso21.jpg",
     altImagem: "Deiscência abdominal em cicatrização — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente em pós-cirurgia abdominal com deiscência da ferida operatória, atualmente em fase de cicatrização sob hidrocolóide.",
@@ -6901,7 +9188,9 @@ const cases: ModeloCaso[] = [
     motivo: "Penso rápido aderente é insuficiente para ferida com profundidade e adere ao leito.",
     idsTemas: ["decisao-clinica"] },
     ],
-    zonasTecido: [],
+    zonasTecido: [
+      
+    ],
     idsTemas: ["tecidos-e-leito", "escolha-do-penso", "gestao-exsudado", "decisao-clinica"],
     planoRecomendado: {
     minimo: ["Limpeza com soro fisiológico", "Hidrocolóide ou hidrofibra adequada à profundidade", "Cobertura secundária absorvente", "Penso simples protetor"],
@@ -6919,7 +9208,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "intermedio",
     ordem: 22,
     minutosEstimados: 10,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso22.jpg",
     altImagem: "Úlcera venosa em cicatrização — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente com úlcera venosa em fase avançada de cicatrização sob tratamento prévio.",
@@ -7027,7 +9316,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "avancado",
     ordem: 23,
     minutosEstimados: 11,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso23.jpg",
     altImagem: "Sinus pilonidal estagnado — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente em pós-operatório de excisão de sinus pilonidal, ferida em segunda intenção que não progride.",
@@ -7142,7 +9431,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "avancado",
     ordem: 24,
     minutosEstimados: 13,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso24.jpg",
     altImagem: "Úlcera de perna extensa de etiologia incerta — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente com úlcera extensa da perna sem etiologia confirmada, em fase exsudativa.",
@@ -7258,7 +9547,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "introdutorio",
     ordem: 25,
     minutosEstimados: 9,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso25.jpg",
     altImagem: "Lesão por pressão superficial — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente acamado com lesão por pressão superficial e leito predominantemente fibrinoso.",
@@ -7364,7 +9653,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "avancado",
     ordem: 26,
     minutosEstimados: 12,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso26.jpg",
     altImagem: "Ferida cirúrgica da anca com suspeita de infeção — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente em pós-operatório de cirurgia da anca com ferida cirúrgica que apresenta sinais sugestivos de infeção do local cirúrgico.",
@@ -7474,7 +9763,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "intermedio",
     ordem: 27,
     minutosEstimados: 10,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso27.jpg",
     altImagem: "Ferida traumática em cicatrização — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente com ferida traumática por queda, atualmente em fase de granulação ativa, sem sinais de infeção, exsudado reduzido.",
@@ -7585,7 +9874,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "intermedio",
     ordem: 28,
     minutosEstimados: 11,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso28.jpg",
     altImagem: "Ferida cirúrgica ortopédica com má cicatrização — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente em pós-operatório ortopédico com ferida cirúrgica que apresenta evolução lenta e hemorragia ligeira aos pensos.",
@@ -7702,7 +9991,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "avancado",
     ordem: 29,
     minutosEstimados: 12,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso29.jpg",
     altImagem: "Lesão purpúrica meningocócica — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente em recuperação de sépsis meningocócica com lesões cutâneas purpúricas extensas por trombose microvascular.",
@@ -7812,7 +10101,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "introdutorio",
     ordem: 30,
     minutosEstimados: 8,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso30.jpg",
     altImagem: "Ferida cirúrgica do joelho — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente em pós-operatório de cirurgia do joelho com ferida cirúrgica em fase inicial de cicatrização, sem complicações.",
@@ -7921,7 +10210,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "avancado",
     ordem: 31,
     minutosEstimados: 12,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso31.jpg",
     altImagem: "Úlcera venosa com reação cutânea — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente com úlcera venosa em cicatrização que desenvolveu reação cutânea peri-lesional ao tratamento tópico que estava a usar.",
@@ -8035,7 +10324,7 @@ const cases: ModeloCaso[] = [
     dificuldade: "avancado",
     ordem: 32,
     minutosEstimados: 15,
-    status: "disponivel",
+    status: "preparacao",
     srcImagem: "/caso32.jpg",
     altImagem: "Necrose digital arterial — © Medetec Medical Images (medetec.co.uk)",
     resumoIntro: "Utente com diabetes e doença arterial periférica grave, necrose seca no hálux direito, sem pulso pedioso palpável, sem exsudado.",

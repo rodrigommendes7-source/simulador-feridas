@@ -1,4 +1,4 @@
-﻿import {
+﻿﻿import {
   obterModeloCaso,
   obterTituloCaso,
   obterTema,
@@ -144,6 +144,8 @@ function normalizarRegisto(item: unknown): RegistoTentativa | null {
   const duracaoSegundos = typeof record.duracaoSegundos === "number" ? record.duracaoSegundos
     : typeof record.durationSeconds === "number" ? record.durationSeconds
     : 0;
+  const seccoesAvaliacao = Array.isArray(record.seccoesAvaliacao) ? record.seccoesAvaliacao : undefined;
+  const respostasJustificacao = Array.isArray(record.respostasJustificacao) ? record.respostasJustificacao : undefined;
 
   return {
     version: 3,
@@ -165,6 +167,8 @@ function normalizarRegisto(item: unknown): RegistoTentativa | null {
     resumo,
     data,
     duracaoSegundos,
+    seccoesAvaliacao,
+    respostasJustificacao,
   };
 }
 
@@ -361,6 +365,8 @@ export function construirRegistoTentativa(params: {
       resumo: params.avaliacao.resumoRaciocinio.proximoPasso,
       data: new Date().toISOString(),
       duracaoSegundos: params.duracaoSegundos,
+      seccoesAvaliacao: params.avaliacao.seccoes,
+      respostasJustificacao: params.tentativa.respostasJustificacao ?? [],
     } satisfies RegistoTentativa,
   ];
 
@@ -386,6 +392,8 @@ export function construirRegistoTentativa(params: {
     resumo: params.avaliacao.resumoRaciocinio.proximoPasso,
     data: new Date().toISOString(),
     duracaoSegundos: params.duracaoSegundos,
+    seccoesAvaliacao: params.avaliacao.seccoes,
+    respostasJustificacao: params.tentativa.respostasJustificacao ?? [],
   };
 }
 

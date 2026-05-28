@@ -1,10 +1,7 @@
 /* Google Fonts — deve vir antes de qualquer outro @import */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap");
 
-/* Design tokens — variáveis CSS, reset, e classes de componentes */
-@import "../design-tokens.css";
-
-/* Tailwind — por último, para as utilitárias sobreporem os componentes em conflito */
+/* Tailwind — deve vir depois de imports externos (URLs), mas antes de outras regras CSS */
 @import "tailwindcss";
 
 /* Mapeamento Tailwind — expõe tokens como utilitários bg-*, text-* */

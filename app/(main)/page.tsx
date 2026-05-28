@@ -1,8 +1,9 @@
-﻿"use client";
+﻿﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { InfoBanner } from "@/componentes/InfoBanner";
+import { BotaoTema } from "@/componentes/botao-tema";
 
 const PRIVACY_BANNER_KEY = "privacy-banner-dismissed";
 
@@ -31,8 +32,14 @@ export default function HomePage() {
         flex: 1,
         padding: "var(--space-2xl)",
         gap: "var(--space-2xl)",
+        position: "relative",
       }}
     >
+      {/* Alternador de tema visível apenas na homepage */}
+      <div style={{ position: "absolute", top: "var(--space-lg)", right: "var(--space-lg)" }}>
+        <BotaoTema />
+      </div>
+
       {/* Título separado do painel */}
       <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-sm)" }}>
         <span className="text-label">Enfermagem clínica</span>

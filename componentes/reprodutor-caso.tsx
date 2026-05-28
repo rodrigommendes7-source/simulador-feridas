@@ -1,4 +1,4 @@
-﻿"use client";
+﻿﻿"use client";
 
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -679,6 +679,9 @@ export function SimuladorCaso({ idModelo }: { idModelo: string }) {
                   onAddPin={adicionarMarcadorTecido}
                   onRemovePin={removerMarcadorTecido}
                   hasTissueZones={(modelo.zonasTecido?.length ?? 0) > 0}
+                  modoRevisao={modoRevisao}
+                  zonasTecido={modelo.zonasTecido}
+                  objetivosVisuais={modelo.objetivosVisuais}
                 />
               ) : etapa === "dialogo" ? (
                 <PainelDialogoCaso

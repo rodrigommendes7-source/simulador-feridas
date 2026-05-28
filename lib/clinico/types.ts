@@ -597,6 +597,8 @@ export type RegistoTentativa = {
   resumo: string;
   data: string;
   duracaoSegundos: number;
+  seccoesAvaliacao?: SeccaoAvaliacao[];
+  respostasJustificacao?: RespostaJustificacao[];
 };
 
 

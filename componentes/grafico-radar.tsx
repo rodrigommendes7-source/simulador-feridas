@@ -94,7 +94,7 @@ export function GraficoRadar({ historico }: { historico: RegistoTentativa[] }) {
            const x = center + labelRadius * Math.cos(angle);
            const y = center + labelRadius * Math.sin(angle);
            
-           let textAnchor = "middle";
+           let textAnchor: "start" | "middle" | "end" = "middle";
            if (Math.cos(angle) > 0.1) textAnchor = "start";
            else if (Math.cos(angle) < -0.1) textAnchor = "end";
 

@@ -1,4 +1,4 @@
-﻿﻿"use client";
+﻿﻿﻿﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -42,7 +42,6 @@ export default function HomePage() {
 
       {/* Título separado do painel */}
       <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-sm)" }}>
-        <span className="text-label">Enfermagem clínica</span>
         <h1
           style={{
             fontSize: "var(--text-h1)",
@@ -61,7 +60,7 @@ export default function HomePage() {
             maxWidth: "480px",
           }}
         >
-          Treino clínico interativo para estudantes de enfermagem. Observa, decide e recebe feedback
+          Treino interativo para estudantes de enfermagem. Observa, decide e recebe feedback
           imediato sobre o teu plano terapêutico.
         </p>
       </div>
@@ -178,7 +177,7 @@ export default function HomePage() {
     </main>
 
     <footer style={{ flexShrink: 0, borderTopWidth: "0.5px", borderTopStyle: "solid", borderTopColor: "var(--color-border)", padding: "6px var(--page-padding-x)", margin: "0 calc(-1 * var(--page-padding-x)) calc(-1 * var(--page-padding-y))", display: "flex", flexWrap: "wrap", gap: "var(--space-sm)", alignItems: "center", justifyContent: "space-between" }}>
-      <span style={{ fontSize: "14px", color: "var(--color-text-tertiary)" }}>
+      <span style={{ fontSize: "14px", color: "var(--color-text-secondary)" }}>
         Simulador de Feridas · Uso pedagógico
       </span>
       <nav style={{ display: "flex", gap: "var(--space-sm)" }}>
@@ -190,7 +189,9 @@ export default function HomePage() {
           <Link
             key={href}
             href={href}
-            style={{ fontSize: "12px", color: "var(--color-text-tertiary)", textDecoration: "none" }}
+            style={{ fontSize: "12px", color: "var(--color-text-secondary)", textDecoration: "none", transition: "color var(--transition-fast)" }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "var(--color-text-primary)"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "var(--color-text-secondary)"}
           >
             {rotulo}
           </Link>

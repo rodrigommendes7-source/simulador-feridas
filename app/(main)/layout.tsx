@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+﻿﻿import Link from "next/link";
 import { MainNav } from "@/componentes/main-nav";
 
 export default function MainLayout({
@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       <header className="nav" style={{ flexShrink: 0 }}>
-        <Link href="/" className="text-h3" style={{ display: "block" }}>
+        <Link href="/" className="text-h3" style={{ display: "block", color: "var(--color-text-primary)" }}>
           Simulador de Feridas
         </Link>
         <MainNav />

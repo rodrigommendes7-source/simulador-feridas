@@ -24,8 +24,10 @@ export function MainNav() {
             style={
               isActive
                 ? { color: "var(--color-accent)", fontWeight: "var(--weight-medium)", background: "var(--color-elevated)" }
-                : undefined
+                  : { color: "var(--color-text-secondary)", transition: "color var(--transition-fast)" }
             }
+              onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = "var(--color-text-primary)"; }}
+              onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = "var(--color-text-secondary)"; }}
           >
             {item.rotulo}
           </Link>

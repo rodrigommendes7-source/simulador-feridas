@@ -1,4 +1,4 @@
-﻿import type { DefinicaoTratamento } from "../../lib/clinico/types.ts";
+import type { DefinicaoTratamento } from "../../lib/clinico/types.ts";
 
 // Lista oficial de materiais — organizada pelas 4 categorias de apresentação.
 // category → agrupa para apresentação: "Apósito" | "Líquidos" | "Pomadas" | "Outros"
@@ -189,34 +189,6 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
   },
 
   {
-    id: "biatain",
-    rotulo: "Espuma de poliuretano não adesivo",
-    canonicalId: "biatain",
-    equivalenceGroup: "espuma",
-    categoria: "Apósito",
-    subcategoria: "Absorção",
-    funcoes: ["absorver", "cobertura-atraumatica"],
-    indicacoes: [
-      "exsudado moderado a abundante",
-      "feridas crónicas exsudativas",
-      "úlceras de pressão categoria 2-4",
-      "úlceras venosas com terapia compressiva",
-    ],
-    avisos_contraindicacao: ["ferida seca ou pouco exsudativa"],
-    refsEvidencia: ["foam-revisao", "wuwhs-exudate-2019"],
-    idsTemasAprendizagem: ["gestao-exsudado"],
-    etiquetas: ["espuma", "não aderente", "absorvente"],
-    nome_comercial: "Biatain",
-    substancia_ativa: "Espuma de poliuretano",
-    categoria_clinica: "apositos",
-    regras: {
-      condicoes_ideais: { exsudado: [3, 4] },
-      condicoes_parciais: { exsudado: [2] },
-      contraindicacoes: [{ exsudado: [1] }],
-    },
-  },
-
-  {
     id: "inadine",
     rotulo: "Iodopovidona compressa impregnada",
     canonicalId: "inadine",
@@ -300,29 +272,6 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     substancia_ativa: "Carboximetilcelulose",
     categoria_clinica: "apositos",
     // Ideal com exsudado moderado; parcial com ligeiro; incorreto em seco
-    regras: {
-      condicoes_ideais: { exsudado: [3] },
-      condicoes_parciais: { exsudado: [2] },
-      contraindicacoes: [{ exsudado: [1] }],
-    },
-  },
-
-  {
-    id: "fibrosol",
-    rotulo: "Carboximetilcelulose sódica",
-    canonicalId: "fibrosol",
-    equivalenceGroup: "fibra-absorvente",
-    categoria: "Apósito",
-    subcategoria: "Absorção",
-    funcoes: ["absorver"],
-    indicacoes: ["exsudado moderado"],
-    avisos_contraindicacao: ["ferida seca sem exsudado"],
-    refsEvidencia: ["hydrofiber-revisao"],
-    idsTemasAprendizagem: ["gestao-exsudado"],
-    etiquetas: ["absorvente", "fibra hidro"],
-    nome_comercial: "Fibrosol",
-    substancia_ativa: "Carboximetilcelulose sódica",
-    categoria_clinica: "apositos",
     regras: {
       condicoes_ideais: { exsudado: [3] },
       condicoes_parciais: { exsudado: [2] },
@@ -868,30 +817,6 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
   // ══════════════════════════════════════════════════════════════════════════
   // POMADAS
   // ══════════════════════════════════════════════════════════════════════════
-
-  {
-    id: "atl",
-    rotulo: "Gordura anidra",
-    canonicalId: "atl",
-    equivalenceGroup: "emoliente-perilesional",
-    categoria: "Pomadas",
-    subcategoria: "Hidratação / Barreira",
-    funcoes: ["proteger-perilesional"],
-    indicacoes: ["pele seca", "pele frágil perilesional"],
-    avisos_contraindicacao: ["maceração ativa no rebordo"],
-    refsEvidencia: ["skin-barrier-revisao"],
-    idsTemasAprendizagem: ["protecao-perilesional"],
-    etiquetas: ["gordura anidra", "barreira", "hidratação"],
-    nome_comercial: "ATL",
-    substancia_ativa: "Gordura anidra",
-    categoria_clinica: "pomadas",
-    // Ideal com pele frágil ou eritematosa; parcial em íntegra; incorreto em maceração
-    regras: {
-      condicoes_ideais: { pele_perilesional: [2, 3] },
-      condicoes_parciais: { pele_perilesional: [4] },
-      contraindicacoes: [{ pele_perilesional: [1] }],
-    },
-  },
 
   {
     id: "creme-hidratante",

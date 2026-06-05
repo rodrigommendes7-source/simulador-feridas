@@ -1,8 +1,13 @@
-﻿import type { Metadata } from "next";
+﻿﻿import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Sobre",
+  title: "Sobre | Simulador de Feridas",
+  description: "Saiba mais sobre o Simulador de Feridas, uma ferramenta pedagógica de acesso livre para estudantes e profissionais de saúde.",
+  openGraph: {
+    title: "Sobre | Simulador de Feridas",
+    description: "Saiba mais sobre o Simulador de Feridas, uma ferramenta pedagógica de acesso livre para estudantes e profissionais de saúde.",
+  },
 };
 
 export default function SobrePage() {

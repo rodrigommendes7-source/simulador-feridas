@@ -1,8 +1,13 @@
-﻿import type { Metadata } from "next";
+﻿﻿import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidade",
+  title: "Política de Privacidade | Simulador de Feridas",
+  description: "Política de privacidade do Simulador de Feridas. Saiba como os seus dados são geridos localmente (localStorage) e com total anonimato.",
+  openGraph: {
+    title: "Política de Privacidade | Simulador de Feridas",
+    description: "Política de privacidade do Simulador de Feridas. Saiba como os seus dados são geridos localmente (localStorage) e com total anonimato.",
+  },
 };
 
 export default function PrivacidadePage() {

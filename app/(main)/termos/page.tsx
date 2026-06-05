@@ -1,8 +1,13 @@
-﻿import type { Metadata } from "next";
+﻿﻿import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Termos de Utilização",
+  title: "Termos de Utilização | Simulador de Feridas",
+  description: "Termos de utilização do Simulador de Feridas. Leia sobre a finalidade, âmbito e limitações de responsabilidade desta ferramenta pedagógica.",
+  openGraph: {
+    title: "Termos de Utilização | Simulador de Feridas",
+    description: "Termos de utilização do Simulador de Feridas. Leia sobre a finalidade, âmbito e limitações de responsabilidade desta ferramenta pedagógica.",
+  },
 };
 
 export default function TermosPage() {

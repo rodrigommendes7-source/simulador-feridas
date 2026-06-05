@@ -56,6 +56,23 @@ export function IntroducaoCaso({
         </p>
       </div>
 
+      <div style={{ textAlign: "left", marginTop: "var(--space-lg)" }}>
+        <p className="text-label" style={{ color: "var(--color-text-secondary)", marginBottom: "var(--space-sm)" }}>
+          Competências focadas
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-xs)" }}>
+          {modelo.competencias.split(/,\s*|\s+e\s+/).filter(Boolean).map((comp, idx) => (
+            <span
+              key={idx}
+              className="badge badge-info"
+              style={{ textTransform: "capitalize" }}
+            >
+              {comp.trim()}
+            </span>
+          ))}
+        </div>
+      </div>
+
       <div style={{ marginTop: "var(--space-lg)", display: "flex", justifyContent: "center" }}>
         <InfoBanner variant="info">
           Ferramenta de treino clínico. Não substitui decisão clínica real nem é usada para classificação.

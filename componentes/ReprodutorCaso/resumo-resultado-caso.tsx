@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   obterRotuloTratamento,
   listarTratamentos,
+  obterTituloTema,
   type EntradaTentativa,
   type AvaliacaoCaso,
   type ModeloCaso,
@@ -496,6 +497,29 @@ export function ResumoResultadoCaso({
                   <span className={rec.prioridade === "alta" ? "badge badge-avance" : "badge badge-inter"}>{rec.prioridade}</span>
                 </div>
                 <p className="text-body" style={{ marginTop: "var(--space-sm)" }}>{rec.motivo}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Temas do Caso ── */}
+      {modelo.idsTemas && modelo.idsTemas.length > 0 && (
+        <section className="card" style={{ padding: "var(--space-lg)" }}>
+          <div>
+            <h3 className="text-label" style={{ color: "var(--color-info)" }}>Quer reforçar estes temas?</h3>
+            <p className="text-body" style={{ marginTop: "var(--space-xs)", color: "var(--color-text-secondary)" }}>
+              Explore os tópicos de aprendizagem relevantes para este caso clínico.
+            </p>
+          </div>
+          <div style={{ marginTop: "var(--space-md)", display: "flex", flexWrap: "wrap", gap: "var(--space-sm)" }}>
+            {modelo.idsTemas.map((temaId) => (
+              <Link
+                key={temaId}
+                href={`/aprender?topic=${temaId}`}
+                className="btn btn-secondary"
+              >
+                {obterTituloTema(temaId)}
               </Link>
             ))}
           </div>

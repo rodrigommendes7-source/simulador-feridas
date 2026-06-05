@@ -1,139 +1,374 @@
-# Simulador de Feridas
+\# Simulador de Feridas
 
-Ferramenta pedagógica interativa desenvolvida para apoiar o ensino e o treino do raciocínio clínico na avaliação e tratamento de feridas.
 
-## Visão Geral
 
-O **Simulador de Feridas** é uma plataforma web criada no contexto da Licenciatura em Enfermagem da Universidade dos Açores. O projeto procura aproximar o estudo teórico da prática clínica através da simulação de casos, tomada de decisão e feedback estruturado.
+Ferramenta pedagógica interativa desenvolvida para apoiar o ensino do raciocínio clínico na avaliação, decisão terapêutica e tratamento de feridas.
 
-A aplicação permite ao utilizador:
 
-* Avaliar feridas através de imagens e contexto clínico
-* Selecionar abordagens terapêuticas
-* Justificar decisões clínicas
-* Receber feedback imediato e estruturado
-* Identificar áreas com necessidade de melhoria
-* Construir um plano de estudo personalizado
 
-> Este simulador tem finalidade exclusivamente educativa e não substitui avaliação clínica real nem orientação profissional.
+Projeto desenvolvido no contexto da Licenciatura em Enfermagem da Universidade dos Açores.
+
+
+
+> Exclusivamente para fins educativos. Não substitui avaliação clínica, orientação profissional ou tomada de decisão em contexto real.
+
+
 
 \---
 
-## Funcionalidades
 
-### Casos Clínicos Interativos
 
-* Casos clínicos com diferentes etiologias de feridas
-* Variantes clínicas para aumentar diversidade de apresentação
-* Avaliação baseada em observação, raciocínio e tratamento
-* Progressão guiada durante a resolução do caso
+\## Objetivo
 
-### Sistema de Avaliação
 
-* Correção automática baseada nas escolhas do utilizador
-* Penalização de justificações incorretas mesmo com escolhas parcialmente corretas
-* Feedback dividido por domínios:
 
-  * Observação
-  * Abordagem
-  * Tratamento
-  * Aplicação
-* Resumo final do desempenho clínico
+O Simulador de Feridas procura reduzir a distância entre aprendizagem teórica e prática clínica através de:
 
-### Recomendações Inteligentes
 
-* Sugestão automática do próximo caso
-* Priorização de áreas com menor desempenho
-* Plano de estudo dinâmico baseado no histórico
 
-### Área de Aprendizagem
+\- Simulação de casos clínicos realistas
 
-Conteúdos teóricos organizados por temas relevantes:
+\- Treino do raciocínio clínico
 
-* Desbridamento
-* Gestão do exsudado
-* Identificação de tecidos
-* Antimicrobianos
-* Proteção da pele peri-ferida
-* Seleção de materiais
-* Princípios de decisão clínica
+\- Feedback estruturado sobre decisões tomadas
 
-### Histórico de Desempenho
+\- Identificação de áreas de melhoria
 
-* Registo das tentativas realizadas
-* Melhor pontuação por caso
-* Tempo de resolução
-* Média global de desempenho
-* Identificação de temas com maior dificuldade
+\- Aprendizagem personalizada
+
+
 
 \---
 
-## Tecnologias Utilizadas
 
-### Frontend
 
-* Next.js 16
-* React 19
-* TypeScript 5
-* Tailwind CSS 4
+\## Funcionalidades Principais
 
-### Ferramentas e Deploy
 
-* Vercel
-* ESLint
+
+\### Casos Clínicos Interativos
+
+
+
+\- Casos com diferentes etiologias e apresentações clínicas
+
+\- Variantes clínicas para aumentar diversidade
+
+\- Navegação guiada ao longo do caso
+
+\- Interpretação de imagens clínicas
+
+\- Construção de plano terapêutico
+
+
+
+\### Sistema de Avaliação Clínica
+
+
+
+\- Correção automática
+
+\- Avaliação multidimensional
+
+\- Feedback estruturado
+
+\- Penalização de raciocínio inconsistente
+
+\- Pontuação global e por domínio
+
+
+
+Domínios avaliados:
+
+
+
+\- Observação clínica
+
+\- Interpretação
+
+\- Escolha terapêutica
+
+\- Aplicação prática
+
+
+
+\### Aprendizagem Personalizada
+
+
+
+\- Histórico de desempenho
+
+\- Recomendações automáticas
+
+\- Sugestão do próximo caso
+
+\- Identificação de fragilidades
+
+
+
+\### Área Teórica
+
+
+
+Conteúdos organizados por temas:
+
+
+
+\- Identificação de tecidos
+
+\- Gestão do exsudado
+
+\- Desbridamento
+
+\- Antimicrobianos
+
+\- Seleção de coberturas
+
+\- Pele peri-ferida
+
+\- Processo de decisão clínica
+
+
 
 \---
 
-## Demo
 
-Versão online:
 
-[Simulador de Feridas](https://simulador-feridas.vercel.app/?utm_source=chatgpt.com)
+\## Tecnologias Utilizadas
 
-\---
 
-## Objetivos Pedagógicos
 
-O projeto foi desenvolvido com foco em:
+\### Frontend
 
-* Desenvolvimento do raciocínio clínico
-* Consolidação de conhecimentos teóricos
-* Aprendizagem baseada em decisão
-* Treino da observação clínica
-* Promoção de pensamento crítico em contexto de feridas
 
-\---
 
-## Estado do Projeto
+\- Next.js 16
 
-O simulador encontra-se em desenvolvimento contínuo.
+\- React 19
 
-Áreas atualmente em evolução:
+\- TypeScript
 
-* Expansão da base de casos clínicos
-* Melhoria da lógica de avaliação
-* Feedback clínico mais detalhado
-* Melhorias de usabilidade
-* Refinamento da experiência pedagógica
+\- Tailwind CSS 4
 
-\---
 
-## Público-Alvo
 
-* Estudantes de enfermagem
-* Ensino clínico supervisionado
-* Formação contínua em tratamento de feridas
-* Profissionais de saúde em aprendizagem
+\### Arquitetura
+
+
+
+\- App Router
+
+\- Componentização modular
+
+\- Motor clínico separado da interface
+
+\- Sistema de validação de dados clínicos
+
+
 
 \---
 
-## Licença
 
-Atualmente sem licença definida.
+
+\## Estrutura do Projeto
+
+
+
+```text
+
+app/                    → páginas e routing
+
+componentes/            → componentes reutilizáveis
+
+data/clinico/           → casos e dados clínicos
+
+lib/clinical/           → lógica clínica e scoring
+
+scripts/                → validação de dados
+
+public/                 → recursos estáticos
+
+```
+
+
 
 \---
 
-## Autor
 
-Desenvolvido por Rodrigo Mendes no âmbito da Licenciatura em Enfermagem da Universidade dos Açores.
+
+\## Instalação
+
+
+
+Clonar o repositório:
+
+
+
+```bash
+
+git clone <repo-url>
+
+cd simulador-feridas
+
+```
+
+
+
+Instalar dependências:
+
+
+
+```bash
+
+npm install
+
+```
+
+
+
+Executar localmente:
+
+
+
+```bash
+
+npm run dev
+
+```
+
+
+
+Abrir:
+
+
+
+```text
+
+http://localhost:3000
+
+```
+
+
+
+\---
+
+
+
+\## Scripts Disponíveis
+
+
+
+Executar ambiente local:
+
+
+
+```bash
+
+npm run dev
+
+```
+
+
+
+Build produção:
+
+
+
+```bash
+
+npm run build
+
+```
+
+
+
+Executar testes clínicos:
+
+
+
+```bash
+
+npm run test:clinical
+
+```
+
+
+
+Validar dados clínicos:
+
+
+
+```bash
+
+npm run validate:data
+
+```
+
+
+
+Lint:
+
+
+
+```bash
+
+npm run lint
+
+```
+
+
+
+\---
+
+
+
+\## Filosofia Educativa
+
+
+
+O simulador foi desenvolvido com foco em:
+
+
+
+\- Aprendizagem ativa
+
+\- Segurança pedagógica
+
+\- Feedback imediato
+
+\- Desenvolvimento do raciocínio clínico
+
+\- Transferência teoria-prática
+
+
+
+\---
+
+
+
+\## Limitações
+
+
+
+\- Não substitui prática supervisionada
+
+\- Não substitui guidelines institucionais
+
+\- Não constitui ferramenta diagnóstica
+
+\- Destinado exclusivamente a treino
+
+
+
+\---
+
+
+
+\## Autor
+
+
+
+Rodrigo Marques Mendes  
+
+Licenciatura em Enfermagem — Universidade dos Açores
 

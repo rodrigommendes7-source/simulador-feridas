@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Motor de avaliação por material.
  *
  * Cada material/técnica é classificado individualmente com base nas variáveis
@@ -58,16 +58,10 @@ function eContraindicado(
 const ROTULOS_VARIAVEIS_FERIDA: Record<keyof VariaveisFerida, Record<number, string>> = {
   exsudado:          { 1: "Sem exsudado", 2: "Leve", 3: "Moderado", 4: "Abundante" },
   infeccao:          { 0: "Ausente", 1: "Sinais locais", 2: "Infeção local", 3: "Infeção sistémica" },
-  tecido:            { 1: "Necrose seca", 2: "Fibrina dominante", 3: "Granulação ativa", 4: "Epitelização" },
+  tecido:            { 1: "Necrose seca", 2: "Fibrina dominante", 3: "Granulação ativa", 4: "Epitelização", 5: "Hipergranulação" },
   odor:              { 0: "Ausente", 1: "Leve", 2: "Moderado", 3: "Intenso" },
-  humidade:          { 1: "Seca", 2: "Leve", 3: "Moderada", 4: "Maceração" },
-  profundidade:      { 1: "Superficial", 2: "Espessura parcial", 3: "Espessura total", 4: "Estruturas expostas" },
-  bordos:            { 1: "Indefinidos", 2: "Irregulares", 3: "Regulares", 4: "Em epitelização" },
-  pele_perilesional: { 1: "Macerada", 2: "Frágil", 3: "Eritematosa", 4: "Íntegra" },
-  dor:               { 0: "Ausente", 1: "Leve (1–3)", 2: "Moderada (4–6)", 3: "Intensa (7–10)" },
-  hemorragia:        { 0: "Ausente", 1: "Leve", 2: "Moderada", 3: "Abundante" },
-  etiologia:         { 1: "Pressão", 2: "Venosa", 3: "Arterial", 4: "Diabética", 5: "Traumática", 6: "Cirúrgica" },
-  perfusao:          { 0: "Comprometida", 1: "Adequada" },
+  bordos:            { 1: "Íntegros", 2: "Ruborizados", 3: "Macerados", 4: "Hiperqueratosados", 5: "Frágil" },
+  pele_perilesional: { 1: "Íntegra", 2: "Frágil", 3: "Macerada", 4: "Ruborizada" },
 };
 
 /** Rótulos apresentáveis para as variáveis principais da ferida */
@@ -76,25 +70,19 @@ export const ROTULOS_EXIBICAO_VARIAVEIS_FERIDA: Record<keyof VariaveisFerida, st
   infeccao:          "Infeção",
   tecido:            "Tecido",
   odor:              "Odor",
-  humidade:          "Humidade",
-  profundidade:      "Profundidade",
   bordos:            "Bordos",
   pele_perilesional: "Pele perilesional",
-  dor:               "Dor",
-  hemorragia:        "Hemorragia",
-  etiologia:         "Etiologia",
-  perfusao:          "Perfusão",
 };
 
 /** @deprecated Use ROTULOS_EXIBICAO_VARIAVEIS_FERIDA */
 export const WOUND_VARIABLE_DISPLAY_LABELS = ROTULOS_EXIBICAO_VARIAVEIS_FERIDA;
 
-/** Variáveis principais exibidas por defeito (sem necessidade de "Ver mais") */
+/** Variáveis principais exibidas por defeito */
 export const VARIAVEIS_FERIDA_PRINCIPAIS: readonly (keyof VariaveisFerida)[] = [
   "exsudado",
   "infeccao",
   "tecido",
-  "profundidade",
+  "odor",
 ];
 
 /** @deprecated Use VARIAVEIS_FERIDA_PRINCIPAIS */
@@ -102,14 +90,8 @@ export const WOUND_VARIABLES_MAIN = VARIAVEIS_FERIDA_PRINCIPAIS;
 
 /** Variáveis secundárias (escondidas atrás de "Ver mais detalhes") */
 export const VARIAVEIS_FERIDA_EXTRAS: readonly (keyof VariaveisFerida)[] = [
-  "odor",
-  "humidade",
   "bordos",
   "pele_perilesional",
-  "dor",
-  "hemorragia",
-  "etiologia",
-  "perfusao",
 ];
 
 /** @deprecated Use VARIAVEIS_FERIDA_EXTRAS */
@@ -174,7 +156,6 @@ export function avaliarMaterialParaFerida(
 
   // 1. Verificar contraindicações (prioridade máxima)
   if (eContraindicado(variavelFerida, regras.contraindicacoes)) {
-    // Encontrar a condição que activou a contraindicação para a justificação
     const matchedCondition = regras.contraindicacoes.find((c) =>
       satisfazTodasCondicoes(variavelFerida, c)
     );
@@ -347,7 +328,6 @@ export function construirFeedbackMaterial(
   const parciais = scores.filter((s) => s.classificacao === "parcial").map(toItem);
   const incorretos = scores.filter((s) => s.classificacao === "incorreto").map(toItem);
 
-  // Sugestões: materiais do catálogo com regras, não seleccionados, classificados como "correto"
   const selectedSet = new Set(idsTratamentoSelecionados);
   const sugestoes: ItemFeedbackMaterial[] = listarTratamentos()
     .filter((t) => !selectedSet.has(t.id) && t.regras)

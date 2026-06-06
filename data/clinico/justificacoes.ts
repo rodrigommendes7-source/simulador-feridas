@@ -1,4 +1,4 @@
-﻿import type { VariaveisFerida } from "../../lib/clinico/types.ts";
+import type { VariaveisFerida } from "../../lib/clinico/types.ts";
 
 export const variableLabels: {
   [K in keyof VariaveisFerida]: Record<number, string>;
@@ -28,54 +28,18 @@ export const variableLabels: {
     2: "odor presente",
     3: "odor intenso",
   },
-  humidade: {
-    1: "leito seco",
-    2: "humidade ligeira",
-    3: "humidade moderada",
-    4: "maceração",
-  },
-  profundidade: {
-    1: "ferida superficial",
-    2: "profundidade moderada",
-    3: "ferida profunda",
-    4: "cavidade",
-  },
   bordos: {
-    1: "bordos indefinidos",
-    2: "bordos irregulares",
-    3: "bordos regulares",
-    4: "bordos em epitelização",
+    1: "bordos íntegros",
+    2: "bordos ruborizados",
+    3: "bordos macerados",
+    4: "bordos hiperqueratosados",
+    5: "bordos frágeis",
   },
   pele_perilesional: {
-    1: "pele peri-ferida macerada",
+    1: "pele peri-ferida íntegra",
     2: "pele peri-ferida frágil",
-    3: "pele peri-ferida eritematosa",
-    4: "pele peri-ferida íntegra",
-  },
-  dor: {
-    0: "ausência de dor",
-    1: "dor ligeira",
-    2: "dor moderada",
-    3: "dor intensa",
-  },
-  hemorragia: {
-    0: "sem hemorragia",
-    1: "hemorragia ligeira",
-    2: "hemorragia moderada",
-    3: "hemorragia abundante",
-  },
-  etiologia: {
-    1: "etiologia por pressão",
-    2: "etiologia venosa",
-    3: "etiologia arterial",
-    4: "etiologia diabética",
-    5: "etiologia traumática",
-    6: "etiologia cirúrgica",
-    7: "queimadura",
-  },
-  perfusao: {
-    0: "perfusão comprometida",
-    1: "perfusão adequada",
+    3: "pele peri-ferida macerada",
+    4: "pele peri-ferida ruborizada",
   },
 };
 

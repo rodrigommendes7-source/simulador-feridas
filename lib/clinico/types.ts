@@ -1,4 +1,4 @@
-﻿﻿// ─── Variáveis clínicas numéricas ───────────────────────────────────────────
+// ─── Variáveis clínicas numéricas ───────────────────────────────────────────
 
 /** Representação numérica do estado da ferida. Utilizada na avaliação por material. */
 export type VariaveisFerida = {
@@ -10,22 +10,10 @@ export type VariaveisFerida = {
   tecido: 1 | 2 | 3 | 4 | 5;
   /** 0=ausente  1=ligeiro  2=moderado  3=intenso */
   odor: 0 | 1 | 2 | 3;
-  /** 1=seca  2=ligeira  3=moderada  4=maceração */
-  humidade: 1 | 2 | 3 | 4;
-  /** 1=superficial  2=moderada  3=profunda  4=cavidade */
-  profundidade: 1 | 2 | 3 | 4;
-  /** 1=indefinidos  2=irregulares  3=regulares  4=em epitelização */
-  bordos: 1 | 2 | 3 | 4;
-  /** 1=macerada  2=frágil  3=eritematosa  4=íntegra */
+  /** 1=íntegros  2=ruborizados  3=macerados  4=hiperqueratosados  5=frágil */
+  bordos: 1 | 2 | 3 | 4 | 5;
+  /** 1=íntegra  2=frágil  3=macerada  4=ruborizada */
   pele_perilesional: 1 | 2 | 3 | 4;
-  /** 0=ausente  1=ligeira  2=moderada  3=intensa */
-  dor: 0 | 1 | 2 | 3;
-  /** 0=ausente  1=ligeira  2=moderada  3=abundante */
-  hemorragia: 0 | 1 | 2 | 3;
-  /** 1=pressão  2=venosa  3=arterial  4=diabética  5=traumática  6=cirúrgica  7=queimadura */
-  etiologia: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-  /** 0=comprometida  1=adequada */
-  perfusao: 0 | 1;
 };
 
 
@@ -331,6 +319,7 @@ export type EstadoFerida = {
     | "infecao-em-propagacao"
     | "infecao-sistemica";
   tecido: "granulacao" | "granulacao-fibrina" | "fibrina" | "desvitalizado" | "hipergranulacao" | "necrose-fibrina" | "necrose-mista";
+  /** integra | fragil | macerada | eritematosa */
   perilesional: "integra" | "fragil" | "macerada" | "eritematosa";
   odor: "ausente" | "ligeiro" | "presente" | "fetido" | "intenso";
 };
@@ -500,11 +489,11 @@ export type OpcaoExsudadoVisual =
 
 
 export type OpcaoBordosVisual =
-  | "maceracao"
-  | "rubor"
-  | "hiperqueratose"
-  | "pele-seca"
-  | "integra";
+  | "integros"
+  | "ruborizados"
+  | "macerados"
+  | "hiperqueratosados"
+  | "fragil";
 
 
 export interface DefinicaoOpcaoVisual<T extends string> {

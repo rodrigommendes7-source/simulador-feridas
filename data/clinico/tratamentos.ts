@@ -1084,12 +1084,12 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     nome_comercial: "Octenilin Gel",
     substancia_ativa: "Octenidina gel",
     categoria_clinica: "outros",
-    // Ideal com infeção; parcial sem infeção; bónus em feridas profundas/cavidades
+    // Ideal com infeção; parcial sem infeção; bónus com infeção marcada (contexto cavitário/profundo)
     regras: {
       condicoes_ideais: { infeccao: [1, 2, 3] },
       condicoes_parciais: { infeccao: [0] },
       contraindicacoes: [],
-      bonus: { profundidade: [3, 4] },
+      bonus: { infeccao: [2, 3] },
     },
   },
 

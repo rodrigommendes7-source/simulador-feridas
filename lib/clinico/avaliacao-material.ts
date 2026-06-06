@@ -260,7 +260,7 @@ export function avaliarAplicacaoParaFerida(
   return {
     idMaterial: opcaoAplicacao.id,
     rotulo: opcaoAplicacao.rotulo,
-    classificacao: isPartial ? "parcial" : "parcial",
+    classificacao: "parcial",
     pontuacao: 0.5,
     temBonus: false,
     justificacao: buildJustificacao(nome, "parcial", variavelFerida),

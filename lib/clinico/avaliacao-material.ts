@@ -39,12 +39,11 @@ function satisfazTodasCondicoes(
     const woundValue = variavelFerida[key] as number;
     if (!allowedValues.includes(woundValue)) return false;
   }
-  return true; // vazio → sempre verdadeiro
+  return true;
 }
 
 /**
  * Verifica se as variáveis da ferida satisfazem ALGUMA das contraindicações.
- * (lógica OR sobre a lista, AND dentro de cada objecto)
  */
 function eContraindicado(
   variavelFerida: VariaveisFerida,
@@ -60,7 +59,7 @@ const ROTULOS_VARIAVEIS_FERIDA: Record<keyof VariaveisFerida, Record<number, str
   infeccao:          { 0: "Ausente", 1: "Sinais locais", 2: "Infeção local", 3: "Infeção sistémica" },
   tecido:            { 1: "Necrose seca", 2: "Fibrina dominante", 3: "Granulação ativa", 4: "Epitelização", 5: "Hipergranulação" },
   odor:              { 0: "Ausente", 1: "Leve", 2: "Moderado", 3: "Intenso" },
-  bordos:            { 1: "Íntegros", 2: "Ruborizados", 3: "Macerados", 4: "Hiperqueratosados", 5: "Frágil" },
+  bordos:            { 1: "Íntegros", 2: "Ruborizados", 3: "Macerados", 4: "Hiperqueratosados", 5: "Frágeis" },
   pele_perilesional: { 1: "Íntegra", 2: "Frágil", 3: "Macerada", 4: "Ruborizada" },
 };
 
@@ -140,10 +139,6 @@ function buildJustificacao(
 
 // ─── Motor de avaliação ───────────────────────────────────────────────────────
 
-/**
- * Avalia um tratamento individualmente face às variáveis clínicas da ferida.
- * Retorna null se o tratamento não existir no catálogo ou não tiver regras.
- */
 export function avaliarMaterialParaFerida(
   idTratamento: string,
   variavelFerida: VariaveisFerida
@@ -154,7 +149,6 @@ export function avaliarMaterialParaFerida(
   const { regras } = tratamento;
   const nome = tratamento.nome_comercial ?? tratamento.rotulo;
 
-  // 1. Verificar contraindicações (prioridade máxima)
   if (eContraindicado(variavelFerida, regras.contraindicacoes)) {
     const matchedCondition = regras.contraindicacoes.find((c) =>
       satisfazTodasCondicoes(variavelFerida, c)
@@ -171,7 +165,6 @@ export function avaliarMaterialParaFerida(
     };
   }
 
-  // 2. Verificar condições ideais (empty = universal)
   const isIdeal = satisfazTodasCondicoes(variavelFerida, regras.condicoes_ideais);
 
   if (isIdeal) {
@@ -189,7 +182,6 @@ export function avaliarMaterialParaFerida(
     };
   }
 
-  // 3. Verificar condições parciais
   const isPartial =
     regras.condicoes_parciais !== undefined &&
     satisfazTodasCondicoes(variavelFerida, regras.condicoes_parciais);
@@ -209,7 +201,6 @@ export function avaliarMaterialParaFerida(
     };
   }
 
-  // 4. Padrão: parcial (não contraindicado, mas não ideal)
   return {
     idMaterial: idTratamento,
     rotulo: tratamento.rotulo,
@@ -225,9 +216,6 @@ export function avaliarMaterialParaFerida(
 /** @deprecated Use avaliarMaterialParaFerida */
 export const evaluateMaterialForWound = avaliarMaterialParaFerida;
 
-/**
- * Avalia uma técnica de aplicação face às variáveis clínicas da ferida.
- */
 export function avaliarAplicacaoParaFerida(
   opcaoAplicacao: OpcaoAplicacao,
   variavelFerida: VariaveisFerida
@@ -282,10 +270,6 @@ export function avaliarAplicacaoParaFerida(
 /** @deprecated Use avaliarAplicacaoParaFerida */
 export const evaluateApplicationForWound = avaliarAplicacaoParaFerida;
 
-/**
- * Avalia todos os tratamentos seleccionados face às variáveis da ferida.
- * Filtra materiais sem regras definidas.
- */
 export function avaliarMateriaisParaFerida(
   idsTratamento: string[],
   variavelFerida: VariaveisFerida
@@ -298,10 +282,6 @@ export function avaliarMateriaisParaFerida(
 /** @deprecated Use avaliarMateriaisParaFerida */
 export const evaluateMaterialsForWound = avaliarMateriaisParaFerida;
 
-/**
- * Calcula a pontuação total dos materiais avaliados.
- * correto → 1.0  |  parcial → 0.5  |  incorreto → 0  |  bonus → +0.25
- */
 export function calcularPontuacaoTotalMaterial(scores: PontuacaoMaterial[]): number {
   return scores.reduce((acc, s) => acc + s.pontuacao, 0);
 }
@@ -309,11 +289,6 @@ export function calcularPontuacaoTotalMaterial(scores: PontuacaoMaterial[]): num
 /** @deprecated Use calcularPontuacaoTotalMaterial */
 export const calculateMaterialTotalScore = calcularPontuacaoTotalMaterial;
 
-/**
- * Constrói o feedback estruturado.
- * As sugestões são materiais disponíveis no catálogo, não seleccionados,
- * que seriam "correto" para a ferida actual.
- */
 export function construirFeedbackMaterial(
   scores: PontuacaoMaterial[],
   idsTratamentoSelecionados: string[],
@@ -342,9 +317,6 @@ export function construirFeedbackMaterial(
 /** @deprecated Use construirFeedbackMaterial */
 export const buildMaterialFeedback = construirFeedbackMaterial;
 
-/**
- * Avalia técnicas de aplicação seleccionadas face às variáveis da ferida.
- */
 export function avaliarAplicacoesParaFerida(
   idsAplicacaoSelecionados: IdAplicacao[],
   modelo: ModeloCaso,

@@ -5,7 +5,7 @@ const ROTULOS_VARIAVEIS_FERIDA: Record<keyof VariaveisFerida, Record<number, str
   infeccao:          { 0: "Contaminação", 1: "Infeção local encoberta", 2: "Infeção em propagação", 3: "Infeção sistémica" },
   tecido:            { 1: "Necrose seca", 2: "Fibrina dominante", 3: "Granulação ativa", 4: "Epitelização", 5: "Hipergranulação" },
   odor:              { 0: "Ausente", 1: "Leve", 2: "Moderado", 3: "Intenso" },
-  bordos:            { 1: "Íntegros", 2: "Ruborizados", 3: "Macerados", 4: "Hiperqueratosados", 5: "Frágil" },
+  bordos:            { 1: "Íntegros", 2: "Ruborizados", 3: "Macerados", 4: "Hiperqueratosados", 5: "Frágeis" },
   pele_perilesional: { 1: "Íntegra", 2: "Frágil", 3: "Macerada", 4: "Ruborizada" },
 };
 

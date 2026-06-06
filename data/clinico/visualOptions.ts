@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   OpcaoBordosVisual,
   OpcaoExsudadoVisual,
   DefinicaoOpcaoVisual,
@@ -9,7 +9,7 @@ export const VISUAL_TISSUE_OPTIONS: DefinicaoOpcaoVisual<OpcaoTecidoVisual>[] = 
   { id: "granulacao", rotulo: "Granulação", descricao: "Tecido vermelho-vivo, granular, sinal de cicatrização ativa." },
   { id: "fibrina", rotulo: "Fibrina", descricao: "Tecido amarelado/esbranquiçado, aderente ao leito." },
   { id: "necrose", rotulo: "Necrose", descricao: "Tecido desvitalizado — pode ser seco (escara negra) ou húmido." },
-  { id: "epitelial", rotulo: "Tecido epitelial", descricao: "Tecido rosado/translúcido nas margens, sinal de epitelização." },
+  { id: "epitelial", rotulo: "Tecido epitelial", descricao: "Tecido rosado/translucido nas margens, sinal de epitelização." },
   { id: "hipergranulacao", rotulo: "Hipergranulação", descricao: "Granulação exuberante acima do nível dos bordos." },
 ];
 
@@ -20,9 +20,9 @@ export const VISUAL_EXUDATE_OPTIONS: DefinicaoOpcaoVisual<OpcaoExsudadoVisual>[]
 ];
 
 export const VISUAL_EDGE_OPTIONS: DefinicaoOpcaoVisual<OpcaoBordosVisual>[] = [
-  { id: "integra", rotulo: "Pele íntegra", descricao: "Bordos e pele perilesional sem alterações visíveis." },
-  { id: "maceracao", rotulo: "Maceração", descricao: "Pele branca/amolecida por humidade excessiva." },
-  { id: "rubor", rotulo: "Rubor", descricao: "Eritema/vermelhidão dos bordos." },
-  { id: "hiperqueratose", rotulo: "Hiperqueratose", descricao: "Espessamento da pele junto aos bordos." },
-  { id: "pele-seca", rotulo: "Pele seca", descricao: "Pele descamativa, sem hidratação." },
+  { id: "integros", rotulo: "Bordos íntegros", descricao: "Bordos sem alterações visíveis, pele peri-ferida saudável." },
+  { id: "ruborizados", rotulo: "Ruborizados", descricao: "Eritema/vermelhidão dos bordos, pode indicar infeccião ou pressão." },
+  { id: "macerados", rotulo: "Macerados", descricao: "Pele branca/amolecida por humidade excessiva do exsudado." },
+  { id: "hiperqueratosados", rotulo: "Hiperqueratosados", descricao: "Espessamento/calosidade da pele junto aos bordos." },
+  { id: "fragil", rotulo: "Frágeis", descricao: "Pele muito fina, fácil de lacerar, frágil ao toque." },
 ];

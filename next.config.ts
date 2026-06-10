@@ -26,12 +26,11 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   async headers() {
+    // Nota: o Next.js aplica automaticamente Cache-Control imutavel aos
+    // ativos com hash em /_next/static, por isso nao definimos esse header
+    // manualmente (evita o warning de build e nao interfere com o dev server).
     return [
       { source: "/(.*)", headers: SECURITY_HEADERS },
-      {
-        source: "/_next/static/(.*)",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
     ];
   },
 };

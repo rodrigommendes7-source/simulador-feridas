@@ -424,8 +424,8 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     categoria_clinica: "apositos",
     // Ideal com dor ao penso; parcial sem dor
     regras: {
-      condicoes_ideais: { dor: [1, 2, 3] },
-      condicoes_parciais: { dor: [0] },
+      condicoes_ideais: {  },
+      condicoes_parciais: {  },
       contraindicacoes: [],
     },
   },
@@ -453,8 +453,8 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     categoria_clinica: "apositos",
     // Ideal com dor ao penso; bónus em tecido de granulação
     regras: {
-      condicoes_ideais: { dor: [1, 2, 3] },
-      condicoes_parciais: { dor: [0] },
+      condicoes_ideais: {  },
+      condicoes_parciais: {  },
       contraindicacoes: [],
       bonus: { tecido: [3] },
     },
@@ -486,7 +486,7 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     substancia_ativa: "Interface de silicone macio com poros",
     categoria_clinica: "apositos",
     regras: {
-      condicoes_ideais: { tecido: [3, 4], dor: [2, 3] },
+      condicoes_ideais: { tecido: [3, 4] },
       condicoes_parciais: { tecido: [2, 5] },
       contraindicacoes: [{ tecido: [1] }],
     },
@@ -534,8 +534,8 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     categoria_clinica: "apositos",
     // Ideal com infeção + dor; parcial com infeção sem dor; incorreto sem infeção
     regras: {
-      condicoes_ideais: { infeccao: [1, 2, 3], dor: [1, 2, 3] },
-      condicoes_parciais: { infeccao: [1, 2, 3], dor: [0] },
+      condicoes_ideais: { infeccao: [1, 2, 3] },
+      condicoes_parciais: { infeccao: [1, 2, 3] },
       contraindicacoes: [{ infeccao: [0] }],
     },
   },
@@ -636,7 +636,7 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     // Nunca ideal — sempre parcial
     regras: {
       condicoes_ideais: { exsudado: [] },
-      condicoes_parciais: {},
+      condicoes_parciais: {  },
       contraindicacoes: [],
     },
   },
@@ -660,7 +660,7 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     // Sempre incorreto em qualquer ferida aberta
     regras: {
       condicoes_ideais: { exsudado: [] },
-      contraindicacoes: [{}],
+      contraindicacoes: [],
     },
   },
 
@@ -682,7 +682,7 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     categoria_clinica: "liquidos",
     // Limpeza básica universal — sempre correto
     regras: {
-      condicoes_ideais: {},
+      condicoes_ideais: {  },
       contraindicacoes: [],
     },
   },
@@ -705,7 +705,7 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     categoria_clinica: "liquidos",
     // Sempre correto — antisséptico válido independentemente do estado da ferida
     regras: {
-      condicoes_ideais: {},
+      condicoes_ideais: {  },
       contraindicacoes: [],
     },
   },
@@ -733,7 +733,7 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     categoria_clinica: "liquidos",
     // Sempre correto — antisséptico de largo espectro
     regras: {
-      condicoes_ideais: {},
+      condicoes_ideais: {  },
       contraindicacoes: [],
     },
   },
@@ -784,7 +784,7 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     categoria_clinica: "liquidos",
     // Sempre correto — limpeza avançada com ação antisséptica
     regras: {
-      condicoes_ideais: {},
+      condicoes_ideais: {  },
       contraindicacoes: [],
     },
   },
@@ -1024,9 +1024,9 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     categoria_clinica: "outros",
     // Ideal com hemorragia moderada/abundante; parcial com ligeira; incorreto sem hemorragia
     regras: {
-      condicoes_ideais: { hemorragia: [2, 3] },
-      condicoes_parciais: { hemorragia: [1] },
-      contraindicacoes: [{ hemorragia: [0] }],
+      condicoes_ideais: {  },
+      condicoes_parciais: {  },
+      contraindicacoes: [],
     },
   },
 
@@ -1059,7 +1059,7 @@ export const treatmentCatalog: DefinicaoTratamento[] = [
     regras: {
       condicoes_ideais: { tecido: [1, 2], exsudado: [1, 2] },
       condicoes_parciais: { tecido: [1, 2], exsudado: [3] },
-      contraindicacoes: [{ exsudado: [4] }, { humidade: [4] }],
+      contraindicacoes: [{ exsudado: [4] }],
     },
   },
 
